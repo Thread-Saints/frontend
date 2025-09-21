@@ -168,6 +168,32 @@
   z-index: 5;
 }
 
+.flexButton {
+  position: absolute;
+  top: 60%;
+  right: 8%;
+  transform: translateY(-50%);
+  background: white;
+  color: black;
+  border: none;
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Rasputin', serif;
+  letter-spacing: 1px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.flexButton:hover {
+  background: #f0f0f0;
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
 .tearTop {
   position: absolute;
   top: 35%;
@@ -231,8 +257,8 @@
 
 .tickerText {
   color: white;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 500px;
   font-family: 'Rasputin', serif;
   white-space: nowrap;
   margin-right: 200px;
@@ -388,6 +414,12 @@
   .aboutImage {
     height: 300px;
   }
+
+  .flexButton {
+    right: 5%;
+    padding: 12px 24px;
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -468,5 +500,11 @@
 
   .aboutImage {
     height: 250px;
+  }
+
+  .flexButton {
+    right: 3%;
+    padding: 10px 20px;
+    font-size: 14px;
   }
 }

@@ -54,6 +54,7 @@ function Home() {
           <div className={styles.headerBorder}></div>
           <img src="/Group 24.png" alt="Thread Saints" className={styles.headerText} />
         </div>
+        <button className={styles.flexButton}>FLEX NOW</button>
         <div className={styles.ticker}>
           <div className={styles.tickerContent}>
             <div className={styles.tickerText}>
