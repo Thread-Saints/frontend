@@ -154,7 +154,7 @@
 
 .headerText {
   font-family: 'Rasputin', serif;
-  font-size: 60px;
+  font-size: 70px;
   font-weight: bold;
   color: white;
   text-align: center;
@@ -162,7 +162,7 @@
   z-index: 10;
   position: relative;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  max-width: 60%;
+  max-width: 75%;
   height: auto;
   object-fit: contain;
 }
