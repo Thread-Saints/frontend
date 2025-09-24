@@ -75,7 +75,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <div className={styles.aboutSection}>
+      {/* <div className={styles.aboutSection}>
         <div className={styles.aboutContent}>
           <h1 className={styles.aboutTitle}>ABOUT US</h1>
           <div className={styles.aboutBody}>
@@ -95,7 +95,7 @@ function Home() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   )
 }
