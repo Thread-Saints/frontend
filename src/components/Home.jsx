@@ -19,6 +19,9 @@ function Home() {
   }, [])
   return (
     <>
+      <div className={styles.comingSoonRibbon}>
+        <span className={styles.comingSoonText}>COMING SOON</span>
+      </div>
       <div className={styles.container}>
         <nav className={styles.navbar}>
           <div className={styles.logo}>

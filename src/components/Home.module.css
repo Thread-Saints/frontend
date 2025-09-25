@@ -5,6 +5,28 @@
   font-style: normal;
 }
 
+.comingSoonRibbon {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.comingSoonText {
+  font-family: 'Rasputin', serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  letter-spacing: 1px;
+}
+
 .container {
   min-height: 100vh;
   width: 100vw;
@@ -20,7 +42,7 @@
 
 .navbar {
   position: absolute;
-  top: 0;
+  top: 40px;
   left: 0;
   width: 100%;
   height: 80px;
@@ -354,7 +376,16 @@
 
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
+  .comingSoonRibbon {
+    height: 35px;
+  }
+
+  .comingSoonText {
+    font-size: 12px;
+  }
+
   .navbar {
+    top: 35px;
     padding: 0 1rem;
     height: 60px;
   }
@@ -433,7 +464,16 @@
 }
 
 @media (max-width: 480px) {
+  .comingSoonRibbon {
+    height: 30px;
+  }
+
+  .comingSoonText {
+    font-size: 11px;
+  }
+
   .navbar {
+    top: 30px;
     padding: 0 0.5rem;
     height: 50px;
   }
