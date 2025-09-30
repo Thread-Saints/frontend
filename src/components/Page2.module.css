@@ -1,0 +1,40 @@
+.page2Container {
+  width: 100%;
+  height: 100vh;
+  background-image: url('/Desktop - 3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.video {
+  width: 100%;
+  height: 93vh;
+  object-fit: cover;
+  z-index: 2;
+}
+
+.content {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 7vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tagline {
+  /* color: white; */
+  font-size: 2rem;
+  font-weight: 500px;
+  text-align: center;
+  margin: 0;
+  /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); */
+  font-family: 'Rasputin', serif;
+}

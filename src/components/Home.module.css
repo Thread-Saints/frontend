@@ -6,7 +6,7 @@
 }
 
 .comingSoonRibbon {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -28,14 +28,13 @@
 }
 
 .container {
-  min-height: 100vh;
+  height: 100vh;
   width: 100vw;
   background-image: url('/hero1.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
-  overflow: hidden;
   margin: 0;
   padding: 0;
 }
