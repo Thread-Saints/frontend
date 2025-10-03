@@ -48,8 +48,7 @@ function Home() {
             </div>
           </div>
           <div className={styles.navIcons}>
-            <span className={styles.icon}>♡</span>
-            <span className={styles.icon}>🛒</span>
+            <button className={styles.loginButton}>LOGIN</button>
           </div>
         </nav>
         <img src="/hero-image.png" alt="Hero" className={styles.heroOverlay} />
