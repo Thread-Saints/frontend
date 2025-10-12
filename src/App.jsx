@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Home from './components/Home'
 import Page2 from './components/Page2'
+import Page3 from './components/Page3'
 import Admin from './components/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -14,8 +15,8 @@ function App() {
           <Route path="/" element={
             <div>
               <Home />
-              {/* <div style={{ height: '50vh' }}></div> */}
               <Page2 />
+              <Page3 />
             </div>
           } />
           <Route path="/admin" element={
