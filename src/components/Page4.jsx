@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styles from './Page4.module.css'
 import { API_ENDPOINTS } from '../config/api'
 
 function Page4() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -44,7 +46,11 @@ function Page4() {
         ) : (
           <div className={styles.productsGrid}>
             {Array.isArray(products) && products.map((product) => (
-              <div key={product._id} className={styles.productCard}>
+              <div
+                key={product._id}
+                className={styles.productCard}
+                onClick={() => navigate(`/product/${product._id}`)}
+              >
                 <div className={styles.productImageContainer}>
                   {product.images && product.images.length > 0 ? (
                     <img

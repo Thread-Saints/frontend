@@ -5,6 +5,7 @@ import Home from './components/Home'
 import Page2 from './components/Page2'
 import Page3 from './components/Page3'
 import Page4 from './components/Page4'
+import ProductDetails from './components/ProductDetails'
 import Admin from './components/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -21,6 +22,7 @@ function App() {
               <Page4 />
             </div>
           } />
+          <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/admin" element={
             <ProtectedRoute adminOnly={true}>
               <Admin />
