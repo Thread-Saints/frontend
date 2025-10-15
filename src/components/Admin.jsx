@@ -31,11 +31,18 @@ function Admin() {
     name: '',
     description: '',
     price: '',
+    salePrice: '',
     images: [],
     category: '',
     sizes: [],
     colors: [''],
     stock: '',
+    rating: 0,
+    reviewCount: 0,
+    productDetails: '',
+    washingInstructions: '',
+    returnsPolicy: 'Standard return policy applies',
+    shippingInfo: 'Standard shipping: 5-7 business days',
     isActive: true
   })
 
@@ -218,11 +225,18 @@ function Admin() {
           name: '',
           description: '',
           price: '',
+          salePrice: '',
           images: [],
           category: '',
           sizes: [],
           colors: [''],
           stock: '',
+          rating: 0,
+          reviewCount: 0,
+          productDetails: '',
+          washingInstructions: '',
+          returnsPolicy: 'Standard return policy applies',
+          shippingInfo: 'Standard shipping: 5-7 business days',
           isActive: true
         })
         setImageFiles([])
@@ -585,6 +599,19 @@ function Admin() {
                 </div>
 
                 <div className={styles.formGroup}>
+                  <label>Sale Price (Optional)</label>
+                  <input
+                    type="number"
+                    name="salePrice"
+                    value={productForm.salePrice}
+                    onChange={handleInputChange}
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
                   <label>Stock *</label>
                   <input
                     type="number"
@@ -596,7 +623,9 @@ function Admin() {
                     required
                   />
                 </div>
+              </div>
 
+              <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label>Category *</label>
                   <select
@@ -691,6 +720,50 @@ function Admin() {
                 >
                   + Add Color
                 </button>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Product Details (Optional)</label>
+                <textarea
+                  name="productDetails"
+                  value={productForm.productDetails}
+                  onChange={handleInputChange}
+                  placeholder="Additional product specifications and details"
+                  rows="3"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Washing Instructions (Optional)</label>
+                <textarea
+                  name="washingInstructions"
+                  value={productForm.washingInstructions}
+                  onChange={handleInputChange}
+                  placeholder="Care and washing instructions"
+                  rows="3"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Returns Policy (Optional)</label>
+                <input
+                  type="text"
+                  name="returnsPolicy"
+                  value={productForm.returnsPolicy}
+                  onChange={handleInputChange}
+                  placeholder="Returns and refunds policy"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Shipping Info (Optional)</label>
+                <input
+                  type="text"
+                  name="shippingInfo"
+                  value={productForm.shippingInfo}
+                  onChange={handleInputChange}
+                  placeholder="Shipping and delivery information"
+                />
               </div>
 
               <div className={styles.formGroup}>

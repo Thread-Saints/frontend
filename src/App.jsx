@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext'
 import Home from './components/Home'
 import Page2 from './components/Page2'
 import Page3 from './components/Page3'
+import Page4 from './components/Page4'
 import Admin from './components/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -17,6 +18,7 @@ function App() {
               <Home />
               <Page2 />
               <Page3 />
+              <Page4 />
             </div>
           } />
           <Route path="/admin" element={
