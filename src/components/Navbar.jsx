@@ -1,35 +1,101 @@
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { FaUserCircle, FaShoppingCart, FaHeart } from 'react-icons/fa'
+import { useAuth } from '../context/AuthContext'
+import LoginModal from './LoginModal'
 import styles from './Navbar.module.css'
 
 function Navbar() {
-  return (
-    <nav className={styles.navbar}>
-      <div className={styles.navContent}>
-        <Link to="/" className={styles.logo}>
-          TS
-        </Link>
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
+  const profileDropdownRef = useRef(null)
+  const { isAuthenticated, user, logout } = useAuth()
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false)
+      }
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  return (
+    <>
+      <nav className={styles.navbar}>
+        <Link to="/" className={styles.logo}>
+          <img src="/Vector.png" alt="TS Logo" />
+        </Link>
         <div className={styles.navLinks}>
           <Link to="/" className={styles.navLink}>Home</Link>
-          <Link to="/categories" className={styles.navLink}>Categories</Link>
+          <div className={styles.dropdown} ref={dropdownRef}>
+            <button
+              className={styles.navLink}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              Categories
+            </button>
+            {isDropdownOpen && (
+              <div className={styles.dropdownMenu}>
+                <a href="#" className={styles.dropdownItem}>T-SHIRTS</a>
+                <a href="#" className={styles.dropdownItem}>JEANS</a>
+                <a href="#" className={styles.dropdownItem}>JACKETS</a>
+                <a href="#" className={styles.dropdownItem}>HOODIES</a>
+                <a href="#" className={styles.dropdownItem}>ALL</a>
+              </div>
+            )}
+          </div>
         </div>
-
         <div className={styles.navIcons}>
-          <button className={styles.iconBtn}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </button>
-          <button className={styles.iconBtn}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-          </button>
+          {isAuthenticated ? (
+            <>
+              <button className={styles.iconButton}>
+                <FaHeart size={24} />
+              </button>
+              <button className={styles.iconButton}>
+                <FaShoppingCart size={24} />
+              </button>
+              <div className={styles.profileDropdown} ref={profileDropdownRef}>
+                <button
+                  className={styles.profileButton}
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                >
+                  <FaUserCircle size={32} />
+                </button>
+                {isProfileDropdownOpen && (
+                  <div className={styles.profileDropdownMenu}>
+                    <div className={styles.profileEmail}>{user?.email}</div>
+                    <button onClick={logout} className={styles.logoutButton}>
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <button
+              className={styles.loginButton}
+              onClick={() => setIsLoginModalOpen(true)}
+            >
+              LOGIN
+            </button>
+          )}
         </div>
-      </div>
-    </nav>
+      </nav>
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
+    </>
   )
 }
 
