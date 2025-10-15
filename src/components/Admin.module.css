@@ -154,6 +154,20 @@
   border-radius: 4px;
 }
 
+.noImage {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  color: #6c757d;
+  text-align: center;
+}
+
 .inStock {
   color: #28a745;
   font-weight: 600;

@@ -10,6 +10,7 @@
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
+  background-color: #1a1a1a;
 }
 
 .content {
@@ -17,17 +18,174 @@
   z-index: 2;
   text-align: center;
   padding: 2rem;
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Heading with shadow effect */
+.headingContainer {
+  position: relative;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .heading {
-  font-size: 6rem;
-  font-weight: 900;
+  font-size: 3.5rem;
+  font-weight: 600;
   color: white;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.15em;
   margin: 0;
+  position: relative;
+  z-index: 2;
   animation: fadeIn 1s ease-in;
+  line-height: 1;
+}
+
+.headingShadow {
+  font-size: 3.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0;
+  margin-top: -0.5rem;
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+}
+
+/* Categories Section */
+.categoriesSection {
+  width: 100%;
+  /* margin: 2rem 0; */
+}
+
+.loadingText {
+  color: white;
+  font-size: 1.2rem;
+}
+
+.categoriesScroll {
+  display: flex;
+  gap: 2rem;
+  overflow-x: auto;
+  padding: 1rem 0;
+  scroll-behavior: smooth;
+
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.categoriesScroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.categoriesScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.categoriesScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.categoriesScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.categoryCard {
+  flex: 0 0 calc(25% - 1.5rem);
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.categoryCard:hover {
+  transform: translateY(-10px);
+}
+
+.categoryImagePlaceholder {
+  width: 100%;
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.categoryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  width: 80%;
+  height: 80%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noImageText {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.categoryName {
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+/* Drop It All Button */
+.dropItAllBtn {
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* margin-top: 2rem; */
+  align-self: center;
+  backdrop-filter: blur(10px);
+}
+
+.dropItAllBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
 }
 
 @keyframes fadeIn {
@@ -42,14 +200,46 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .categoryCard {
+    flex: 0 0 calc(33.333% - 1.5rem);
+    min-width: 220px;
+  }
+}
+
 @media (max-width: 768px) {
-  .heading {
-    font-size: 3rem;
+  .heading,
+  .headingShadow {
+    font-size: 2.5rem;
+  }
+
+  .content {
+    gap: 2rem;
+  }
+
+  .categoryCard {
+    flex: 0 0 calc(50% - 1rem);
+    min-width: 180px;
+  }
+
+  .categoriesScroll {
+    gap: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .heading {
-    font-size: 2rem;
+  .heading,
+  .headingShadow {
+    font-size: 1.75rem;
+  }
+
+  .categoryCard {
+    flex: 0 0 calc(100% - 1rem);
+    min-width: 150px;
+  }
+
+  .dropItAllBtn {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
   }
 }

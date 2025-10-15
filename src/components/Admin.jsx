@@ -18,8 +18,13 @@ function Admin() {
   const [categoryForm, setCategoryForm] = useState({
     name: '',
     description: '',
-    isActive: true
+    isActive: true,
+    image: ''
   })
+
+  // Category image upload state
+  const [categoryImageFile, setCategoryImageFile] = useState(null)
+  const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false)
 
   // Product form state
   const [productForm, setProductForm] = useState({
@@ -273,6 +278,50 @@ function Admin() {
     }
   }
 
+  // Handle category image file selection
+  const handleCategoryImageFile = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setCategoryImageFile(file)
+    }
+  }
+
+  // Remove category image file
+  const removeCategoryImageFile = () => {
+    setCategoryImageFile(null)
+  }
+
+  // Upload category image to Cloudinary
+  const uploadCategoryImage = async () => {
+    if (!categoryImageFile) {
+      return null
+    }
+
+    try {
+      setUploadingCategoryImage(true)
+
+      const formData = new FormData()
+      formData.append('image', categoryImageFile)
+
+      const response = await axios.post(API_ENDPOINTS.UPLOAD_SINGLE, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+
+      if (response.data.success && response.data.imageUrl) {
+        return response.data.imageUrl
+      }
+
+      return null
+    } catch (error) {
+      console.error('Error uploading category image:', error)
+      throw new Error('Failed to upload category image')
+    } finally {
+      setUploadingCategoryImage(false)
+    }
+  }
+
   // Handle category form input changes
   const handleCategoryInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -293,15 +342,34 @@ function Admin() {
 
     try {
       setLoading(true)
-      const response = await axios.post(API_ENDPOINTS.CATEGORIES, categoryForm)
+
+      // Upload category image if provided
+      let imageUrl = null
+      if (categoryImageFile) {
+        imageUrl = await uploadCategoryImage()
+        if (!imageUrl) {
+          showMessage('error', 'Failed to upload category image')
+          return
+        }
+      }
+
+      // Create category data with image URL
+      const categoryData = {
+        ...categoryForm,
+        image: imageUrl
+      }
+
+      const response = await axios.post(API_ENDPOINTS.CATEGORIES, categoryData)
 
       if (response.data.success) {
         showMessage('success', 'Category created successfully!')
         setCategoryForm({
           name: '',
           description: '',
-          isActive: true
+          isActive: true,
+          image: ''
         })
+        setCategoryImageFile(null)
         fetchCategories()
       }
     } catch (error) {
@@ -679,6 +747,37 @@ function Admin() {
                 </div>
 
                 <div className={styles.formGroup}>
+                  <label>Category Image (Optional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCategoryImageFile}
+                    className={styles.fileInput}
+                  />
+                  {categoryImageFile && (
+                    <div className={styles.imagePreviewContainer}>
+                      <div className={styles.imagePreview}>
+                        <img
+                          src={URL.createObjectURL(categoryImageFile)}
+                          alt="Category preview"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeCategoryImageFile}
+                          className={styles.removeImageBtn}
+                        >
+                          ×
+                        </button>
+                        <span className={styles.imageName}>{categoryImageFile.name}</span>
+                      </div>
+                    </div>
+                  )}
+                  {uploadingCategoryImage && (
+                    <p className={styles.uploadingText}>Uploading image...</p>
+                  )}
+                </div>
+
+                <div className={styles.formGroup}>
                   <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
@@ -690,8 +789,8 @@ function Admin() {
                   </label>
                 </div>
 
-                <button type="submit" className={styles.submitBtn} disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Category'}
+                <button type="submit" className={styles.submitBtn} disabled={loading || uploadingCategoryImage}>
+                  {uploadingCategoryImage ? 'Uploading Image...' : loading ? 'Creating...' : 'Create Category'}
                 </button>
               </form>
             </div>
@@ -707,6 +806,7 @@ function Admin() {
                   <table>
                     <thead>
                       <tr>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Description</th>
                         <th>Products</th>
@@ -717,6 +817,17 @@ function Admin() {
                     <tbody>
                       {categories.map(category => (
                         <tr key={category._id}>
+                          <td>
+                            {category.image ? (
+                              <img
+                                src={category.image}
+                                alt={category.name}
+                                className={styles.productThumb}
+                              />
+                            ) : (
+                              <div className={styles.noImage}>No Image</div>
+                            )}
+                          </td>
                           <td><strong>{category.name}</strong></td>
                           <td>{category.description || 'N/A'}</td>
                           <td>{productsByCategory[category.name]?.length || 0}</td>
