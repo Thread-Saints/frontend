@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { FaUserCircle, FaShoppingCart, FaHeart } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 import LoginModal from './LoginModal'
 import styles from './Navbar.module.css'
 
@@ -12,6 +13,7 @@ function Navbar() {
   const dropdownRef = useRef(null)
   const profileDropdownRef = useRef(null)
   const { isAuthenticated, user, logout } = useAuth()
+  const { getCartItemCount } = useCart()
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -61,9 +63,12 @@ function Navbar() {
               <button className={styles.iconButton}>
                 <FaHeart size={24} />
               </button>
-              <button className={styles.iconButton}>
+              <Link to="/cart" className={styles.iconButton}>
                 <FaShoppingCart size={24} />
-              </button>
+                {getCartItemCount() > 0 && (
+                  <span className={styles.cartBadge}>{getCartItemCount()}</span>
+                )}
+              </Link>
               <div className={styles.profileDropdown} ref={profileDropdownRef}>
                 <button
                   className={styles.profileButton}

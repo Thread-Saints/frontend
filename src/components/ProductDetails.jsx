@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import styles from './ProductDetails.module.css'
 import { API_ENDPOINTS } from '../config/api'
+import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 
 function ProductDetails() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedSize, setSelectedSize] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [activeSection, setActiveSection] = useState('details')
+  const [addingToCart, setAddingToCart] = useState(false)
+  const { addToCart } = useCart()
+  const { isAuthenticated } = useAuth()
 
   useEffect(() => {
     fetchProduct()
@@ -41,6 +47,28 @@ function ProductDetails() {
         ★
       </span>
     ))
+  }
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      alert('Please login to add items to cart')
+      return
+    }
+
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      alert('Please select a size')
+      return
+    }
+
+    setAddingToCart(true)
+    const result = await addToCart(id, quantity, selectedSize)
+    setAddingToCart(false)
+
+    if (result.success) {
+      alert('Item added to cart!')
+    } else {
+      alert(result.message || 'Failed to add item to cart')
+    }
   }
 
   if (loading) {
@@ -160,7 +188,13 @@ function ProductDetails() {
 
             {/* Action Buttons */}
             <div className={styles.actions}>
-              <button className={styles.addToCartBtn}>Add To Cart</button>
+              <button
+                className={styles.addToCartBtn}
+                onClick={handleAddToCart}
+                disabled={addingToCart || product.stock === 0}
+              >
+                {addingToCart ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add To Cart'}
+              </button>
               <button className={styles.buyNowBtn}>Buy Now</button>
             </div>
 

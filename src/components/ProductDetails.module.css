@@ -261,9 +261,14 @@
   transition: all 0.3s ease;
 }
 
-.addToCartBtn:hover {
+.addToCartBtn:hover:not(:disabled) {
   background: white;
   color: #1a1a1a;
+}
+
+.addToCartBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .buyNowBtn {

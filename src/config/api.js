@@ -17,6 +17,13 @@ export const API_ENDPOINTS = {
   // Upload endpoints
   UPLOAD_SINGLE: `${API_BASE_URL}/api/upload/single`,
   UPLOAD_MULTIPLE: `${API_BASE_URL}/api/upload/multiple`,
+
+  // Cart endpoints
+  CART: `${API_BASE_URL}/api/cart`,
+  CART_ADD: `${API_BASE_URL}/api/cart/add`,
+  CART_UPDATE: (itemId) => `${API_BASE_URL}/api/cart/update/${itemId}`,
+  CART_REMOVE: (itemId) => `${API_BASE_URL}/api/cart/remove/${itemId}`,
+  CART_CLEAR: `${API_BASE_URL}/api/cart/clear`,
 }
 
 export default API_BASE_URL
