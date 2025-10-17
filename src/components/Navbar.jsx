@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { FaUserCircle, FaShoppingCart, FaHeart } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 import LoginModal from './LoginModal'
 import styles from './Navbar.module.css'
 
@@ -14,6 +15,7 @@ function Navbar() {
   const profileDropdownRef = useRef(null)
   const { isAuthenticated, user, logout } = useAuth()
   const { getCartItemCount } = useCart()
+  const { getWishlistItemCount } = useWishlist()
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -60,9 +62,12 @@ function Navbar() {
         <div className={styles.navIcons}>
           {isAuthenticated ? (
             <>
-              <button className={styles.iconButton}>
+              <Link to="/wishlist" className={styles.iconButton}>
                 <FaHeart size={24} />
-              </button>
+                {getWishlistItemCount() > 0 && (
+                  <span className={styles.wishlistBadge}>{getWishlistItemCount()}</span>
+                )}
+              </Link>
               <Link to="/cart" className={styles.iconButton}>
                 <FaShoppingCart size={24} />
                 {getCartItemCount() > 0 && (

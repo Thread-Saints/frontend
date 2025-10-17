@@ -24,6 +24,13 @@ export const API_ENDPOINTS = {
   CART_UPDATE: (itemId) => `${API_BASE_URL}/api/cart/update/${itemId}`,
   CART_REMOVE: (itemId) => `${API_BASE_URL}/api/cart/remove/${itemId}`,
   CART_CLEAR: `${API_BASE_URL}/api/cart/clear`,
+
+  // Wishlist endpoints
+  WISHLIST: `${API_BASE_URL}/api/wishlist`,
+  WISHLIST_ADD: `${API_BASE_URL}/api/wishlist/add`,
+  WISHLIST_REMOVE: (itemId) => `${API_BASE_URL}/api/wishlist/remove/${itemId}`,
+  WISHLIST_CLEAR: `${API_BASE_URL}/api/wishlist/clear`,
+  WISHLIST_CHECK: (productId) => `${API_BASE_URL}/api/wishlist/check/${productId}`,
 }
 
 export default API_BASE_URL

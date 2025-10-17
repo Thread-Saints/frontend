@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import Navbar from './Navbar'
 import styles from './ProductDetails.module.css'
 import { API_ENDPOINTS } from '../config/api'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
 
 function ProductDetails() {
@@ -16,12 +18,21 @@ function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [activeSection, setActiveSection] = useState('details')
   const [addingToCart, setAddingToCart] = useState(false)
+  const [addingToWishlist, setAddingToWishlist] = useState(false)
   const { addToCart } = useCart()
+  const { addToWishlist, removeFromWishlist, checkIsInWishlist, wishlist } = useWishlist()
   const { isAuthenticated } = useAuth()
+  const [isInWishlist, setIsInWishlist] = useState(false)
 
   useEffect(() => {
     fetchProduct()
   }, [id])
+
+  useEffect(() => {
+    if (wishlist && id) {
+      setIsInWishlist(checkIsInWishlist(id))
+    }
+  }, [wishlist, id])
 
   const fetchProduct = async () => {
     try {
@@ -69,6 +80,38 @@ function ProductDetails() {
     } else {
       alert(result.message || 'Failed to add item to cart')
     }
+  }
+
+  const handleToggleWishlist = async () => {
+    if (!isAuthenticated) {
+      alert('Please login to add items to wishlist')
+      return
+    }
+
+    setAddingToWishlist(true)
+
+    if (isInWishlist) {
+      // Find the wishlist item ID
+      const wishlistItem = wishlist.items.find(
+        item => item.product._id === id || item.product === id
+      )
+      if (wishlistItem) {
+        const result = await removeFromWishlist(wishlistItem._id)
+        if (result.success) {
+          setIsInWishlist(false)
+        }
+      }
+    } else {
+      const result = await addToWishlist(id)
+      if (result.success) {
+        setIsInWishlist(true)
+        alert('Item added to wishlist!')
+      } else {
+        alert(result.message || 'Failed to add item to wishlist')
+      }
+    }
+
+    setAddingToWishlist(false)
   }
 
   if (loading) {
@@ -128,7 +171,17 @@ function ProductDetails() {
 
           {/* Product Info */}
           <div className={styles.productInfo}>
-            <h1 className={styles.productName}>{product.name}</h1>
+            <div className={styles.productHeader}>
+              <h1 className={styles.productName}>{product.name}</h1>
+              <button
+                className={styles.wishlistBtn}
+                onClick={handleToggleWishlist}
+                disabled={addingToWishlist}
+                title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                {isInWishlist ? <FaHeart size={24} /> : <FaRegHeart size={24} />}
+              </button>
+            </div>
 
             <div className={styles.priceSection}>
               {product.salePrice ? (
