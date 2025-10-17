@@ -9,6 +9,7 @@ function Admin() {
   const [activeTab, setActiveTab] = useState('products')
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
+  const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
 
@@ -79,9 +80,26 @@ function Admin() {
     }
   }
 
+  // Fetch all orders
+  const fetchOrders = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get(API_ENDPOINTS.GET_ALL_ORDERS_ADMIN)
+      if (response.data.success) {
+        setOrders(response.data.orders)
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+      showMessage('error', 'Failed to fetch orders')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchProducts()
     fetchCategories()
+    fetchOrders()
   }, [])
 
   const showMessage = (type, text) => {
@@ -436,6 +454,43 @@ function Admin() {
     }
   }
 
+  // Update order status
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      setLoading(true)
+      const response = await axios.put(API_ENDPOINTS.UPDATE_ORDER_STATUS(orderId), {
+        orderStatus: newStatus
+      })
+
+      if (response.data.success) {
+        showMessage('success', 'Order status updated successfully!')
+        fetchOrders()
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error)
+      showMessage('error', error.response?.data?.message || 'Failed to update order status')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Pending':
+      case 'Processing':
+        return '#ffa500'
+      case 'Shipped':
+        return '#2196f3'
+      case 'Delivered':
+        return '#4caf50'
+      case 'Cancelled':
+      case 'Payment Failed':
+        return '#f44336'
+      default:
+        return '#ffffff'
+    }
+  }
+
   // Group products by category
   const productsByCategory = categories.reduce((acc, category) => {
     acc[category.name] = products.filter(p => p.category === category.name)
@@ -473,6 +528,12 @@ function Admin() {
           onClick={() => setActiveTab('categories')}
         >
           Categories
+        </button>
+        <button
+          className={activeTab === 'orders' ? styles.activeTab : ''}
+          onClick={() => setActiveTab('orders')}
+        >
+          Orders ({orders.length})
         </button>
       </div>
 
@@ -782,6 +843,91 @@ function Admin() {
                 {uploadingImages ? 'Uploading Images...' : loading ? 'Creating Product...' : 'Create Product'}
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Orders Tab */}
+        {activeTab === 'orders' && (
+          <div className={styles.ordersSection}>
+            <h2>All Orders ({orders.length})</h2>
+
+            {orders.length === 0 ? (
+              <p className={styles.noProducts}>No orders found.</p>
+            ) : (
+              <div className={styles.productTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Order #</th>
+                      <th>Customer</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Payment</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map(order => (
+                      <tr key={order._id}>
+                        <td><strong>{order.orderNumber}</strong></td>
+                        <td>{order.user?.email || 'N/A'}</td>
+                        <td>{order.orderItems.length} item(s)</td>
+                        <td>Rs.{order.totalPrice.toFixed(2)}</td>
+                        <td>
+                          <span
+                            className={styles.statusBadge}
+                            style={{
+                              backgroundColor: order.paymentStatus === 'Paid' ? '#4caf50' : '#f44336',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '4px',
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            {order.paymentStatus}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={styles.statusBadge}
+                            style={{
+                              backgroundColor: getStatusColor(order.orderStatus),
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '4px',
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            {order.orderStatus}
+                          </span>
+                        </td>
+                        <td>
+                          {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </td>
+                        <td>
+                          <select
+                            value={order.orderStatus}
+                            onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
+                            className={styles.statusSelect}
+                            disabled={order.paymentStatus !== 'Paid'}
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 

@@ -151,9 +151,9 @@ function Cart() {
                 </div>
               </div>
 
-              <button className={styles.checkoutBtn}>
+              <Link to="/checkout" className={styles.checkoutBtn}>
                 Proceed to Checkout
-              </button>
+              </Link>
 
               <Link to="/" className={styles.continueShoppingBtn}>
                 Continue Shopping

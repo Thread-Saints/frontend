@@ -218,6 +218,26 @@
   word-break: break-all;
 }
 
+.dropdownLink {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdownLink:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .logoutButton {
   width: 100%;
   background: none;

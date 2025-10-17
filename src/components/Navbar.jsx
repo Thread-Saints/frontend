@@ -84,6 +84,9 @@ function Navbar() {
                 {isProfileDropdownOpen && (
                   <div className={styles.profileDropdownMenu}>
                     <div className={styles.profileEmail}>{user?.email}</div>
+                    <Link to="/orders" className={styles.dropdownLink}>
+                      My Orders
+                    </Link>
                     <button onClick={logout} className={styles.logoutButton}>
                       Logout
                     </button>

@@ -31,6 +31,17 @@ export const API_ENDPOINTS = {
   WISHLIST_REMOVE: (itemId) => `${API_BASE_URL}/api/wishlist/remove/${itemId}`,
   WISHLIST_CLEAR: `${API_BASE_URL}/api/wishlist/clear`,
   WISHLIST_CHECK: (productId) => `${API_BASE_URL}/api/wishlist/check/${productId}`,
+
+  // Payment endpoints
+  CREATE_ORDER: `${API_BASE_URL}/api/payment/create-order`,
+  VERIFY_PAYMENT: `${API_BASE_URL}/api/payment/verify`,
+  GET_ORDERS: `${API_BASE_URL}/api/payment/orders`,
+  GET_ORDER_BY_ID: (id) => `${API_BASE_URL}/api/payment/orders/${id}`,
+  GET_RAZORPAY_KEY: `${API_BASE_URL}/api/payment/razorpay-key`,
+
+  // Admin Order endpoints
+  GET_ALL_ORDERS_ADMIN: `${API_BASE_URL}/api/payment/admin/orders`,
+  UPDATE_ORDER_STATUS: (id) => `${API_BASE_URL}/api/payment/admin/orders/${id}/status`,
 }
 
 export default API_BASE_URL
