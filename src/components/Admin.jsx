@@ -163,7 +163,7 @@ function Admin() {
     setImageFiles(prev => prev.filter((_, i) => i !== index))
   }
 
-  // Upload images to Cloudinary (batch upload - all at once)
+  // Upload images to S3 (batch upload - all at once)
   const uploadImages = async () => {
     if (imageFiles.length === 0) {
       return []
@@ -323,7 +323,7 @@ function Admin() {
     setCategoryImageFile(null)
   }
 
-  // Upload category image to Cloudinary
+  // Upload category image to S3
   const uploadCategoryImage = async () => {
     if (!categoryImageFile) {
       return null
