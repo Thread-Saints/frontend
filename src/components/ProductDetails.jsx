@@ -45,7 +45,13 @@ function ProductDetails() {
         if (data.product.sizes && data.product.sizes.length > 0) {
           setSelectedSize(data.product.sizes[0])
         }
-        if (data.product.colors && data.product.colors.length > 0) {
+
+        // Handle color selection based on colorVariants or legacy colors
+        if (data.product.colorVariants && data.product.colorVariants.length > 0) {
+          // Use new color variants system
+          setSelectedColor(data.product.colorVariants[0].color)
+        } else if (data.product.colors && data.product.colors.length > 0) {
+          // Fallback to legacy colors
           setSelectedColor(data.product.colors[0])
         }
       }
@@ -62,6 +68,31 @@ function ProductDetails() {
         ★
       </span>
     ))
+  }
+
+  // Get images based on selected color (for color variants) or all images (legacy)
+  const getCurrentImages = () => {
+    if (!product) return []
+
+    // If product has color variants, get images for selected color
+    if (product.colorVariants && product.colorVariants.length > 0) {
+      const selectedVariant = product.colorVariants.find(v => v.color === selectedColor)
+      return selectedVariant ? selectedVariant.images : product.colorVariants[0].images
+    }
+
+    // Fallback to legacy images
+    return product.images || []
+  }
+
+  // Get available colors (from color variants or legacy colors)
+  const getAvailableColors = () => {
+    if (!product) return []
+
+    if (product.colorVariants && product.colorVariants.length > 0) {
+      return product.colorVariants.map(v => v.color)
+    }
+
+    return product.colors || []
   }
 
   const handleAddToCart = async () => {
@@ -153,9 +184,9 @@ function ProductDetails() {
           {/* Product Images */}
           <div className={styles.productImages}>
             <div className={styles.mainImage}>
-              {product.images && product.images.length > 0 ? (
+              {getCurrentImages().length > 0 ? (
                 <img
-                  src={product.images[selectedImage]}
+                  src={getCurrentImages()[selectedImage]}
                   alt={product.name}
                   className={styles.image}
                 />
@@ -163,9 +194,9 @@ function ProductDetails() {
                 <div className={styles.noImage}>No Image</div>
               )}
             </div>
-            {product.images && product.images.length > 1 && (
+            {getCurrentImages().length > 1 && (
               <div className={styles.thumbnails}>
-                {product.images.map((img, index) => (
+                {getCurrentImages().map((img, index) => (
                   <div
                     key={index}
                     className={`${styles.thumbnail} ${selectedImage === index ? styles.activeThumbnail : ''}`}
@@ -205,15 +236,18 @@ function ProductDetails() {
             </div>
 
             {/* Colors */}
-            {product.colors && product.colors.length > 0 && (
+            {getAvailableColors().length > 0 && (
               <div className={styles.colorsSection}>
                 <label className={styles.label}>Colors Available</label>
                 <div className={styles.colorOptions}>
-                  {product.colors.map((color) => (
+                  {getAvailableColors().map((color) => (
                     <button
                       key={color}
                       className={`${styles.colorBtn} ${selectedColor === color ? styles.activeColorBtn : ''}`}
-                      onClick={() => setSelectedColor(color)}
+                      onClick={() => {
+                        setSelectedColor(color)
+                        setSelectedImage(0) // Reset to first image when color changes
+                      }}
                       title={color}
                     >
                       {color}

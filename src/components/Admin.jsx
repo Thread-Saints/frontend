@@ -37,6 +37,7 @@ function Admin() {
     category: '',
     sizes: [],
     colors: [''],
+    colorVariants: [], // New: Array of {color, images}
     stock: '',
     rating: 0,
     reviewCount: 0,
@@ -53,6 +54,9 @@ function Admin() {
   // Image upload state
   const [imageFiles, setImageFiles] = useState([])
   const [uploadingImages, setUploadingImages] = useState(false)
+
+  // Color variant state
+  const [colorVariantFiles, setColorVariantFiles] = useState({}) // { colorIndex: [files] }
 
   // Fetch all products
   const fetchProducts = async () => {
@@ -174,6 +178,70 @@ function Admin() {
     }))
   }
 
+  // Color Variant Functions
+  const addColorVariant = () => {
+    setProductForm(prev => ({
+      ...prev,
+      colorVariants: [...prev.colorVariants, { color: '', images: [] }]
+    }))
+  }
+
+  const removeColorVariant = (index) => {
+    setProductForm(prev => ({
+      ...prev,
+      colorVariants: prev.colorVariants.filter((_, i) => i !== index)
+    }))
+    // Also remove associated files
+    setColorVariantFiles(prev => {
+      const newFiles = { ...prev }
+      delete newFiles[index]
+      return newFiles
+    })
+  }
+
+  const updateColorVariantColor = (index, color) => {
+    setProductForm(prev => ({
+      ...prev,
+      colorVariants: prev.colorVariants.map((variant, i) =>
+        i === index ? { ...variant, color } : variant
+      )
+    }))
+  }
+
+  const handleColorVariantImageFiles = (index, e) => {
+    const files = Array.from(e.target.files)
+    const currentFiles = colorVariantFiles[index] || []
+    const currentImages = productForm.colorVariants[index]?.images || []
+
+    if (files.length + currentFiles.length + currentImages.length > 5) {
+      showMessage('error', 'Maximum 5 images per color')
+      return
+    }
+
+    setColorVariantFiles(prev => ({
+      ...prev,
+      [index]: [...(prev[index] || []), ...files]
+    }))
+  }
+
+  const removeColorVariantFile = (variantIndex, fileIndex) => {
+    setColorVariantFiles(prev => ({
+      ...prev,
+      [variantIndex]: prev[variantIndex].filter((_, i) => i !== fileIndex)
+    }))
+  }
+
+  const removeColorVariantExistingImage = (variantIndex, imageIndex) => {
+    setProductForm(prev => ({
+      ...prev,
+      colorVariants: prev.colorVariants.map((variant, i) =>
+        i === variantIndex
+          ? { ...variant, images: variant.images.filter((_, j) => j !== imageIndex) }
+          : variant
+      )
+    }))
+  }
+
   // Upload images to S3 (batch upload - all at once)
   const uploadImages = async () => {
     if (imageFiles.length === 0) {
@@ -248,6 +316,7 @@ function Admin() {
       category: '',
       sizes: [],
       colors: [''],
+      colorVariants: [],
       stock: '',
       rating: 0,
       reviewCount: 0,
@@ -258,6 +327,7 @@ function Admin() {
       isActive: true
     })
     setImageFiles([])
+    setColorVariantFiles({})
   }
 
   // Submit product form (Create or Update)
@@ -270,33 +340,81 @@ function Admin() {
       return
     }
 
-    // For new products, require images
-    if (!editingProduct && imageFiles.length === 0 && productForm.images.length === 0) {
-      showMessage('error', 'At least one product image is required')
+    // Check if using color variants or legacy images
+    const usingColorVariants = productForm.colorVariants.length > 0
+    const usingLegacyImages = imageFiles.length > 0 || productForm.images.length > 0
+
+    if (!usingColorVariants && !usingLegacyImages && !editingProduct) {
+      showMessage('error', 'Please add either color variants with images or upload product images')
       return
+    }
+
+    // Validate color variants if using them
+    if (usingColorVariants) {
+      for (let i = 0; i < productForm.colorVariants.length; i++) {
+        const variant = productForm.colorVariants[i]
+        if (!variant.color || variant.color.trim() === '') {
+          showMessage('error', `Color name is required for variant ${i + 1}`)
+          return
+        }
+        const variantFiles = colorVariantFiles[i] || []
+        if (variant.images.length === 0 && variantFiles.length === 0) {
+          showMessage('error', `At least one image is required for color: ${variant.color}`)
+          return
+        }
+      }
     }
 
     try {
       setLoading(true)
 
-      let finalImages = [...productForm.images]
+      let finalColorVariants = []
 
-      // Upload new images if any
-      if (imageFiles.length > 0) {
+      // Upload color variant images
+      if (usingColorVariants) {
+        for (let i = 0; i < productForm.colorVariants.length; i++) {
+          const variant = productForm.colorVariants[i]
+          const variantFiles = colorVariantFiles[i] || []
+
+          let variantImages = [...variant.images]
+
+          // Upload new images for this color variant
+          if (variantFiles.length > 0) {
+            const formData = new FormData()
+            variantFiles.forEach(file => {
+              formData.append('images', file)
+            })
+
+            const uploadResponse = await axios.post(API_ENDPOINTS.UPLOAD_MULTIPLE, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            })
+
+            if (uploadResponse.data.success && uploadResponse.data.images) {
+              const uploadedUrls = uploadResponse.data.images.map(img => img.url)
+              variantImages = [...variantImages, ...uploadedUrls]
+            }
+          }
+
+          finalColorVariants.push({
+            color: variant.color.trim(),
+            images: variantImages
+          })
+        }
+      }
+
+      // Handle legacy images (for backward compatibility)
+      let finalImages = [...productForm.images]
+      if (imageFiles.length > 0 && !usingColorVariants) {
         const uploadedImageUrls = await uploadImages()
         if (uploadedImageUrls.length > 0) {
           finalImages = [...finalImages, ...uploadedImageUrls]
         }
       }
 
-      if (finalImages.length === 0) {
-        showMessage('error', 'At least one product image is required')
-        return
-      }
-
       const productData = {
         ...productForm,
-        images: finalImages,
+        images: usingColorVariants ? [] : finalImages,
+        colorVariants: finalColorVariants,
         colors: productForm.colors.filter(color => color.trim()),
         price: parseFloat(productForm.price),
         salePrice: productForm.salePrice ? parseFloat(productForm.salePrice) : null,
@@ -305,16 +423,13 @@ function Admin() {
 
       let response
       if (editingProduct) {
-        // Update existing product
         response = await axios.put(API_ENDPOINTS.PRODUCT_BY_ID(editingProduct._id), productData)
       } else {
-        // Create new product
         response = await axios.post(API_ENDPOINTS.PRODUCTS, productData)
       }
 
       if (response.data.success) {
         showMessage('success', `Product ${editingProduct ? 'updated' : 'created'} successfully!`)
-        // Reset form
         handleCancelEdit()
         fetchProducts()
       }
@@ -777,8 +892,126 @@ function Admin() {
                 </div>
               </div>
 
+              {/* Color Variants Section (Recommended) */}
               <div className={styles.formGroup}>
-                <label>Product Images * (Max 5 images)</label>
+                <label>Color Variants (Recommended - Each color can have up to 5 images)</label>
+                <button
+                  type="button"
+                  onClick={addColorVariant}
+                  className={styles.addBtn}
+                  style={{ marginBottom: '1rem' }}
+                >
+                  + Add Color Variant
+                </button>
+
+                {productForm.colorVariants.map((variant, variantIndex) => (
+                  <div key={variantIndex} className={styles.colorVariantContainer} style={{
+                    border: '1px solid #ddd',
+                    padding: '1rem',
+                    marginBottom: '1rem',
+                    borderRadius: '8px',
+                    background: '#f9f9f9'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <h4 style={{ margin: 0 }}>Color Variant {variantIndex + 1}</h4>
+                      <button
+                        type="button"
+                        onClick={() => removeColorVariant(variantIndex)}
+                        className={styles.removeBtn}
+                      >
+                        Remove Variant
+                      </button>
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label>Color Name *</label>
+                      <input
+                        type="text"
+                        value={variant.color}
+                        onChange={(e) => updateColorVariantColor(variantIndex, e.target.value)}
+                        placeholder="e.g., Black, White, Navy Blue"
+                        style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem' }}
+                      />
+                    </div>
+
+                    {/* Existing images for this variant */}
+                    {variant.images.length > 0 && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>
+                          Existing Images for {variant.color || 'this color'}:
+                        </p>
+                        <div className={styles.imagePreviewContainer}>
+                          {variant.images.map((imageUrl, imgIndex) => (
+                            <div key={`variant-${variantIndex}-img-${imgIndex}`} className={styles.imagePreview}>
+                              <img src={imageUrl} alt={`${variant.color} ${imgIndex + 1}`} />
+                              <button
+                                type="button"
+                                onClick={() => removeColorVariantExistingImage(variantIndex, imgIndex)}
+                                className={styles.removeImageBtn}
+                              >
+                                ×
+                              </button>
+                              <span className={styles.imageName}>Image {imgIndex + 1}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Upload new images for this variant */}
+                    <div>
+                      <label>Upload Images (Max 5 per color) *</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => handleColorVariantImageFiles(variantIndex, e)}
+                        className={styles.fileInput}
+                        style={{ marginTop: '0.5rem' }}
+                      />
+                      <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
+                        {variant.images.length + (colorVariantFiles[variantIndex]?.length || 0)}/5 images
+                      </p>
+                    </div>
+
+                    {/* Preview new files for this variant */}
+                    {colorVariantFiles[variantIndex] && colorVariantFiles[variantIndex].length > 0 && (
+                      <div style={{ marginTop: '1rem' }}>
+                        <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>New Images to Upload:</p>
+                        <div className={styles.imagePreviewContainer}>
+                          {colorVariantFiles[variantIndex].map((file, fileIndex) => (
+                            <div key={`file-${variantIndex}-${fileIndex}`} className={styles.imagePreview}>
+                              <img src={URL.createObjectURL(file)} alt={`New ${fileIndex + 1}`} />
+                              <button
+                                type="button"
+                                onClick={() => removeColorVariantFile(variantIndex, fileIndex)}
+                                className={styles.removeImageBtn}
+                              >
+                                ×
+                              </button>
+                              <span className={styles.imageName}>{file.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {productForm.colorVariants.length === 0 && (
+                  <p style={{ fontSize: '0.9rem', color: '#666', fontStyle: 'italic' }}>
+                    Click "Add Color Variant" to add product colors with their specific images
+                  </p>
+                )}
+              </div>
+
+              {/* Legacy Image Upload (for backward compatibility) */}
+              {productForm.colorVariants.length === 0 && (
+                <div className={styles.formGroup}>
+                  <label>Product Images * (Max 5 images) - Legacy Method</label>
+                  <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>
+                    Note: Using Color Variants (above) is recommended for products with multiple colors
+                  </p>
 
                 {/* Show existing images when editing */}
                 {editingProduct && productForm.images.length > 0 && (
@@ -839,10 +1072,11 @@ function Admin() {
                     </div>
                   </div>
                 )}
-                {uploadingImages && (
-                  <p className={styles.uploadingText}>Uploading images...</p>
-                )}
-              </div>
+                  {uploadingImages && (
+                    <p className={styles.uploadingText}>Uploading images...</p>
+                  )}
+                </div>
+              )}
 
               <div className={styles.formGroup}>
                 <label>Sizes</label>
