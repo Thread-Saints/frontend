@@ -81,6 +81,36 @@ function Page4() {
             ))}
           </div>
         )}
+
+        {/* Promotional Section - Saints in Your Area */}
+        {!loading && products.length > 0 && (
+          <div className={styles.saintsSection}>
+            <div className={styles.saintsContent}>
+              <div className={styles.dollLeft}>
+                <img
+                  src="/dolls/pink doll standing.png"
+                  alt="Pink Doll"
+                  className={styles.dollImage}
+                />
+              </div>
+
+              <div className={styles.saintsText}>
+                <h2 className={styles.saintsTitle}>SAINTS IN YOUR AREA</h2>
+                <p className={styles.saintsDescription}>
+                  ThreadSaints is a premium Indian streetwear label fusing western luxury with Indian edge — crafting bold, trend-forward fits that let youth own the streets with confidence.
+                </p>
+              </div>
+
+              <div className={styles.dollRight}>
+                <img
+                  src="/dolls/black doll standing.png"
+                  alt="Black Doll"
+                  className={styles.dollImage}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
