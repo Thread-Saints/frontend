@@ -77,14 +77,15 @@ function Checkout() {
     try {
       const { itemsPrice, shippingPrice, taxPrice, totalPrice } = calculatePrices()
 
-      // Create order items from cart
-      const orderItems = cart.items.map(item => ({
+      // Create order items from cart (filter out items with deleted products)
+      const orderItems = cart.items.filter(item => item.product).map(item => ({
         product: item.product._id,
         name: item.name,
         image: item.image,
         price: item.price,
         quantity: item.quantity,
-        size: item.size
+        size: item.size,
+        color: item.color
       }))
 
       // Create order on backend
@@ -269,12 +270,13 @@ function Checkout() {
               <h2 className={styles.sectionTitle}>Order Summary</h2>
 
               <div className={styles.orderItems}>
-                {cart.items.map((item) => (
+                {cart.items.filter(item => item.product).map((item) => (
                   <div key={item._id} className={styles.orderItem}>
                     <img src={item.image} alt={item.name} className={styles.itemImage} />
                     <div className={styles.itemDetails}>
                       <p className={styles.itemName}>{item.name}</p>
                       {item.size && <p className={styles.itemSize}>Size: {item.size}</p>}
+                      {item.color && <p className={styles.itemColor}>Color: {item.color}</p>}
                       <p className={styles.itemQuantity}>Qty: {item.quantity}</p>
                     </div>
                     <p className={styles.itemPrice}>Rs.{(item.price * item.quantity).toFixed(2)}</p>

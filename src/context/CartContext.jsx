@@ -41,12 +41,13 @@ export const CartProvider = ({ children }) => {
     }
   }
 
-  const addToCart = async (productId, quantity = 1, size = null) => {
+  const addToCart = async (productId, quantity = 1, size = null, color = null) => {
     try {
       const response = await axios.post(API_ENDPOINTS.CART_ADD, {
         productId,
         quantity,
-        size
+        size,
+        color
       })
 
       if (response.data.success) {
@@ -113,12 +114,12 @@ export const CartProvider = ({ children }) => {
 
   const getCartItemCount = () => {
     if (!cart || !cart.items) return 0
-    return cart.items.reduce((total, item) => total + item.quantity, 0)
+    return cart.items.filter(item => item.product).reduce((total, item) => total + item.quantity, 0)
   }
 
   const getCartTotal = () => {
     if (!cart || !cart.items) return 0
-    return cart.items.reduce((total, item) => total + (item.price * item.quantity), 0)
+    return cart.items.filter(item => item.product).reduce((total, item) => total + (item.price * item.quantity), 0)
   }
 
   const value = {

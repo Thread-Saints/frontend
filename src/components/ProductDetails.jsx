@@ -14,6 +14,7 @@ function ProductDetails() {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedSize, setSelectedSize] = useState('')
+  const [selectedColor, setSelectedColor] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [activeSection, setActiveSection] = useState('details')
@@ -44,6 +45,9 @@ function ProductDetails() {
         if (data.product.sizes && data.product.sizes.length > 0) {
           setSelectedSize(data.product.sizes[0])
         }
+        if (data.product.colors && data.product.colors.length > 0) {
+          setSelectedColor(data.product.colors[0])
+        }
       }
     } catch (error) {
       console.error('Error fetching product:', error)
@@ -71,8 +75,13 @@ function ProductDetails() {
       return
     }
 
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      alert('Please select a color')
+      return
+    }
+
     setAddingToCart(true)
-    const result = await addToCart(id, quantity, selectedSize)
+    const result = await addToCart(id, quantity, selectedSize, selectedColor)
     setAddingToCart(false)
 
     if (result.success) {
@@ -93,7 +102,7 @@ function ProductDetails() {
     if (isInWishlist) {
       // Find the wishlist item ID
       const wishlistItem = wishlist.items.find(
-        item => item.product._id === id || item.product === id
+        item => item.product && (item.product._id === id || item.product === id)
       )
       if (wishlistItem) {
         const result = await removeFromWishlist(wishlistItem._id)
@@ -195,12 +204,24 @@ function ProductDetails() {
               )}
             </div>
 
-            <div className={styles.reviews}>
-              <div className={styles.stars}>
-                {renderStars(Math.round(product.rating || 0))}
+            {/* Colors */}
+            {product.colors && product.colors.length > 0 && (
+              <div className={styles.colorsSection}>
+                <label className={styles.label}>Colors Available</label>
+                <div className={styles.colorOptions}>
+                  {product.colors.map((color) => (
+                    <button
+                      key={color}
+                      className={`${styles.colorBtn} ${selectedColor === color ? styles.activeColorBtn : ''}`}
+                      onClick={() => setSelectedColor(color)}
+                      title={color}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <span className={styles.reviewCount}>{product.reviewCount || 0} Reviews</span>
-            </div>
+            )}
 
             {/* Sizes */}
             {product.sizes && product.sizes.length > 0 && (

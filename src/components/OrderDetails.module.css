@@ -149,10 +149,15 @@
 }
 
 .itemSize,
+.itemColor,
 .itemPrice {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.95rem;
   margin: 0;
+}
+
+.itemColor {
+  text-transform: capitalize;
 }
 
 .itemTotal {

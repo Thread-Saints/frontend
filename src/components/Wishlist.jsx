@@ -33,6 +33,10 @@ function Wishlist() {
   }
 
   const handleMoveToCart = async (item) => {
+    if (!item.product) {
+      alert('This product is no longer available')
+      return
+    }
     setUpdating(item._id)
     const result = await addToCart(item.product._id, 1)
     if (result.success) {
@@ -84,7 +88,7 @@ function Wishlist() {
           </div>
 
           <div className={styles.wishlistGrid}>
-            {wishlist.items.map((item) => (
+            {wishlist.items.filter(item => item.product).map((item) => (
               <div key={item._id} className={styles.wishlistItem}>
                 <Link to={`/product/${item.product._id}`} className={styles.itemImageContainer}>
                   <img src={item.image} alt={item.name} className={styles.itemImage} />

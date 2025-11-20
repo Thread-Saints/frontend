@@ -208,6 +208,21 @@
   background: #e0a800;
 }
 
+.editBtn {
+  padding: 0.375rem 0.75rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.3s;
+}
+
+.editBtn:hover {
+  background: #0056b3;
+}
+
 .deleteBtn {
   padding: 0.375rem 0.75rem;
   background: #dc3545;
@@ -221,6 +236,21 @@
 
 .deleteBtn:hover {
   background: #c82333;
+}
+
+.cancelEditBtn {
+  padding: 0.5rem 1rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.cancelEditBtn:hover {
+  background: #5a6268;
 }
 
 /* Add Product Section */

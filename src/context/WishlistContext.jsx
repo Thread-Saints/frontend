@@ -93,12 +93,12 @@ export const WishlistProvider = ({ children }) => {
 
   const checkIsInWishlist = (productId) => {
     if (!wishlist || !wishlist.items) return false
-    return wishlist.items.some(item => item.product._id === productId || item.product === productId)
+    return wishlist.items.some(item => item.product && (item.product._id === productId || item.product === productId))
   }
 
   const getWishlistItemCount = () => {
     if (!wishlist || !wishlist.items) return 0
-    return wishlist.items.length
+    return wishlist.items.filter(item => item.product).length
   }
 
   const value = {

@@ -80,7 +80,7 @@ function Cart() {
           <div className={styles.cartLayout}>
             {/* Cart Items */}
             <div className={styles.cartItems}>
-              {cart.items.map((item) => (
+              {cart.items.filter(item => item.product).map((item) => (
                 <div key={item._id} className={styles.cartItem}>
                   <Link to={`/product/${item.product._id}`} className={styles.itemImage}>
                     <img src={item.image} alt={item.name} />
@@ -92,6 +92,9 @@ function Cart() {
                     </Link>
                     {item.size && (
                       <p className={styles.itemSize}>Size: {item.size}</p>
+                    )}
+                    {item.color && (
+                      <p className={styles.itemColor}>Color: {item.color}</p>
                     )}
                     <p className={styles.itemPrice}>Rs.{item.price}</p>
                   </div>

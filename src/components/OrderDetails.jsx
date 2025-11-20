@@ -129,6 +129,7 @@ function OrderDetails() {
                         {item.name}
                       </Link>
                       {item.size && <p className={styles.itemSize}>Size: {item.size}</p>}
+                      {item.color && <p className={styles.itemColor}>Color: {item.color}</p>}
                       <p className={styles.itemPrice}>Rs.{item.price} × {item.quantity}</p>
                     </div>
                     <p className={styles.itemTotal}>Rs.{(item.price * item.quantity).toFixed(2)}</p>

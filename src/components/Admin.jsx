@@ -13,7 +13,7 @@ function Admin() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
 
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Oversize']
 
   // Category form state
   const [categoryForm, setCategoryForm] = useState({
@@ -46,6 +46,9 @@ function Admin() {
     shippingInfo: 'Standard shipping: 5-7 business days',
     isActive: true
   })
+
+  // Edit product state
+  const [editingProduct, setEditingProduct] = useState(null)
 
   // Image upload state
   const [imageFiles, setImageFiles] = useState([])
@@ -163,6 +166,14 @@ function Admin() {
     setImageFiles(prev => prev.filter((_, i) => i !== index))
   }
 
+  // Remove existing image (when editing)
+  const removeExistingImage = (index) => {
+    setProductForm(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }))
+  }
+
   // Upload images to S3 (batch upload - all at once)
   const uploadImages = async () => {
     if (imageFiles.length === 0) {
@@ -200,7 +211,56 @@ function Admin() {
     }
   }
 
-  // Submit product form
+  // Handle edit product
+  const handleEditProduct = (product) => {
+    setEditingProduct(product)
+    setProductForm({
+      name: product.name,
+      description: product.description,
+      price: product.price.toString(),
+      salePrice: product.salePrice ? product.salePrice.toString() : '',
+      images: product.images,
+      category: product.category,
+      sizes: product.sizes || [],
+      colors: product.colors && product.colors.length > 0 ? product.colors : [''],
+      stock: product.stock.toString(),
+      rating: product.rating || 0,
+      reviewCount: product.reviewCount || 0,
+      productDetails: product.productDetails || '',
+      washingInstructions: product.washingInstructions || '',
+      returnsPolicy: product.returnsPolicy || 'Standard return policy applies',
+      shippingInfo: product.shippingInfo || 'Standard shipping: 5-7 business days',
+      isActive: product.isActive
+    })
+    setImageFiles([])
+    setActiveTab('add')
+  }
+
+  // Cancel edit
+  const handleCancelEdit = () => {
+    setEditingProduct(null)
+    setProductForm({
+      name: '',
+      description: '',
+      price: '',
+      salePrice: '',
+      images: [],
+      category: '',
+      sizes: [],
+      colors: [''],
+      stock: '',
+      rating: 0,
+      reviewCount: 0,
+      productDetails: '',
+      washingInstructions: '',
+      returnsPolicy: 'Standard return policy applies',
+      shippingInfo: 'Standard shipping: 5-7 business days',
+      isActive: true
+    })
+    setImageFiles([])
+  }
+
+  // Submit product form (Create or Update)
   const handleSubmitProduct = async (e) => {
     e.preventDefault()
 
@@ -210,7 +270,8 @@ function Admin() {
       return
     }
 
-    if (imageFiles.length === 0) {
+    // For new products, require images
+    if (!editingProduct && imageFiles.length === 0 && productForm.images.length === 0) {
       showMessage('error', 'At least one product image is required')
       return
     }
@@ -218,51 +279,48 @@ function Admin() {
     try {
       setLoading(true)
 
-      // Upload images first
-      const uploadedImageUrls = await uploadImages()
+      let finalImages = [...productForm.images]
 
-      if (uploadedImageUrls.length === 0) {
-        showMessage('error', 'Failed to upload images')
+      // Upload new images if any
+      if (imageFiles.length > 0) {
+        const uploadedImageUrls = await uploadImages()
+        if (uploadedImageUrls.length > 0) {
+          finalImages = [...finalImages, ...uploadedImageUrls]
+        }
+      }
+
+      if (finalImages.length === 0) {
+        showMessage('error', 'At least one product image is required')
         return
       }
 
       const productData = {
         ...productForm,
-        images: uploadedImageUrls,
+        images: finalImages,
         colors: productForm.colors.filter(color => color.trim()),
         price: parseFloat(productForm.price),
+        salePrice: productForm.salePrice ? parseFloat(productForm.salePrice) : null,
         stock: parseInt(productForm.stock) || 0
       }
 
-      const response = await axios.post(API_ENDPOINTS.PRODUCTS, productData)
+      let response
+      if (editingProduct) {
+        // Update existing product
+        response = await axios.put(API_ENDPOINTS.PRODUCT_BY_ID(editingProduct._id), productData)
+      } else {
+        // Create new product
+        response = await axios.post(API_ENDPOINTS.PRODUCTS, productData)
+      }
 
       if (response.data.success) {
-        showMessage('success', 'Product created successfully!')
+        showMessage('success', `Product ${editingProduct ? 'updated' : 'created'} successfully!`)
         // Reset form
-        setProductForm({
-          name: '',
-          description: '',
-          price: '',
-          salePrice: '',
-          images: [],
-          category: '',
-          sizes: [],
-          colors: [''],
-          stock: '',
-          rating: 0,
-          reviewCount: 0,
-          productDetails: '',
-          washingInstructions: '',
-          returnsPolicy: 'Standard return policy applies',
-          shippingInfo: 'Standard shipping: 5-7 business days',
-          isActive: true
-        })
-        setImageFiles([])
+        handleCancelEdit()
         fetchProducts()
       }
     } catch (error) {
-      console.error('Error creating product:', error)
-      showMessage('error', error.response?.data?.message || 'Failed to create product')
+      console.error(`Error ${editingProduct ? 'updating' : 'creating'} product:`, error)
+      showMessage('error', error.response?.data?.message || `Failed to ${editingProduct ? 'update' : 'create'} product`)
     } finally {
       setLoading(false)
     }
@@ -591,6 +649,12 @@ function Admin() {
                             <td>
                               <div className={styles.actions}>
                                 <button
+                                  onClick={() => handleEditProduct(product)}
+                                  className={styles.editBtn}
+                                >
+                                  Edit
+                                </button>
+                                <button
                                   onClick={() => toggleProductStatus(product)}
                                   className={styles.toggleBtn}
                                 >
@@ -615,10 +679,20 @@ function Admin() {
           </div>
         )}
 
-        {/* Add Product Tab */}
+        {/* Add/Edit Product Tab */}
         {activeTab === 'add' && (
           <div className={styles.addProductSection}>
-            <h2>Add New Product</h2>
+            <h2>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
+            {editingProduct && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className={styles.cancelEditBtn}
+                style={{ marginBottom: '1rem' }}
+              >
+                Cancel Edit
+              </button>
+            )}
             <form onSubmit={handleSubmitProduct} className={styles.productForm}>
               <div className={styles.formGroup}>
                 <label>Product Name *</label>
@@ -705,31 +779,64 @@ function Admin() {
 
               <div className={styles.formGroup}>
                 <label>Product Images * (Max 5 images)</label>
+
+                {/* Show existing images when editing */}
+                {editingProduct && productForm.images.length > 0 && (
+                  <div>
+                    <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>Existing Images:</p>
+                    <div className={styles.imagePreviewContainer}>
+                      {productForm.images.map((imageUrl, index) => (
+                        <div key={`existing-${index}`} className={styles.imagePreview}>
+                          <img
+                            src={imageUrl}
+                            alt={`Existing ${index + 1}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(index)}
+                            className={styles.removeImageBtn}
+                          >
+                            ×
+                          </button>
+                          <span className={styles.imageName}>Image {index + 1}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* File input for new images */}
                 <input
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleImageFiles}
                   className={styles.fileInput}
+                  style={{ marginTop: editingProduct && productForm.images.length > 0 ? '1rem' : '0' }}
                 />
+
+                {/* Show new image files to be uploaded */}
                 {imageFiles.length > 0 && (
-                  <div className={styles.imagePreviewContainer}>
-                    {imageFiles.map((file, index) => (
-                      <div key={index} className={styles.imagePreview}>
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Preview ${index + 1}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImageFile(index)}
-                          className={styles.removeImageBtn}
-                        >
-                          ×
-                        </button>
-                        <span className={styles.imageName}>{file.name}</span>
-                      </div>
-                    ))}
+                  <div style={{ marginTop: '1rem' }}>
+                    {editingProduct && <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>New Images to Upload:</p>}
+                    <div className={styles.imagePreviewContainer}>
+                      {imageFiles.map((file, index) => (
+                        <div key={index} className={styles.imagePreview}>
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Preview ${index + 1}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImageFile(index)}
+                            className={styles.removeImageBtn}
+                          >
+                            ×
+                          </button>
+                          <span className={styles.imageName}>{file.name}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {uploadingImages && (
@@ -840,7 +947,7 @@ function Admin() {
               </div>
 
               <button type="submit" className={styles.submitBtn} disabled={loading || uploadingImages}>
-                {uploadingImages ? 'Uploading Images...' : loading ? 'Creating Product...' : 'Create Product'}
+                {uploadingImages ? 'Uploading Images...' : loading ? (editingProduct ? 'Updating Product...' : 'Creating Product...') : (editingProduct ? 'Update Product' : 'Create Product')}
               </button>
             </form>
           </div>

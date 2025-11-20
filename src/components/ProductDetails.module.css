@@ -200,6 +200,42 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Colors */
+.colorsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.colorOptions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.colorBtn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-transform: capitalize;
+}
+
+.colorBtn:hover {
+  border-color: white;
+}
+
+.activeColorBtn {
+  background: white;
+  color: #1a1a1a;
+  border-color: white;
+}
+
 /* Sizes */
 .sizesSection {
   display: flex;
