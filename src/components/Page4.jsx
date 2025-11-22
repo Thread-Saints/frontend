@@ -52,17 +52,22 @@ function Page4() {
                 onClick={() => navigate(`/product/${product._id}`)}
               >
                 <div className={styles.productImageContainer}>
-                  {product.images && product.images.length > 0 ? (
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className={styles.productImage}
-                    />
-                  ) : (
-                    <div className={styles.noImage}>
-                      <span className={styles.noImageText}>No Image</span>
-                    </div>
-                  )}
+                  {(() => {
+                    // Try to get image from colorVariants first (new structure)
+                    const firstImage = product.colorVariants?.[0]?.images?.[0] || product.images?.[0];
+
+                    return firstImage ? (
+                      <img
+                        src={firstImage}
+                        alt={product.name}
+                        className={styles.productImage}
+                      />
+                    ) : (
+                      <div className={styles.noImage}>
+                        <span className={styles.noImageText}>No Image</span>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className={styles.productInfo}>
                   <h3 className={styles.productName}>{product.name}</h3>
