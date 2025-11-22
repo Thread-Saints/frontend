@@ -67,6 +67,11 @@ function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Thread Saints branding */}
+      <div className={styles.brandingSection}>
+        <img src="/Group 24.png" alt="Thread Saints" className={styles.brandingImage} />
+      </div>
     </footer>
   )
 }

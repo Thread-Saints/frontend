@@ -13,19 +13,19 @@
 .splitSection {
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 550px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 0 2rem;
+  padding: 0 10rem;
 }
 
 .backgroundSplit {
   position: absolute;
   top: 0;
-  left: 2rem;
-  right: 2rem;
-  width: calc(100% - 4rem);
+  left: 6rem;
+  right: 6rem;
+  width: calc(100% - 12rem);
   height: 100%;
   display: flex;
   z-index: 1;
@@ -45,7 +45,7 @@
 
 .dollContainer {
   position: absolute;
-  bottom: -240px;
+  bottom: -238px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
@@ -81,14 +81,14 @@
 }
 
 .heading {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 400;
   margin-bottom: 1.2rem;
   letter-spacing: 0.5px;
 }
 
 .termsText {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #888;
   margin-bottom: 1.5rem;
   line-height: 1.5;
@@ -111,39 +111,39 @@
 .input {
   flex: 1;
   padding: 0.85rem 1.2rem;
-  background-color: transparent;
-  border: 1px solid #555;
-  border-radius: 0;
-  font-size: 1rem;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.05rem;
   outline: none;
-  color: #fff;
+  color: #000;
 }
 
 .input::placeholder {
-  color: #666;
+  color: #999;
 }
 
 .input:focus {
-  border-color: #888;
+  outline: 2px solid #555;
 }
 
 .button {
-  padding: 0.85rem 2rem;
-  background-color: transparent;
-  color: #ffffff;
-  border: 1px solid #555;
-  border-radius: 0;
-  font-size: 0.95rem;
-  font-weight: 400;
+  padding: 0.85rem 2.5rem;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.05rem;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .button:hover {
-  background-color: #ffffff;
-  color: #000000;
-  border-color: #ffffff;
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 .links {
@@ -159,7 +159,7 @@
 }
 
 .columnHeading {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 400;
   margin-bottom: 0.5rem;
   letter-spacing: 0.5px;
@@ -168,12 +168,32 @@
 .footerLink {
   color: #888;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   transition: color 0.2s;
 }
 
 .footerLink:hover {
   color: #ffffff;
+}
+
+/* Branding section */
+.brandingSection {
+  width: 100%;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('/footer bg.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1a1a1a;
+}
+
+.brandingImage {
+  width: 1200px;
+  /* max-width: 800px; */
+  height: 200px;
+  object-fit: contain;
 }
 
 @media (max-width: 1024px) {
