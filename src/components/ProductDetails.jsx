@@ -95,6 +95,46 @@ function ProductDetails() {
     return product.colors || []
   }
 
+  // Get stock for selected color + size combination
+  const getSelectedStock = () => {
+    if (!product) return 0
+
+    if (product.colorVariants && product.colorVariants.length > 0 && selectedColor) {
+      const variant = product.colorVariants.find(v => v.color === selectedColor)
+      if (!variant) return 0
+
+      // If product has sizes and sizeStock, get stock for specific size
+      if (selectedSize && variant.sizeStock && variant.sizeStock.length > 0) {
+        const sizeStockItem = variant.sizeStock.find(s => s.size === selectedSize)
+        return sizeStockItem ? sizeStockItem.stock : 0
+      }
+
+      // If no size selected, sum all size stocks for this color
+      if (variant.sizeStock && variant.sizeStock.length > 0) {
+        return variant.sizeStock.reduce((sum, s) => sum + s.stock, 0)
+      }
+
+      return 0
+    }
+
+    return product.stock
+  }
+
+  // Get stock for a specific size (for showing out of stock sizes)
+  const getSizeStock = (size) => {
+    if (!product || !selectedColor) return 0
+
+    if (product.colorVariants && product.colorVariants.length > 0) {
+      const variant = product.colorVariants.find(v => v.color === selectedColor)
+      if (variant && variant.sizeStock) {
+        const sizeStockItem = variant.sizeStock.find(s => s.size === size)
+        return sizeStockItem ? sizeStockItem.stock : 0
+      }
+    }
+
+    return product.stock
+  }
+
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       alert('Please login to add items to cart')
@@ -247,6 +287,7 @@ function ProductDetails() {
                       onClick={() => {
                         setSelectedColor(color)
                         setSelectedImage(0) // Reset to first image when color changes
+                        setQuantity(1) // Reset quantity when color changes
                       }}
                       title={color}
                     >
@@ -261,15 +302,23 @@ function ProductDetails() {
             {product.sizes && product.sizes.length > 0 && (
               <div className={styles.sizesSection}>
                 <div className={styles.sizeOptions}>
-                  {product.sizes.map((size) => (
-                    <button
-                      key={size}
-                      className={`${styles.sizeBtn} ${selectedSize === size ? styles.activeSizeBtn : ''}`}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                  {product.sizes.map((size) => {
+                    const sizeStock = getSizeStock(size)
+                    return (
+                      <button
+                        key={size}
+                        className={`${styles.sizeBtn} ${selectedSize === size ? styles.activeSizeBtn : ''} ${sizeStock === 0 ? styles.outOfStockSize : ''}`}
+                        onClick={() => {
+                          setSelectedSize(size)
+                          setQuantity(1) // Reset quantity when size changes
+                        }}
+                        disabled={sizeStock === 0}
+                        title={sizeStock === 0 ? 'Out of stock' : `${sizeStock} in stock`}
+                      >
+                        {size}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -287,11 +336,15 @@ function ProductDetails() {
                 <span className={styles.quantityValue}>{quantity}</span>
                 <button
                   className={styles.quantityBtn}
-                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  onClick={() => setQuantity(Math.min(getSelectedStock(), quantity + 1))}
+                  disabled={getSelectedStock() === 0}
                 >
                   +
                 </button>
               </div>
+              {getSelectedStock() > 0 && getSelectedStock() <= 5 && (
+                <span className={styles.lowStock}>Only {getSelectedStock()} left!</span>
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -299,11 +352,11 @@ function ProductDetails() {
               <button
                 className={styles.addToCartBtn}
                 onClick={handleAddToCart}
-                disabled={addingToCart || product.stock === 0}
+                disabled={addingToCart || getSelectedStock() === 0}
               >
-                {addingToCart ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add To Cart'}
+                {addingToCart ? 'Adding...' : getSelectedStock() === 0 ? 'Out of Stock' : 'Add To Cart'}
               </button>
-              <button className={styles.buyNowBtn}>Buy Now</button>
+              <button className={styles.buyNowBtn} disabled={getSelectedStock() === 0}>Buy Now</button>
             </div>
 
             {/* Description */}

@@ -145,14 +145,12 @@ function Admin() {
     }))
   }
 
-  // Handle size toggle
+  // Handle size toggle - syncs with color variants
   const toggleSize = (size) => {
-    setProductForm(prev => ({
-      ...prev,
-      sizes: prev.sizes.includes(size)
-        ? prev.sizes.filter(s => s !== size)
-        : [...prev.sizes, size]
-    }))
+    const newSizes = productForm.sizes.includes(size)
+      ? productForm.sizes.filter(s => s !== size)
+      : [...productForm.sizes, size]
+    syncColorVariantSizes(newSizes)
   }
 
   // Handle image file selection
@@ -180,9 +178,11 @@ function Admin() {
 
   // Color Variant Functions
   const addColorVariant = () => {
+    // Auto-populate sizeStock based on selected sizes
+    const sizeStock = productForm.sizes.map(size => ({ size, stock: 0 }))
     setProductForm(prev => ({
       ...prev,
-      colorVariants: [...prev.colorVariants, { color: '', images: [] }]
+      colorVariants: [...prev.colorVariants, { color: '', images: [], sizeStock }]
     }))
   }
 
@@ -205,6 +205,35 @@ function Admin() {
       colorVariants: prev.colorVariants.map((variant, i) =>
         i === index ? { ...variant, color } : variant
       )
+    }))
+  }
+
+  const updateColorVariantSizeStock = (variantIndex, size, stock) => {
+    setProductForm(prev => ({
+      ...prev,
+      colorVariants: prev.colorVariants.map((variant, i) => {
+        if (i !== variantIndex) return variant
+        const updatedSizeStock = variant.sizeStock?.map(s =>
+          s.size === size ? { ...s, stock: parseInt(stock) || 0 } : s
+        ) || []
+        return { ...variant, sizeStock: updatedSizeStock }
+      })
+    }))
+  }
+
+  // Sync sizeStock when sizes change
+  const syncColorVariantSizes = (newSizes) => {
+    setProductForm(prev => ({
+      ...prev,
+      sizes: newSizes,
+      colorVariants: prev.colorVariants.map(variant => {
+        const existingStocks = variant.sizeStock || []
+        const newSizeStock = newSizes.map(size => {
+          const existing = existingStocks.find(s => s.size === size)
+          return existing || { size, stock: 0 }
+        })
+        return { ...variant, sizeStock: newSizeStock }
+      })
     }))
   }
 
@@ -291,6 +320,7 @@ function Admin() {
       category: product.category,
       sizes: product.sizes || [],
       colors: product.colors && product.colors.length > 0 ? product.colors : [''],
+      colorVariants: product.colorVariants || [],
       stock: product.stock.toString(),
       rating: product.rating || 0,
       reviewCount: product.reviewCount || 0,
@@ -301,6 +331,7 @@ function Admin() {
       isActive: product.isActive
     })
     setImageFiles([])
+    setColorVariantFiles({})
     setActiveTab('add')
   }
 
@@ -340,28 +371,29 @@ function Admin() {
       return
     }
 
-    // Check if using color variants or legacy images
-    const usingColorVariants = productForm.colorVariants.length > 0
-    const usingLegacyImages = imageFiles.length > 0 || productForm.images.length > 0
-
-    if (!usingColorVariants && !usingLegacyImages && !editingProduct) {
-      showMessage('error', 'Please add either color variants with images or upload product images')
+    // Require sizes for new products
+    if (productForm.sizes.length === 0 && !editingProduct) {
+      showMessage('error', 'Please select at least one size')
       return
     }
 
-    // Validate color variants if using them
-    if (usingColorVariants) {
-      for (let i = 0; i < productForm.colorVariants.length; i++) {
-        const variant = productForm.colorVariants[i]
-        if (!variant.color || variant.color.trim() === '') {
-          showMessage('error', `Color name is required for variant ${i + 1}`)
-          return
-        }
-        const variantFiles = colorVariantFiles[i] || []
-        if (variant.images.length === 0 && variantFiles.length === 0) {
-          showMessage('error', `At least one image is required for color: ${variant.color}`)
-          return
-        }
+    // Require color variants for new products
+    if (productForm.colorVariants.length === 0 && !editingProduct) {
+      showMessage('error', 'Please add at least one color variant')
+      return
+    }
+
+    // Validate color variants
+    for (let i = 0; i < productForm.colorVariants.length; i++) {
+      const variant = productForm.colorVariants[i]
+      if (!variant.color || variant.color.trim() === '') {
+        showMessage('error', `Color name is required for variant ${i + 1}`)
+        return
+      }
+      const variantFiles = colorVariantFiles[i] || []
+      if (variant.images.length === 0 && variantFiles.length === 0) {
+        showMessage('error', `At least one image is required for color: ${variant.color}`)
+        return
       }
     }
 
@@ -371,54 +403,44 @@ function Admin() {
       let finalColorVariants = []
 
       // Upload color variant images
-      if (usingColorVariants) {
-        for (let i = 0; i < productForm.colorVariants.length; i++) {
-          const variant = productForm.colorVariants[i]
-          const variantFiles = colorVariantFiles[i] || []
+      for (let i = 0; i < productForm.colorVariants.length; i++) {
+        const variant = productForm.colorVariants[i]
+        const variantFiles = colorVariantFiles[i] || []
 
-          let variantImages = [...variant.images]
+        let variantImages = [...variant.images]
 
-          // Upload new images for this color variant
-          if (variantFiles.length > 0) {
-            const formData = new FormData()
-            variantFiles.forEach(file => {
-              formData.append('images', file)
-            })
-
-            const uploadResponse = await axios.post(API_ENDPOINTS.UPLOAD_MULTIPLE, formData, {
-              headers: { 'Content-Type': 'multipart/form-data' }
-            })
-
-            if (uploadResponse.data.success && uploadResponse.data.images) {
-              const uploadedUrls = uploadResponse.data.images.map(img => img.url)
-              variantImages = [...variantImages, ...uploadedUrls]
-            }
-          }
-
-          finalColorVariants.push({
-            color: variant.color.trim(),
-            images: variantImages
+        // Upload new images for this color variant
+        if (variantFiles.length > 0) {
+          const formData = new FormData()
+          variantFiles.forEach(file => {
+            formData.append('images', file)
           })
-        }
-      }
 
-      // Handle legacy images (for backward compatibility)
-      let finalImages = [...productForm.images]
-      if (imageFiles.length > 0 && !usingColorVariants) {
-        const uploadedImageUrls = await uploadImages()
-        if (uploadedImageUrls.length > 0) {
-          finalImages = [...finalImages, ...uploadedImageUrls]
+          const uploadResponse = await axios.post(API_ENDPOINTS.UPLOAD_MULTIPLE, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+
+          if (uploadResponse.data.success && uploadResponse.data.images) {
+            const uploadedUrls = uploadResponse.data.images.map(img => img.url)
+            variantImages = [...variantImages, ...uploadedUrls]
+          }
         }
+
+        finalColorVariants.push({
+          color: variant.color.trim(),
+          images: variantImages,
+          sizeStock: variant.sizeStock || []
+        })
       }
 
       const productData = {
         ...productForm,
-        images: usingColorVariants ? [] : finalImages,
+        images: [],
         colorVariants: finalColorVariants,
-        colors: productForm.colors.filter(color => color.trim()),
+        colors: [], // Colors now derived from colorVariants
         price: parseFloat(productForm.price),
         salePrice: productForm.salePrice ? parseFloat(productForm.salePrice) : null,
-        stock: parseInt(productForm.stock) || 0
+        stock: 0 // Stock now managed per color/size
       }
 
       let response
@@ -647,6 +669,17 @@ function Admin() {
     }
   }
 
+  // Calculate total stock from colorVariants
+  const getTotalStock = (product) => {
+    if (product.colorVariants && product.colorVariants.length > 0) {
+      return product.colorVariants.reduce((total, variant) => {
+        const variantStock = variant.sizeStock?.reduce((sum, s) => sum + s.stock, 0) || 0
+        return total + variantStock
+      }, 0)
+    }
+    return product.stock || 0
+  }
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Pending':
@@ -742,7 +775,7 @@ function Admin() {
                           <tr key={product._id}>
                             <td>
                               <img
-                                src={product.images[0]}
+                                src={product.colorVariants?.[0]?.images?.[0] || product.images?.[0] || ''}
                                 alt={product.name}
                                 className={styles.productThumb}
                               />
@@ -750,12 +783,12 @@ function Admin() {
                             <td>{product.name}</td>
                             <td>${product.price}</td>
                             <td>
-                              <span className={product.stock > 0 ? styles.inStock : styles.outOfStock}>
-                                {product.stock}
+                              <span className={getTotalStock(product) > 0 ? styles.inStock : styles.outOfStock}>
+                                {getTotalStock(product)}
                               </span>
                             </td>
                             <td>{product.sizes?.join(', ') || 'N/A'}</td>
-                            <td>{product.colors?.join(', ') || 'N/A'}</td>
+                            <td>{product.colorVariants?.map(v => v.color).join(', ') || product.colors?.join(', ') || 'N/A'}</td>
                             <td>
                               <span className={product.isActive ? styles.active : styles.inactive}>
                                 {product.isActive ? 'Active' : 'Inactive'}
@@ -861,18 +894,6 @@ function Admin() {
                   />
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label>Stock *</label>
-                  <input
-                    type="number"
-                    name="stock"
-                    value={productForm.stock}
-                    onChange={handleInputChange}
-                    placeholder="0"
-                    min="0"
-                    required
-                  />
-                </div>
               </div>
 
               <div className={styles.formRow}>
@@ -892,14 +913,40 @@ function Admin() {
                 </div>
               </div>
 
-              {/* Color Variants Section (Recommended) */}
+              {/* Sizes Section - Select sizes first */}
               <div className={styles.formGroup}>
-                <label>Color Variants (Recommended - Each color can have up to 5 images)</label>
+                <label>Available Sizes *</label>
+                <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>
+                  Select sizes first, then add color variants to set stock per color/size
+                </p>
+                <div className={styles.sizeSelector}>
+                  {sizes.map(size => (
+                    <button
+                      key={size}
+                      type="button"
+                      className={productForm.sizes.includes(size) ? styles.sizeActive : ''}
+                      onClick={() => toggleSize(size)}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Variants Section */}
+              <div className={styles.formGroup}>
+                <label>Color Variants * (Each color has its own images & stock per size)</label>
+                {productForm.sizes.length === 0 && (
+                  <p style={{ fontSize: '0.85rem', color: '#f44336', marginBottom: '0.5rem' }}>
+                    Please select at least one size above before adding colors
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={addColorVariant}
                   className={styles.addBtn}
                   style={{ marginBottom: '1rem' }}
+                  disabled={productForm.sizes.length === 0}
                 >
                   + Add Color Variant
                 </button>
@@ -933,6 +980,39 @@ function Admin() {
                         style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem' }}
                       />
                     </div>
+
+                    {/* Size-specific stock for this color */}
+                    {variant.sizeStock && variant.sizeStock.length > 0 && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label>Stock per Size</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          {variant.sizeStock.map((sizeItem, sizeIdx) => (
+                            <div key={sizeIdx} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              background: '#eee',
+                              padding: '0.5rem',
+                              borderRadius: '4px'
+                            }}>
+                              <span style={{ fontWeight: '500', minWidth: '40px' }}>{sizeItem.size}:</span>
+                              <input
+                                type="number"
+                                value={sizeItem.stock}
+                                onChange={(e) => updateColorVariantSizeStock(variantIndex, sizeItem.size, e.target.value)}
+                                min="0"
+                                style={{ width: '60px', padding: '0.25rem', textAlign: 'center' }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {(!variant.sizeStock || variant.sizeStock.length === 0) && productForm.sizes.length === 0 && (
+                      <p style={{ fontSize: '0.85rem', color: '#999', marginBottom: '1rem' }}>
+                        Select sizes above to set stock per size
+                      </p>
+                    )}
 
                     {/* Existing images for this variant */}
                     {variant.images.length > 0 && (
@@ -1005,124 +1085,6 @@ function Admin() {
                 )}
               </div>
 
-              {/* Legacy Image Upload (for backward compatibility) */}
-              {productForm.colorVariants.length === 0 && (
-                <div className={styles.formGroup}>
-                  <label>Product Images * (Max 5 images) - Legacy Method</label>
-                  <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>
-                    Note: Using Color Variants (above) is recommended for products with multiple colors
-                  </p>
-
-                {/* Show existing images when editing */}
-                {editingProduct && productForm.images.length > 0 && (
-                  <div>
-                    <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>Existing Images:</p>
-                    <div className={styles.imagePreviewContainer}>
-                      {productForm.images.map((imageUrl, index) => (
-                        <div key={`existing-${index}`} className={styles.imagePreview}>
-                          <img
-                            src={imageUrl}
-                            alt={`Existing ${index + 1}`}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeExistingImage(index)}
-                            className={styles.removeImageBtn}
-                          >
-                            ×
-                          </button>
-                          <span className={styles.imageName}>Image {index + 1}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* File input for new images */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageFiles}
-                  className={styles.fileInput}
-                  style={{ marginTop: editingProduct && productForm.images.length > 0 ? '1rem' : '0' }}
-                />
-
-                {/* Show new image files to be uploaded */}
-                {imageFiles.length > 0 && (
-                  <div style={{ marginTop: '1rem' }}>
-                    {editingProduct && <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>New Images to Upload:</p>}
-                    <div className={styles.imagePreviewContainer}>
-                      {imageFiles.map((file, index) => (
-                        <div key={index} className={styles.imagePreview}>
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Preview ${index + 1}`}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImageFile(index)}
-                            className={styles.removeImageBtn}
-                          >
-                            ×
-                          </button>
-                          <span className={styles.imageName}>{file.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                  {uploadingImages && (
-                    <p className={styles.uploadingText}>Uploading images...</p>
-                  )}
-                </div>
-              )}
-
-              <div className={styles.formGroup}>
-                <label>Sizes</label>
-                <div className={styles.sizeSelector}>
-                  {sizes.map(size => (
-                    <button
-                      key={size}
-                      type="button"
-                      className={productForm.sizes.includes(size) ? styles.sizeActive : ''}
-                      onClick={() => toggleSize(size)}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Colors</label>
-                {productForm.colors.map((color, index) => (
-                  <div key={index} className={styles.arrayInput}>
-                    <input
-                      type="text"
-                      value={color}
-                      onChange={(e) => handleArrayChange(index, e.target.value, 'colors')}
-                      placeholder="e.g., Black, White, Blue"
-                    />
-                    {productForm.colors.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeArrayField(index, 'colors')}
-                        className={styles.removeBtn}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => addArrayField('colors')}
-                  className={styles.addBtn}
-                >
-                  + Add Color
-                </button>
-              </div>
 
               <div className={styles.formGroup}>
                 <label>Product Details (Optional)</label>

@@ -1,0 +1,74 @@
+import { useState } from 'react'
+import styles from './Footer.module.css'
+
+function Footer() {
+  const [email, setEmail] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    console.log('Email submitted:', email)
+    setEmail('')
+  }
+
+  return (
+    <footer className={styles.footer}>
+      {/* Split section with doll */}
+      <div className={styles.splitSection}>
+        <div className={styles.backgroundSplit}>
+          <div className={styles.leftPanel}></div>
+          <div className={styles.rightPanel}></div>
+        </div>
+        <div className={styles.dollContainer}>
+          <img
+            src="/dolls/doll seeing.png"
+            alt="Doll Peeking"
+            className={styles.dollImage}
+          />
+        </div>
+      </div>
+
+      {/* Footer content */}
+      <div className={styles.container}>
+        <div className={styles.newsletter}>
+          <h3 className={styles.heading}>Subscribe to our email</h3>
+          <p className={styles.termsText}>
+            By subscribing you agree to{' '}
+            <a href="/terms" className={styles.link}>Terms of use</a>
+            {' '}and{' '}
+            <a href="/privacy" className={styles.link}>Privacy Policy</a>
+          </p>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <input
+              type="email"
+              placeholder=""
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={styles.input}
+              required
+            />
+            <button type="submit" className={styles.button}>Sign Up</button>
+          </form>
+        </div>
+
+        <div className={styles.links}>
+          <div className={styles.linkColumn}>
+            <h4 className={styles.columnHeading}>Collections</h4>
+            <a href="/collections/tshirts" className={styles.footerLink}>Tshirts</a>
+            <a href="/collections/sweatshirts" className={styles.footerLink}>Sweatshirts</a>
+            <a href="/collections/jeans" className={styles.footerLink}>Jeans</a>
+            <a href="/collections/hoodies" className={styles.footerLink}>Hoodies</a>
+          </div>
+
+          <div className={styles.linkColumn}>
+            <h4 className={styles.columnHeading}>Need Help</h4>
+            <a href="/contact" className={styles.footerLink}>Contact Us</a>
+            <a href="/shipping" className={styles.footerLink}>Shipping Policy</a>
+            <a href="/returns" className={styles.footerLink}>Return & Exchange Policy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+export default Footer

@@ -271,6 +271,16 @@
   border-color: white;
 }
 
+.outOfStockSize {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.outOfStockSize:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
 /* Quantity */
 .quantitySection {
   display: flex;
@@ -312,6 +322,12 @@
   min-width: 30px;
   text-align: center;
   font-size: 1rem;
+}
+
+.lowStock {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 /* Action Buttons */

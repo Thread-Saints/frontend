@@ -7,6 +7,7 @@ import Home from './components/Home'
 import Page2 from './components/Page2'
 import Page3 from './components/Page3'
 import Page4 from './components/Page4'
+// Page5 removed - split section now in Footer
 import ProductDetails from './components/ProductDetails'
 import Cart from './components/Cart'
 import Wishlist from './components/Wishlist'
@@ -15,6 +16,7 @@ import Orders from './components/Orders'
 import OrderDetails from './components/OrderDetails'
 import Admin from './components/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
+import Footer from './components/Footer'
 
 function App() {
   return (
@@ -64,6 +66,7 @@ function App() {
               </ProtectedRoute>
             } />
           </Routes>
+          <Footer />
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>
