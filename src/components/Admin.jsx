@@ -13,7 +13,7 @@ function Admin() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
 
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Oversize']
+  const sizes = ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL']
 
   // Category form state
   const [categoryForm, setCategoryForm] = useState({
