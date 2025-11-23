@@ -35,6 +35,11 @@ function ProductDetails() {
     }
   }, [wishlist, id])
 
+  // Scroll to top when component mounts or product changes
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
+
   const fetchProduct = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.PRODUCT_BY_ID(id))

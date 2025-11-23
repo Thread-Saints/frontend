@@ -41,6 +41,7 @@ function Page3() {
         <div className={styles.headingContainer}>
           <h2 className={styles.heading}>SAINT'S DROP</h2>
           <h2 className={styles.headingShadow}>SAINT'S DROP</h2>
+          <h2 className={styles.headingShadow2}>SAINT'S DROP</h2>
         </div>
 
         {/* Categories horizontal scroll */}
