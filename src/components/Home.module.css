@@ -607,7 +607,7 @@
   }
 
   .headerContainer {
-    top: 60%;
+    top: 20%;
     width: 95%;
     height: 80px;
   }
@@ -650,7 +650,8 @@
   } */
 
   .flexButton {
-    right: 3%;
+    right: 35%;
+    top: 90%;
     padding: 10px 20px;
     font-size: 14px;
   }

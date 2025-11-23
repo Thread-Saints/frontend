@@ -221,40 +221,89 @@
 }
 
 @media (max-width: 768px) {
+  .page3Container {
+    padding: 1rem 0;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
   .heading,
   .headingShadow,
   .headingShadow2 {
     font-size: 2.5rem;
+    letter-spacing: 0.1em;
   }
 
-  .content {
-    gap: 2rem;
+  .headingContainer {
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
   }
 
   .categoryCard {
-    flex: 0 0 calc(50% - 1rem);
-    min-width: 180px;
+    flex: 0 0 calc(50% - 0.75rem);
+    min-width: 160px;
   }
 
   .categoriesScroll {
     gap: 1rem;
+    padding: 0.75rem 0;
+  }
+
+  .categoryName {
+    font-size: 0.875rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .dropItAllBtn {
+    padding: 0.9rem 2.5rem;
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
+  .page3Container {
+    padding: 0.5rem 0;
+  }
+
+  .content {
+    padding: 1rem 0.75rem;
+    gap: 1rem;
+  }
+
   .heading,
   .headingShadow,
   .headingShadow2 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  .headingContainer {
+    margin-bottom: 0.75rem;
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
   }
 
   .categoryCard {
-    flex: 0 0 calc(100% - 1rem);
-    min-width: 150px;
+    flex: 0 0 calc(100% - 0.5rem);
+    min-width: 140px;
+  }
+
+  .categoriesScroll {
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+
+  .categoryName {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
 
   .dropItAllBtn {
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
+    padding: 0.75rem 1.75rem;
+    font-size: 0.9rem;
   }
 }
