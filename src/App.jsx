@@ -17,6 +17,7 @@ import OrderDetails from './components/OrderDetails'
 import Admin from './components/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
 import Footer from './components/Footer'
+import Footer2 from './components/Footer2'
 
 function App() {
   return (
@@ -47,26 +48,59 @@ function App() {
           </div>
           <Routes>
             <Route path="/" element={
-              <div>
+              <>
                 <Home />
                 <Page2 />
                 <Page3 />
                 <Page4 />
-              </div>
+                <Footer />
+              </>
             } />
-            <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/:id" element={<OrderDetails />} />
+            <Route path="/product/:id" element={
+              <>
+                <ProductDetails />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/cart" element={
+              <>
+                <Cart />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/wishlist" element={
+              <>
+                <Wishlist />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/checkout" element={
+              <>
+                <Checkout />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/orders" element={
+              <>
+                <Orders />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/orders/:id" element={
+              <>
+                <OrderDetails />
+                <Footer2 />
+              </>
+            } />
             <Route path="/admin" element={
-              <ProtectedRoute adminOnly={true}>
-                <Admin />
-              </ProtectedRoute>
+              <>
+                <ProtectedRoute adminOnly={true}>
+                  <Admin />
+                </ProtectedRoute>
+                <Footer2 />
+              </>
             } />
           </Routes>
-          <Footer />
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>
