@@ -212,7 +212,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 70%;
-  height: calc(100vh - 180px);
+  height: calc(100vh - 240px);
   object-fit: contain;
   z-index: 5;
 }
@@ -481,6 +481,10 @@
     font-size: 12px;
   }
 
+  .container {
+    height: 80vh;
+  }
+
   .navbar {
     top: 35px;
     padding: 0 1rem;
@@ -517,7 +521,7 @@
 
   .heroOverlay {
     width: 85%;
-    height: calc(100vh - 140px);
+    height: calc(100vh - 180px);
     bottom: 40px;
   }
 
@@ -554,9 +558,7 @@
   } */
 
   .flexButton {
-    right: 5%;
-    padding: 12px 24px;
-    font-size: 16px;
+    display: none;
   }
 }
 
@@ -567,6 +569,10 @@
 
   .comingSoonText {
     font-size: 11px;
+  }
+
+  .container {
+    height: 80vh;
   }
 
   .navbar {
@@ -619,8 +625,8 @@
 
   .heroOverlay {
     width: 95%;
-    height: calc(100vh - 120px);
-    bottom: 30px;
+    height: calc(100vh - 150px);
+    bottom: -160px;
   }
 
   .ticker {
@@ -650,9 +656,6 @@
   } */
 
   .flexButton {
-    right: 35%;
-    top: 90%;
-    padding: 10px 20px;
-    font-size: 14px;
+    display: none;
   }
 }
