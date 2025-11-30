@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 import Navbar from './Navbar'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -13,6 +14,8 @@ function Checkout() {
   const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [razorpayKey, setRazorpayKey] = useState('')
+  const [hasDiscount, setHasDiscount] = useState(false)
+  const [discountChecked, setDiscountChecked] = useState(false)
 
   const [shippingAddress, setShippingAddress] = useState({
     fullName: '',
@@ -33,6 +36,7 @@ function Checkout() {
     }
 
     fetchRazorpayKey()
+    checkDiscountEligibility()
   }, [isAuthenticated, cart, navigate])
 
   const fetchRazorpayKey = async () => {
@@ -46,6 +50,20 @@ function Checkout() {
     }
   }
 
+  const checkDiscountEligibility = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.CHECK_DISCOUNT_ELIGIBILITY)
+      if (response.data.success && response.data.eligible) {
+        setHasDiscount(true)
+        toast.success('10% Welcome Discount Applied! 🎉')
+      }
+      setDiscountChecked(true)
+    } catch (error) {
+      console.error('Error checking discount eligibility:', error)
+      setDiscountChecked(true)
+    }
+  }
+
   const handleInputChange = (e) => {
     setShippingAddress({
       ...shippingAddress,
@@ -55,11 +73,13 @@ function Checkout() {
 
   const calculatePrices = () => {
     const itemsPrice = getCartTotal()
-    const shippingPrice = itemsPrice > 1000 ? 0 : 50 // Free shipping above Rs. 1000
-    const taxPrice = Math.round(itemsPrice * 0.18) // 18% GST
-    const totalPrice = itemsPrice + shippingPrice + taxPrice
+    const discount = hasDiscount ? Math.round(itemsPrice * 0.10) : 0 // 10% discount
+    const discountedPrice = itemsPrice - discount
+    const shippingPrice = discountedPrice > 1000 ? 0 : 50 // Free shipping above Rs. 1000
+    const taxPrice = Math.round(discountedPrice * 0.18) // 18% GST
+    const totalPrice = discountedPrice + shippingPrice + taxPrice
 
-    return { itemsPrice, shippingPrice, taxPrice, totalPrice }
+    return { itemsPrice, discount, discountedPrice, shippingPrice, taxPrice, totalPrice }
   }
 
   const handlePayment = async (e) => {
@@ -68,14 +88,14 @@ function Checkout() {
     // Validate form
     if (!shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.address ||
         !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
-      alert('Please fill all shipping address fields')
+      toast.warning('Please fill all shipping address fields')
       return
     }
 
     setLoading(true)
 
     try {
-      const { itemsPrice, shippingPrice, taxPrice, totalPrice } = calculatePrices()
+      const { itemsPrice, discount, discountedPrice, shippingPrice, taxPrice, totalPrice } = calculatePrices()
 
       // Create order items from cart (filter out items with deleted products)
       const orderItems = cart.items.filter(item => item.product).map(item => ({
@@ -93,13 +113,15 @@ function Checkout() {
         orderItems,
         shippingAddress,
         itemsPrice,
+        discount,
+        discountCode: hasDiscount ? 'WELCOME10' : null,
         shippingPrice,
         taxPrice,
         totalPrice
       })
 
       if (!orderResponse.data.success) {
-        alert(orderResponse.data.message || 'Failed to create order')
+        toast.error(orderResponse.data.message || 'Failed to create order')
         setLoading(false)
         return
       }
@@ -125,14 +147,14 @@ function Checkout() {
             })
 
             if (verifyResponse.data.success) {
-              alert('Payment successful! Your order has been placed.')
+              toast.success('Payment successful! Your order has been placed.')
               navigate(`/orders/${order._id}`)
             } else {
-              alert('Payment verification failed')
+              toast.error('Payment verification failed')
             }
           } catch (error) {
             console.error('Payment verification error:', error)
-            alert('Payment verification failed')
+            toast.error('Payment verification failed')
           }
           setLoading(false)
         },
@@ -147,7 +169,7 @@ function Checkout() {
         modal: {
           ondismiss: function() {
             setLoading(false)
-            alert('Payment cancelled')
+            toast.info('Payment cancelled')
           }
         }
       }
@@ -156,7 +178,7 @@ function Checkout() {
       razorpay.open()
     } catch (error) {
       console.error('Payment error:', error)
-      alert(error.response?.data?.message || 'Failed to initiate payment')
+      toast.error(error.response?.data?.message || 'Failed to initiate payment')
       setLoading(false)
     }
   }
@@ -165,7 +187,7 @@ function Checkout() {
     return null
   }
 
-  const { itemsPrice, shippingPrice, taxPrice, totalPrice } = calculatePrices()
+  const { itemsPrice, discount, shippingPrice, taxPrice, totalPrice } = calculatePrices()
 
   return (
     <>
@@ -289,6 +311,12 @@ function Checkout() {
                   <span>Subtotal</span>
                   <span>Rs.{itemsPrice.toFixed(2)}</span>
                 </div>
+                {hasDiscount && discount > 0 && (
+                  <div className={styles.priceRow} style={{ color: '#28a745' }}>
+                    <span>First Order Discount (10%)</span>
+                    <span>-Rs.{discount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className={styles.priceRow}>
                   <span>Shipping</span>
                   <span>{shippingPrice === 0 ? 'FREE' : `Rs.${shippingPrice.toFixed(2)}`}</span>

@@ -1,14 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import { useAuth } from '../context/AuthContext'
 import styles from './LoginModal.module.css'
 
-function LoginModal({ isOpen, onClose }) {
+function LoginModal({ isOpen, onClose, prefilledEmail = '' }) {
   const [isLogin, setIsLogin] = useState(true)
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login, signup } = useAuth()
+
+  // Set prefilled email when modal opens with prefilled email
+  useEffect(() => {
+    if (prefilledEmail && isOpen) {
+      setEmail(prefilledEmail)
+      setIsLogin(false) // Switch to signup mode when coming from newsletter
+    }
+  }, [prefilledEmail, isOpen])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -17,22 +27,26 @@ function LoginModal({ isOpen, onClose }) {
 
     const result = isLogin
       ? await login(email, password)
-      : await signup(email, password)
+      : await signup(name, email, password)
 
     setLoading(false)
 
     if (result.success) {
+      setName('')
       setEmail('')
       setPassword('')
+      toast.success(isLogin ? 'Login successful!' : 'Account created successfully!')
       onClose()
     } else {
       setError(result.message)
+      toast.error(result.message || (isLogin ? 'Login failed' : 'Signup failed'))
     }
   }
 
   const toggleMode = () => {
     setIsLogin(!isLogin)
     setError('')
+    setName('')
   }
 
   if (!isOpen) return null
@@ -45,6 +59,21 @@ function LoginModal({ isOpen, onClose }) {
         <h2 className={styles.title}>{isLogin ? 'LOGIN' : 'SIGN UP'}</h2>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          {!isLogin && (
+            <div className={styles.inputGroup}>
+              <input
+                type="text"
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={styles.input}
+                required
+                minLength={2}
+                maxLength={50}
+              />
+            </div>
+          )}
+
           <div className={styles.inputGroup}>
             <input
               type="email"

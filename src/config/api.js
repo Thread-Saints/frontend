@@ -39,6 +39,7 @@ export const API_ENDPOINTS = {
   GET_ORDERS: `${API_BASE_URL}/api/payment/orders`,
   GET_ORDER_BY_ID: (id) => `${API_BASE_URL}/api/payment/orders/${id}`,
   GET_RAZORPAY_KEY: `${API_BASE_URL}/api/payment/razorpay-key`,
+  CHECK_DISCOUNT_ELIGIBILITY: `${API_BASE_URL}/api/payment/check-discount`,
 
   // Admin Order endpoints
   GET_ALL_ORDERS_ADMIN: `${API_BASE_URL}/api/payment/admin/orders`,

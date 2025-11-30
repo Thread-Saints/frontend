@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaTrash, FaShoppingBag } from 'react-icons/fa'
+import { toast } from 'react-toastify'
 import Navbar from './Navbar'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -33,8 +34,9 @@ function Cart() {
   }
 
   const handleClearCart = async () => {
-    if (window.confirm('Are you sure you want to clear your cart?')) {
-      await clearCart()
+    const result = await clearCart()
+    if (result.success) {
+      toast.success('Cart cleared')
     }
   }
 

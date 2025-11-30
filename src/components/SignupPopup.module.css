@@ -1,0 +1,264 @@
+@font-face {
+  font-family: 'Rasputin';
+  src: url('/fonts/Rasputin.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+  animation: fadeIn 0.3s ease-in-out;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.popup {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+  padding: 0;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: rotate(90deg);
+}
+
+.header {
+  background: #000000;
+  padding: 1rem 1rem 0 1rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.logo {
+  width: auto;
+  max-width: 340px;
+  height: auto;
+  max-height: 70px;
+  object-fit: contain;
+  margin: 0.25rem 0 -0.75rem 0;
+  z-index: 1;
+  filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.5));
+}
+
+.dollsContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-top: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.dollLeft,
+.dollRight {
+  width: 140px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.content {
+  padding: 1.5rem 2rem 2rem 2rem;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Rasputin', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.2rem 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-family: 'Rasputin', serif;
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  width: 100%;
+}
+
+.emailInput {
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-family: 'Rasputin', serif;
+  border: 2px solid #e0e0e0;
+  border-radius: 50px;
+  outline: none;
+  transition: all 0.2s ease;
+  background: #f5f5f5;
+  color: #333;
+  text-align: center;
+}
+
+.emailInput::placeholder {
+  color: #999;
+}
+
+.emailInput:focus {
+  border-color: #d4a5a5;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(212, 165, 165, 0.1);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Rasputin', serif;
+  letter-spacing: 0.5px;
+  color: white;
+  background: linear-gradient(135deg, #d4a5a5 0%, #c98d8d 100%);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(212, 165, 165, 0.3);
+}
+
+.submitButton:hover {
+  background: linear-gradient(135deg, #c98d8d 0%, #b87878 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 165, 165, 0.4);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .popup {
+    max-width: 95%;
+    border-radius: 8px;
+  }
+
+  .header {
+    min-height: 150px;
+    padding: 0.75rem 0.75rem 0 0.75rem;
+  }
+
+  .logo {
+    max-width: 240px;
+    max-height: 55px;
+    margin: 0.2rem 0 -0.6rem 0;
+  }
+
+  .dollLeft,
+  .dollRight {
+    width: 110px;
+  }
+
+  .dollsContainer {
+    gap: 2rem;
+  }
+
+  .content {
+    padding: 1.25rem 1.25rem 1.75rem 1.25rem;
+  }
+
+  .title {
+    font-size: 1.15rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .emailInput {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .submitButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .closeButton {
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    top: 10px;
+    right: 10px;
+  }
+}

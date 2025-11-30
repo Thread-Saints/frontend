@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaTrash, FaHeart, FaShoppingCart } from 'react-icons/fa'
+import { toast } from 'react-toastify'
 import Navbar from './Navbar'
 import { useWishlist } from '../context/WishlistContext'
 import { useCart } from '../context/CartContext'
@@ -27,23 +28,24 @@ function Wishlist() {
   }
 
   const handleClearWishlist = async () => {
-    if (window.confirm('Are you sure you want to clear your wishlist?')) {
-      await clearWishlist()
+    const result = await clearWishlist()
+    if (result.success) {
+      toast.success('Wishlist cleared')
     }
   }
 
   const handleMoveToCart = async (item) => {
     if (!item.product) {
-      alert('This product is no longer available')
+      toast.error('This product is no longer available')
       return
     }
     setUpdating(item._id)
     const result = await addToCart(item.product._id, 1)
     if (result.success) {
       await removeFromWishlist(item._id)
-      alert('Item moved to cart!')
+      toast.success('Item moved to cart!')
     } else {
-      alert(result.message || 'Failed to add item to cart')
+      toast.error(result.message || 'Failed to add item to cart')
     }
     setUpdating(null)
   }

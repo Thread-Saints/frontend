@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 import { API_ENDPOINTS } from '../config/api'
 import { useAuth } from '../context/AuthContext'
 import styles from './Admin.module.css'
@@ -110,8 +111,13 @@ function Admin() {
   }, [])
 
   const showMessage = (type, text) => {
-    setMessage({ type, text })
-    setTimeout(() => setMessage({ type: '', text: '' }), 5000)
+    if (type === 'success') {
+      toast.success(text)
+    } else if (type === 'error') {
+      toast.error(text)
+    } else {
+      toast.info(text)
+    }
   }
 
   // Handle product form input changes
@@ -465,10 +471,6 @@ function Admin() {
 
   // Delete product
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) {
-      return
-    }
-
     try {
       setLoading(true)
       const response = await axios.delete(API_ENDPOINTS.PRODUCT_BY_ID(id))
@@ -609,10 +611,6 @@ function Admin() {
 
   // Delete category
   const handleDeleteCategory = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) {
-      return
-    }
-
     try {
       setLoading(true)
       const response = await axios.delete(API_ENDPOINTS.CATEGORY_BY_ID(id))

@@ -1,10 +1,78 @@
+import { useState, useEffect } from 'react'
 import Navbar from './Navbar'
+import SignupPopup from './SignupPopup'
+import LoginModal from './LoginModal'
+import { useAuth } from '../context/AuthContext'
 import styles from './Home.module.css'
 
 function Home() {
+  const { isAuthenticated } = useAuth()
+  const [showPopup, setShowPopup] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [prefilledEmail, setPrefilledEmail] = useState('')
+
+  useEffect(() => {
+    // Don't show popup if user is authenticated
+    if (isAuthenticated) {
+      return
+    }
+
+    // Check if popup was shown recently (within last 5 minutes)
+    const lastShown = localStorage.getItem('signupPopupLastShown')
+    const now = Date.now()
+    const fiveMinutes = 5 * 60 * 1000 // 5 minutes in milliseconds
+
+    // Show popup immediately if it was never shown or if 5 minutes have passed
+    if (!lastShown || now - parseInt(lastShown) >= fiveMinutes) {
+      // Show popup after 3 seconds of landing on page
+      const initialTimer = setTimeout(() => {
+        setShowPopup(true)
+        localStorage.setItem('signupPopupLastShown', now.toString())
+      }, 3000)
+
+      // Set up recurring timer for every 5 minutes
+      const recurringTimer = setInterval(() => {
+        if (!isAuthenticated) {
+          setShowPopup(true)
+          localStorage.setItem('signupPopupLastShown', Date.now().toString())
+        }
+      }, fiveMinutes)
+
+      return () => {
+        clearTimeout(initialTimer)
+        clearInterval(recurringTimer)
+      }
+    }
+  }, [isAuthenticated])
+
+  const handleClosePopup = () => {
+    setShowPopup(false)
+    localStorage.setItem('signupPopupLastShown', Date.now().toString())
+  }
+
+  const handleOpenLogin = (email) => {
+    setPrefilledEmail(email)
+    setShowLoginModal(true)
+  }
+
+  const handleCloseLogin = () => {
+    setShowLoginModal(false)
+    setPrefilledEmail('')
+  }
+
   return (
     <>
       <Navbar />
+      <SignupPopup
+        isOpen={showPopup}
+        onClose={handleClosePopup}
+        onOpenLogin={handleOpenLogin}
+      />
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={handleCloseLogin}
+        prefilledEmail={prefilledEmail}
+      />
       <div className={styles.container}>
         <img src="/hero-image.png" alt="Hero" className={styles.heroOverlay} />
         <div className={styles.headerContainer}>

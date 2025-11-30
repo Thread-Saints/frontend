@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
+import { toast } from 'react-toastify'
 import Navbar from './Navbar'
 import styles from './ProductDetails.module.css'
 import { API_ENDPOINTS } from '../config/api'
@@ -142,17 +143,17 @@ function ProductDetails() {
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      alert('Please login to add items to cart')
+      toast.error('Please login to add items to cart')
       return
     }
 
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      alert('Please select a size')
+      toast.warning('Please select a size')
       return
     }
 
     if (product.colors && product.colors.length > 0 && !selectedColor) {
-      alert('Please select a color')
+      toast.warning('Please select a color')
       return
     }
 
@@ -161,15 +162,15 @@ function ProductDetails() {
     setAddingToCart(false)
 
     if (result.success) {
-      alert('Item added to cart!')
+      toast.success('Item added to cart!')
     } else {
-      alert(result.message || 'Failed to add item to cart')
+      toast.error(result.message || 'Failed to add item to cart')
     }
   }
 
   const handleToggleWishlist = async () => {
     if (!isAuthenticated) {
-      alert('Please login to add items to wishlist')
+      toast.error('Please login to add items to wishlist')
       return
     }
 
@@ -184,15 +185,16 @@ function ProductDetails() {
         const result = await removeFromWishlist(wishlistItem._id)
         if (result.success) {
           setIsInWishlist(false)
+          toast.success('Removed from wishlist')
         }
       }
     } else {
       const result = await addToWishlist(id)
       if (result.success) {
         setIsInWishlist(true)
-        alert('Item added to wishlist!')
+        toast.success('Item added to wishlist!')
       } else {
-        alert(result.message || 'Failed to add item to wishlist')
+        toast.error(result.message || 'Failed to add item to wishlist')
       }
     }
 

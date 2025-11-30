@@ -1,5 +1,7 @@
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import { WishlistProvider } from './context/WishlistContext'
@@ -8,6 +10,8 @@ import Page2 from './components/Page2'
 import Page3 from './components/Page3'
 import Page4 from './components/Page4'
 // Page5 removed - split section now in Footer
+import Categories from './components/Categories'
+import CategoryProducts from './components/CategoryProducts'
 import ProductDetails from './components/ProductDetails'
 import Cart from './components/Cart'
 import Wishlist from './components/Wishlist'
@@ -56,6 +60,18 @@ function App() {
                 <Footer />
               </>
             } />
+            <Route path="/categories" element={
+              <>
+                <Categories />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/category/:name" element={
+              <>
+                <CategoryProducts />
+                <Footer2 />
+              </>
+            } />
             <Route path="/product/:id" element={
               <>
                 <ProductDetails />
@@ -101,6 +117,19 @@ function App() {
               </>
             } />
           </Routes>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={true}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+            style={{ marginTop: '40px', zIndex: 999999 }}
+          />
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>

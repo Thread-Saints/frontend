@@ -63,9 +63,10 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const signup = async (email, password) => {
+  const signup = async (name, email, password) => {
     try {
       const response = await axios.post(API_ENDPOINTS.SIGNUP, {
+        name,
         email,
         password
       })

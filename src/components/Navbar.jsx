@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FaUserCircle, FaShoppingCart, FaHeart } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
+import { API_ENDPOINTS } from '../config/api'
 import LoginModal from './LoginModal'
 import styles from './Navbar.module.css'
 
 function Navbar() {
+  const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const [categories, setCategories] = useState([])
   const dropdownRef = useRef(null)
   const profileDropdownRef = useRef(null)
   const { isAuthenticated, user, logout } = useAuth()
@@ -18,6 +21,8 @@ function Navbar() {
   const { getWishlistItemCount } = useWishlist()
 
   useEffect(() => {
+    fetchCategories()
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false)
@@ -32,6 +37,28 @@ function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.CATEGORIES)
+      const data = await response.json()
+
+      if (Array.isArray(data)) {
+        setCategories(data)
+      } else if (data.categories && Array.isArray(data.categories)) {
+        setCategories(data.categories)
+      } else if (data.data && Array.isArray(data.data)) {
+        setCategories(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
+
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/category/${encodeURIComponent(categoryName)}`)
+    setIsDropdownOpen(false)
+  }
 
   return (
     <>
@@ -50,11 +77,22 @@ function Navbar() {
             </button>
             {isDropdownOpen && (
               <div className={styles.dropdownMenu}>
-                <a href="#" className={styles.dropdownItem}>T-SHIRTS</a>
-                <a href="#" className={styles.dropdownItem}>JEANS</a>
-                <a href="#" className={styles.dropdownItem}>JACKETS</a>
-                <a href="#" className={styles.dropdownItem}>HOODIES</a>
-                <a href="#" className={styles.dropdownItem}>ALL</a>
+                {categories.map((category) => (
+                  <button
+                    key={category._id}
+                    className={styles.dropdownItem}
+                    onClick={() => handleCategoryClick(category.name)}
+                  >
+                    {category.name.toUpperCase()}
+                  </button>
+                ))}
+                <Link
+                  to="/categories"
+                  className={styles.dropdownItem}
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  ALL CATEGORIES
+                </Link>
               </div>
             )}
           </div>

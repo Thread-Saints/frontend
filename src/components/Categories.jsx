@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styles from './Page3.module.css'
+import Navbar from './Navbar'
 import { API_ENDPOINTS } from '../config/api'
+import styles from './Categories.module.css'
 
-function Page3() {
+function Categories() {
   const navigate = useNavigate()
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -40,35 +41,36 @@ function Page3() {
     navigate(`/category/${encodeURIComponent(categoryName)}`)
   }
 
-  const handleDropItAllClick = () => {
-    navigate('/categories')
-  }
-
   return (
-    <div className={styles.page3Container}>
-      <div className={styles.content}>
-        {/* Heading with shadow effect */}
-        <div className={styles.headingContainer}>
-          <h2 className={styles.heading}>SAINT'S DROP</h2>
-          <h2 className={styles.headingShadow}>SAINT'S DROP</h2>
-          <h2 className={styles.headingShadow2}>SAINT'S DROP</h2>
-        </div>
+    <>
+      <Navbar />
+      <div className={styles.categoriesContainer}>
+        <div className={styles.content}>
+          {/* Heading with shadow effect */}
+          <div className={styles.headingContainer}>
+            <h1 className={styles.heading}>SAINT'S DROP</h1>
+            <h1 className={styles.headingShadow}>SAINT'S DROP</h1>
+            <h1 className={styles.headingShadow2}>SAINT'S DROP</h1>
+          </div>
 
-        {/* Categories horizontal scroll */}
-        <div className={styles.categoriesSection}>
+          {/* Categories grid */}
           {loading ? (
-            <p className={styles.loadingText}>Loading categories...</p>
+            <div className={styles.loadingContainer}>
+              <p className={styles.loadingText}>Loading categories...</p>
+            </div>
           ) : categories.length === 0 ? (
-            <p className={styles.loadingText}>No categories available</p>
+            <div className={styles.emptyContainer}>
+              <p className={styles.emptyText}>No categories available</p>
+            </div>
           ) : (
-            <div className={styles.categoriesScroll}>
-              {Array.isArray(categories) && categories.map((category) => (
+            <div className={styles.categoriesGrid}>
+              {categories.map((category) => (
                 <div
                   key={category._id}
                   className={styles.categoryCard}
                   onClick={() => handleCategoryClick(category.name)}
                 >
-                  <div className={styles.categoryImagePlaceholder}>
+                  <div className={styles.categoryImageContainer}>
                     {category.image ? (
                       <img
                         src={category.image}
@@ -76,25 +78,20 @@ function Page3() {
                         className={styles.categoryImage}
                       />
                     ) : (
-                      <div className={styles.imagePlaceholder}>
+                      <div className={styles.noImage}>
                         <span className={styles.noImageText}>No Image</span>
                       </div>
                     )}
                   </div>
-                  <h3 className={styles.categoryName}>{category.name}</h3>
+                  <h3 className={styles.categoryName}>{category.name.toUpperCase()}</h3>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-        {/* Drop it all button */}
-        <button className={styles.dropItAllBtn} onClick={handleDropItAllClick}>
-          DROP IT ALL
-        </button>
       </div>
-    </div>
+    </>
   )
 }
 
-export default Page3
+export default Categories
