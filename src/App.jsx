@@ -49,7 +49,7 @@ function App() {
               fontWeight: 500,
               color: '#333',
               letterSpacing: '1px'
-            }}>COMING SOON</span>
+            }}>LAUNCHING ON SUNDAY !!</span>
           </div>
           <Routes>
             <Route path="/" element={

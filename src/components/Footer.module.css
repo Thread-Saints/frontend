@@ -5,8 +5,9 @@
   background-repeat: no-repeat;
   background-color: #1a1a1a;
   color: #ffffff;
-  margin-top: auto;
+  margin-top: -2rem;
   position: relative;
+  z-index: 10;
 }
 
 /* Split section with doll */
@@ -18,6 +19,10 @@
   align-items: flex-end;
   justify-content: center;
   padding: 0 10rem;
+  background-image: url('/layer3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .backgroundSplit {
