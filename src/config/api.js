@@ -44,6 +44,13 @@ export const API_ENDPOINTS = {
   // Admin Order endpoints
   GET_ALL_ORDERS_ADMIN: `${API_BASE_URL}/api/payment/admin/orders`,
   UPDATE_ORDER_STATUS: (id) => `${API_BASE_URL}/api/payment/admin/orders/${id}/status`,
+
+  // Profile endpoints
+  UPDATE_PROFILE: `${API_BASE_URL}/api/profile`,
+  GET_ADDRESSES: `${API_BASE_URL}/api/profile/addresses`,
+  ADD_ADDRESS: `${API_BASE_URL}/api/profile/addresses`,
+  UPDATE_ADDRESS: (addressId) => `${API_BASE_URL}/api/profile/addresses/${addressId}`,
+  DELETE_ADDRESS: (addressId) => `${API_BASE_URL}/api/profile/addresses/${addressId}`,
 }
 
 export default API_BASE_URL

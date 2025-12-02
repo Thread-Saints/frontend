@@ -130,6 +130,158 @@
   line-height: 1.6;
 }
 
+/* Address Form */
+.addressForm {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  background: rgba(26, 26, 26, 0.3);
+  max-width: 800px;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0;
+  padding: 0.65rem 0;
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+  width: 100%;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.textarea:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.saveButton {
+  flex: 1;
+  background: white;
+  color: #0a0a0a;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.saveButton:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+.cancelButton {
+  flex: 1;
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancelButton:hover {
+  border-color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Addresses List */
+.addressesList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addressCard {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: rgba(26, 26, 26, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.addressDetails {
+  flex: 1;
+}
+
+.addressName {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.addressText {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.25rem;
+}
+
+.addressPhone {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.5rem;
+}
+
+.defaultBadge {
+  display: inline-block;
+  background: white;
+  color: #0a0a0a;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.75rem;
+}
+
+.deleteButton {
+  background: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.deleteButton:hover {
+  background: #ff6b6b;
+  color: white;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 100px 20px 40px;
@@ -194,5 +346,25 @@
 
   .input {
     padding: 0.5rem 0;
+  }
+
+  .addressForm {
+    padding: 1.25rem 1.5rem;
+    max-width: 100%;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .formActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .saveButton,
+  .cancelButton {
+    padding: 0.65rem 1.25rem;
   }
 }

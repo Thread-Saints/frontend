@@ -16,6 +16,9 @@ function Checkout() {
   const [razorpayKey, setRazorpayKey] = useState('')
   const [hasDiscount, setHasDiscount] = useState(false)
   const [discountChecked, setDiscountChecked] = useState(false)
+  const [savedAddresses, setSavedAddresses] = useState([])
+  const [selectedAddressId, setSelectedAddressId] = useState(null)
+  const [useNewAddress, setUseNewAddress] = useState(false)
 
   const [shippingAddress, setShippingAddress] = useState({
     fullName: '',
@@ -37,7 +40,53 @@ function Checkout() {
 
     fetchRazorpayKey()
     checkDiscountEligibility()
+    fetchSavedAddresses()
   }, [isAuthenticated, cart, navigate])
+
+  const fetchSavedAddresses = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.GET_ADDRESSES)
+      if (response.data.success) {
+        const addresses = response.data.addresses
+        setSavedAddresses(addresses)
+
+        // Auto-select default address or first address
+        const defaultAddr = addresses.find(addr => addr.isDefault) || addresses[0]
+        if (defaultAddr) {
+          setSelectedAddressId(defaultAddr._id)
+          setShippingAddress({
+            fullName: defaultAddr.fullName,
+            phone: defaultAddr.phone,
+            address: defaultAddr.address,
+            city: defaultAddr.city,
+            state: defaultAddr.state,
+            pincode: defaultAddr.pincode
+          })
+        } else {
+          setUseNewAddress(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error)
+      setUseNewAddress(true)
+    }
+  }
+
+  const handleAddressSelect = (addressId) => {
+    const selected = savedAddresses.find(addr => addr._id === addressId)
+    if (selected) {
+      setSelectedAddressId(addressId)
+      setUseNewAddress(false)
+      setShippingAddress({
+        fullName: selected.fullName,
+        phone: selected.phone,
+        address: selected.address,
+        city: selected.city,
+        state: selected.state,
+        pincode: selected.pincode
+      })
+    }
+  }
 
   const fetchRazorpayKey = async () => {
     try {
@@ -200,18 +249,98 @@ function Checkout() {
             {/* Shipping Form */}
             <div className={styles.shippingSection}>
               <h2 className={styles.sectionTitle}>Shipping Address</h2>
-              <form onSubmit={handlePayment} className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Full Name *</label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={shippingAddress.fullName}
-                    onChange={handleInputChange}
-                    className={styles.input}
-                    required
-                  />
+
+              {/* Saved Addresses */}
+              {savedAddresses.length > 0 && !useNewAddress && (
+                <div className={styles.savedAddressesSection}>
+                  <h3 className={styles.subTitle}>Select Address</h3>
+                  <div className={styles.addressOptions}>
+                    {savedAddresses.map((addr) => (
+                      <div
+                        key={addr._id}
+                        className={`${styles.addressOption} ${
+                          selectedAddressId === addr._id ? styles.selectedAddress : ''
+                        }`}
+                        onClick={() => handleAddressSelect(addr._id)}
+                      >
+                        <div className={styles.radioButton}>
+                          {selectedAddressId === addr._id && (
+                            <div className={styles.radioInner}></div>
+                          )}
+                        </div>
+                        <div className={styles.addressInfo}>
+                          <p className={styles.addressName}>{addr.fullName}</p>
+                          <p className={styles.addressLine}>{addr.address}</p>
+                          <p className={styles.addressLine}>
+                            {addr.city}, {addr.state} - {addr.pincode}
+                          </p>
+                          <p className={styles.addressLine}>Phone: {addr.phone}</p>
+                          {addr.isDefault && (
+                            <span className={styles.defaultLabel}>Default</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.newAddressBtn}
+                    onClick={() => {
+                      setUseNewAddress(true)
+                      setSelectedAddressId(null)
+                      setShippingAddress({
+                        fullName: '',
+                        phone: '',
+                        address: '',
+                        city: '',
+                        state: '',
+                        pincode: ''
+                      })
+                    }}
+                  >
+                    + Use New Address
+                  </button>
                 </div>
+              )}
+
+              {/* Show form if using new address or no saved addresses */}
+              {(useNewAddress || savedAddresses.length === 0) && (
+                <>
+                  {savedAddresses.length > 0 && (
+                    <button
+                      type="button"
+                      className={styles.backToSavedBtn}
+                      onClick={() => {
+                        setUseNewAddress(false)
+                        const defaultAddr = savedAddresses.find(addr => addr.isDefault) || savedAddresses[0]
+                        if (defaultAddr) {
+                          handleAddressSelect(defaultAddr._id)
+                        }
+                      }}
+                    >
+                      ← Use Saved Address
+                    </button>
+                  )}
+                  <h3 className={styles.subTitle}>
+                    {savedAddresses.length > 0 ? 'New Address' : 'Enter Address'}
+                  </h3>
+                </>
+              )}
+
+              <form onSubmit={handlePayment} className={styles.form}>
+                {(useNewAddress || savedAddresses.length === 0 || !selectedAddressId) && (
+                  <>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Full Name *</label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={shippingAddress.fullName}
+                        onChange={handleInputChange}
+                        className={styles.input}
+                        required
+                      />
+                    </div>
 
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Phone Number *</label>
@@ -264,18 +393,20 @@ function Checkout() {
                   </div>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Pincode *</label>
-                  <input
-                    type="text"
-                    name="pincode"
-                    value={shippingAddress.pincode}
-                    onChange={handleInputChange}
-                    className={styles.input}
-                    pattern="[0-9]{6}"
-                    required
-                  />
-                </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Pincode *</label>
+                      <input
+                        type="text"
+                        name="pincode"
+                        value={shippingAddress.pincode}
+                        onChange={handleInputChange}
+                        className={styles.input}
+                        pattern="[0-9]{6}"
+                        required
+                      />
+                    </div>
+                  </>
+                )}
 
                 <button
                   type="submit"
