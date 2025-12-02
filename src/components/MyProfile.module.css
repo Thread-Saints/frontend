@@ -1,11 +1,198 @@
 .container {
-  min-height: calc(100vh - 80px);
-  padding: 40px 20px;
-  margin-top: 80px;
+  min-height: 100vh;
+  background: #0a0a0a;
+  padding: 120px 20px 60px;
+  color: white;
 }
 
-.container h1 {
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.welcomeTitle {
+  display: block;
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto 3rem;
+  object-fit: contain;
+}
+
+.mainLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1200px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.menuItem {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 0.3s ease;
+}
+
+.menuItem:hover {
+  opacity: 0.7;
+}
+
+.activeMenuItem {
+  opacity: 1;
+  font-weight: 500;
+}
+
+.menuItemWithAction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-size: 1rem;
+}
+
+.menuItemText {
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.menuItemText:hover {
+  opacity: 0.7;
+}
+
+.sectionContent {
+  /* margin-top: 1rem; */
+  max-width: 1200px;
+}
+
+.profileInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;  background: rgba(26, 26, 26, 0.3);
+  /* max-width: 800px; */
+}
+
+.input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0;
+  padding: 0.65rem 0;
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.input:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.addButton {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.addButton:hover {
+  opacity: 0.7;
+}
+
+.emptyState {
+  padding: 2rem;
   text-align: center;
-  font-size: 2rem;
-  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.textContent {
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 100px 20px 40px;
+  }
+
+  .welcomeTitle {
+    max-width: 450px;
+    margin-bottom: 2.5rem;
+  }
+
+  .content {
+    padding: 0 1.5rem;
+  }
+
+  .mainLayout {
+    gap: 1.5rem;
+  }
+
+  .menuItem,
+  .menuItemWithAction {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 90px 15px 30px;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
+
+  .welcomeTitle {
+    max-width: 350px;
+    margin-bottom: 2rem;
+  }
+
+  .mainLayout {
+    gap: 1.25rem;
+  }
+
+  .section {
+    gap: 1rem;
+  }
+
+  .input {
+    padding: 0.75rem 0;
+    font-size: 0.9rem;
+  }
+
+  .menuItem,
+  .menuItemWithAction {
+    font-size: 0.9rem;
+  }
+
+  .profileInputs {
+    padding: 1.25rem 1.5rem;
+    gap: 1rem;
+    max-width: 100%;
+  }
+
+  .input {
+    padding: 0.5rem 0;
+  }
 }

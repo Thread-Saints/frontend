@@ -110,10 +110,12 @@ function App() {
               </>
             } />
             <Route path="/profile" element={
-              <>
-                <MyProfile />
-                <Footer2 />
-              </>
+              <ProtectedRoute>
+                <>
+                  <MyProfile />
+                  <Footer2 />
+                </>
+              </ProtectedRoute>
             } />
             <Route path="/admin" element={
               <>
