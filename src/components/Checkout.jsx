@@ -19,6 +19,8 @@ function Checkout() {
   const [savedAddresses, setSavedAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
   const [useNewAddress, setUseNewAddress] = useState(false)
+  const [saveAddress, setSaveAddress] = useState(false)
+  const [makeDefault, setMakeDefault] = useState(false)
 
   const [shippingAddress, setShippingAddress] = useState({
     fullName: '',
@@ -196,7 +198,21 @@ function Checkout() {
             })
 
             if (verifyResponse.data.success) {
-              toast.success('Payment successful! Your order has been placed.')
+              // Save address to profile if checkbox was checked and it's a new address
+              if (saveAddress && useNewAddress) {
+                try {
+                  await axios.post(API_ENDPOINTS.ADD_ADDRESS, {
+                    ...shippingAddress,
+                    isDefault: makeDefault
+                  })
+                  toast.success('Payment successful! Address saved to your profile.')
+                } catch (error) {
+                  console.error('Error saving address:', error)
+                  toast.success('Payment successful! Your order has been placed.')
+                }
+              } else {
+                toast.success('Payment successful! Your order has been placed.')
+              }
               navigate(`/orders/${order._id}`)
             } else {
               toast.error('Payment verification failed')
@@ -404,6 +420,37 @@ function Checkout() {
                         pattern="[0-9]{6}"
                         required
                       />
+                    </div>
+
+                    {/* Save Address Checkboxes */}
+                    <div className={styles.saveAddressSection}>
+                      <div className={styles.checkboxGroup}>
+                        <input
+                          type="checkbox"
+                          id="saveAddress"
+                          checked={saveAddress}
+                          onChange={(e) => setSaveAddress(e.target.checked)}
+                          className={styles.checkbox}
+                        />
+                        <label htmlFor="saveAddress" className={styles.checkboxLabel}>
+                          Save this address to my profile
+                        </label>
+                      </div>
+
+                      {saveAddress && (
+                        <div className={styles.checkboxGroup}>
+                          <input
+                            type="checkbox"
+                            id="makeDefault"
+                            checked={makeDefault}
+                            onChange={(e) => setMakeDefault(e.target.checked)}
+                            className={styles.checkbox}
+                          />
+                          <label htmlFor="makeDefault" className={styles.checkboxLabel}>
+                            Make this my default address
+                          </label>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}

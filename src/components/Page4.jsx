@@ -14,6 +14,47 @@ function Page4() {
     fetchProducts()
   }, [])
 
+  // Preload all product images for smooth hover effect
+  useEffect(() => {
+    if (products.length > 0) {
+      preloadImages()
+    }
+  }, [products])
+
+  const preloadImages = () => {
+    let loadedCount = 0
+    let totalImages = 0
+
+    // Count total images first
+    products.forEach(product => {
+      const images = getProductImages(product)
+      totalImages += images.filter(img => img && img !== '/placeholder-image.png').length
+    })
+
+    console.log(`🖼️ Preloading ${totalImages} product images...`)
+
+    // Preload each image
+    products.forEach(product => {
+      const images = getProductImages(product)
+      images.forEach(imageUrl => {
+        if (imageUrl && imageUrl !== '/placeholder-image.png') {
+          const img = new Image()
+          img.onload = () => {
+            loadedCount++
+            if (loadedCount === totalImages) {
+              console.log('✅ All product images preloaded successfully!')
+            }
+          }
+          img.onerror = () => {
+            console.warn(`⚠️ Failed to preload image: ${imageUrl}`)
+            loadedCount++
+          }
+          img.src = imageUrl
+        }
+      })
+    })
+  }
+
   const fetchProducts = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.PRODUCTS)
@@ -38,7 +79,7 @@ function Page4() {
     }
   }
 
-  // Get all available images for a product
+  // Get only first 2 images for a product (optimized for hover)
   const getProductImages = (product) => {
     const images = []
 
@@ -56,37 +97,27 @@ function Page4() {
       images.push(...product.images)
     }
 
-    return images.length > 0 ? images : ['/placeholder-image.png']
+    // Return only first 2 images for performance optimization
+    const firstTwoImages = images.slice(0, 2)
+    return firstTwoImages.length > 0 ? firstTwoImages : ['/placeholder-image.png']
   }
 
-  // Handle mouse enter - start cycling images
+  // Handle mouse enter - show second image
   const handleMouseEnter = (productId) => {
     setHoveredProduct(productId)
     const product = products.find(p => p._id === productId)
     const images = getProductImages(product)
 
+    // Only switch to second image if it exists
     if (images.length > 1) {
       setCurrentImageIndex(prev => ({ ...prev, [productId]: 1 }))
-
-      // Cycle through remaining images
-      const interval = setInterval(() => {
-        setCurrentImageIndex(prev => {
-          const current = prev[productId] || 0
-          const next = (current + 1) % images.length
-          return { ...prev, [productId]: next }
-        })
-      }, 1000) // Change image every 1 second
-
-      // Store interval ID for cleanup
-      return interval
     }
   }
 
   // Handle mouse leave - reset to first image
-  const handleMouseLeave = (productId, interval) => {
+  const handleMouseLeave = (productId) => {
     setHoveredProduct(null)
     setCurrentImageIndex(prev => ({ ...prev, [productId]: 0 }))
-    if (interval) clearInterval(interval)
   }
 
   return (
@@ -108,14 +139,8 @@ function Page4() {
                   key={product._id}
                   className={styles.productCard}
                   onClick={() => navigate(`/product/${product._id}`)}
-                  onMouseEnter={(e) => {
-                    const interval = handleMouseEnter(product._id)
-                    e.currentTarget.dataset.intervalId = interval
-                  }}
-                  onMouseLeave={(e) => {
-                    const interval = e.currentTarget.dataset.intervalId
-                    handleMouseLeave(product._id, interval)
-                  }}
+                  onMouseEnter={() => handleMouseEnter(product._id)}
+                  onMouseLeave={() => handleMouseLeave(product._id)}
                 >
                   <div className={styles.productImageContainer}>
                     {currentImage && currentImage !== '/placeholder-image.png' ? (
