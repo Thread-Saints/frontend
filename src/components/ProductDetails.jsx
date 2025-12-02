@@ -21,6 +21,7 @@ function ProductDetails() {
   const [activeSection, setActiveSection] = useState('details')
   const [addingToCart, setAddingToCart] = useState(false)
   const [addingToWishlist, setAddingToWishlist] = useState(false)
+  const [showSizeChart, setShowSizeChart] = useState(false)
   const { addToCart } = useCart()
   const { addToWishlist, removeFromWishlist, checkIsInWishlist, wishlist } = useWishlist()
   const { isAuthenticated } = useAuth()
@@ -308,6 +309,15 @@ function ProductDetails() {
             {/* Sizes */}
             {product.sizes && product.sizes.length > 0 && (
               <div className={styles.sizesSection}>
+                <div className={styles.sizeHeader}>
+                  <label className={styles.label}>Size</label>
+                  <button
+                    className={styles.sizeChartBtn}
+                    onClick={() => setShowSizeChart(true)}
+                  >
+                    Size Chart (Cm)
+                  </button>
+                </div>
                 <div className={styles.sizeOptions}>
                   {product.sizes.map((size) => {
                     const sizeStock = getSizeStock(size)
@@ -436,6 +446,25 @@ function ProductDetails() {
           </div>
         </div>
       </div>
+
+      {/* Size Chart Modal */}
+      {showSizeChart && (
+        <div className={styles.modalOverlay} onClick={() => setShowSizeChart(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button
+              className={styles.closeModal}
+              onClick={() => setShowSizeChart(false)}
+            >
+              ×
+            </button>
+            <img
+              src="/Group 52.png"
+              alt="Size Chart"
+              className={styles.sizeChartImage}
+            />
+          </div>
+        </div>
+      )}
     </>
   )
 }

@@ -1,8 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './Footer.module.css'
 
 function Footer() {
   const [email, setEmail] = useState('')
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  const carouselImages = [
+    '/corosal/Property 1=Frame 1.png',
+    '/corosal/Property 1=Frame 2.png',
+    '/corosal/Property 1=Frame 9.png',
+    '/corosal/Property 1=Frame 10.png',
+    '/corosal/Property 1=Frame 11.png',
+    '/corosal/Property 1=Frame 12.png',
+    '/corosal/Property 1=Frame 14.png',
+    '/corosal/Property 1=Frame 15.png'
+  ]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) =>
+        (prevIndex + 1) % carouselImages.length
+      )
+    }, 5000) // Change image every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [carouselImages.length])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -15,8 +37,12 @@ function Footer() {
       {/* Split section with doll */}
       <div className={styles.splitSection}>
         <div className={styles.backgroundSplit}>
-          <div className={styles.leftPanel}></div>
-          <div className={styles.rightPanel}></div>
+          <img
+            src={carouselImages[currentImageIndex]}
+            alt="Carousel"
+            className={styles.carouselImage}
+            key={currentImageIndex}
+          />
         </div>
         <div className={styles.dollContainer}>
           <img

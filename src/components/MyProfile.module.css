@@ -1,0 +1,11 @@
+.container {
+  min-height: calc(100vh - 80px);
+  padding: 40px 20px;
+  margin-top: 80px;
+}
+
+.container h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 30px;
+}

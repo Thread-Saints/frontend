@@ -243,6 +243,27 @@
   gap: 0.75rem;
 }
 
+.sizeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sizeChartBtn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+  padding: 0;
+}
+
+.sizeChartBtn:hover {
+  color: white;
+}
+
 .sizeOptions {
   display: flex;
   gap: 0.75rem;
@@ -502,5 +523,97 @@
   .price,
   .salePrice {
     font-size: 1.1rem;
+  }
+}
+
+/* Size Chart Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+}
+
+.modalContent {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.closeModal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  font-size: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.3s ease;
+  z-index: 10001;
+}
+
+.closeModal:hover {
+  background: #333;
+  transform: scale(1.1);
+}
+
+.sizeChartImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    padding: 1.5rem;
+    max-width: 95%;
+  }
+
+  .closeModal {
+    width: 35px;
+    height: 35px;
+    font-size: 1.75rem;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .closeModal {
+    width: 30px;
+    height: 30px;
+    font-size: 1.5rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .sizeChartBtn {
+    font-size: 0.8rem;
   }
 }

@@ -18,6 +18,7 @@ import Wishlist from './components/Wishlist'
 import Checkout from './components/Checkout'
 import Orders from './components/Orders'
 import OrderDetails from './components/OrderDetails'
+import MyProfile from './components/MyProfile'
 import Admin from './components/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
 import Footer from './components/Footer'
@@ -105,6 +106,12 @@ function App() {
             <Route path="/orders/:id" element={
               <>
                 <OrderDetails />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/profile" element={
+              <>
+                <MyProfile />
                 <Footer2 />
               </>
             } />
