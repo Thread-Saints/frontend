@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { toast } from 'react-toastify'
@@ -26,6 +26,7 @@ function ProductDetails() {
   const { addToWishlist, removeFromWishlist, checkIsInWishlist, wishlist } = useWishlist()
   const { isAuthenticated } = useAuth()
   const [isInWishlist, setIsInWishlist] = useState(false)
+  const [loadedThumbnails, setLoadedThumbnails] = useState(new Set())
 
   useEffect(() => {
     fetchProduct()
@@ -41,6 +42,79 @@ function ProductDetails() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [id])
+
+  // Preload images for current color variant
+  useEffect(() => {
+    if (product && selectedColor) {
+      preloadCurrentColorImages()
+    }
+  }, [product, selectedColor])
+
+  // Setup Intersection Observer for lazy loading thumbnails
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.dataset.index)
+            setLoadedThumbnails(prev => new Set([...prev, index]))
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { rootMargin: '50px' }
+    )
+
+    // Observe all thumbnail containers
+    const thumbnails = document.querySelectorAll('[data-thumbnail]')
+    thumbnails.forEach(thumb => observer.observe(thumb))
+
+    return () => observer.disconnect()
+  }, [product, selectedColor])
+
+  const preloadCurrentColorImages = () => {
+    const images = getCurrentImages()
+    if (images.length === 0) return
+
+    console.log(`🖼️ Preloading ${images.length} images for selected color...`)
+
+    let loadedCount = 0
+    images.forEach((imageUrl, index) => {
+      const img = new Image()
+      img.onload = () => {
+        loadedCount++
+        if (loadedCount === images.length) {
+          console.log('✅ All images preloaded for current color!')
+        }
+      }
+      img.onerror = () => {
+        console.warn(`⚠️ Failed to preload image: ${imageUrl}`)
+        loadedCount++
+      }
+      img.src = imageUrl
+    })
+  }
+
+  // Preload images for a specific color on hover
+  const preloadColorImages = (color) => {
+    if (!product) return
+
+    let images = []
+
+    // Get images for the hovered color
+    if (product.colorVariants && product.colorVariants.length > 0) {
+      const variant = product.colorVariants.find(v => v.color === color)
+      images = variant ? variant.images : []
+    } else {
+      images = product.images || []
+    }
+
+    // Preload images
+    images.forEach(imageUrl => {
+      const img = new Image()
+      img.src = imageUrl
+    })
+  }
 
   const fetchProduct = async () => {
     try {
@@ -234,6 +308,7 @@ function ProductDetails() {
             <div className={styles.mainImage}>
               {getCurrentImages().length > 0 ? (
                 <img
+                  key={`${selectedColor}-${selectedImage}`}
                   src={getCurrentImages()[selectedImage]}
                   alt={product.name}
                   className={styles.image}
@@ -247,10 +322,16 @@ function ProductDetails() {
                 {getCurrentImages().map((img, index) => (
                   <div
                     key={index}
+                    data-thumbnail
+                    data-index={index}
                     className={`${styles.thumbnail} ${selectedImage === index ? styles.activeThumbnail : ''}`}
                     onClick={() => setSelectedImage(index)}
                   >
-                    <img src={img} alt={`${product.name} ${index + 1}`} />
+                    {(loadedThumbnails.has(index) || index < 3) ? (
+                      <img src={img} alt={`${product.name} ${index + 1}`} />
+                    ) : (
+                      <div className={styles.thumbnailPlaceholder}></div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -292,6 +373,7 @@ function ProductDetails() {
                     <button
                       key={color}
                       className={`${styles.colorBtn} ${selectedColor === color ? styles.activeColorBtn : ''}`}
+                      onMouseEnter={() => preloadColorImages(color)}
                       onClick={() => {
                         setSelectedColor(color)
                         setSelectedImage(0) // Reset to first image when color changes
@@ -376,11 +458,6 @@ function ProductDetails() {
               <button className={styles.buyNowBtn} disabled={getSelectedStock() === 0}>Buy Now</button>
             </div>
 
-            {/* Description */}
-            <div className={styles.description}>
-              <p>{product.description}</p>
-            </div>
-
             {/* Expandable Sections */}
             <div className={styles.infoSections}>
               <div className={styles.infoSection}>
@@ -393,7 +470,17 @@ function ProductDetails() {
                 </button>
                 {activeSection === 'details' && (
                   <div className={styles.infoContent}>
-                    {product.productDetails || 'No additional details available.'}
+                    {product.description && (
+                      <div style={{ marginBottom: product.productDetails ? '1rem' : '0' }}>
+                        {product.description}
+                      </div>
+                    )}
+                    {product.productDetails && (
+                      <div>
+                        {product.productDetails}
+                      </div>
+                    )}
+                    {!product.description && !product.productDetails && 'No additional details available.'}
                   </div>
                 )}
               </div>
@@ -408,7 +495,20 @@ function ProductDetails() {
                 </button>
                 {activeSection === 'washing' && (
                   <div className={styles.infoContent}>
-                    {product.washingInstructions || 'Standard washing instructions apply.'}
+                    <p style={{ marginBottom: '1rem' }}>
+                      To maintain the quality, color, and print of your Thread Saints tees, please follow these care guidelines:
+                    </p>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
+                      <li>Hand wash only for best durability</li>
+                      <li>Machine wash - use mesh laundry bag</li>
+                      <li>Always wash inside out to protect the print</li>
+                      <li>Hand wash - do not twist or wring</li>
+                      <li>Hang dry naturally</li>
+                      <li>Do not dry clean</li>
+                      <li>Do not iron the print directly – iron inside out if needed</li>
+                      <li>Avoid steam dryers and bleach</li>
+                      <li>Do not use hot water</li>
+                    </ul>
                   </div>
                 )}
               </div>
@@ -423,7 +523,56 @@ function ProductDetails() {
                 </button>
                 {activeSection === 'returns' && (
                   <div className={styles.infoContent}>
-                    {product.returnsPolicy || 'Standard return policy applies.'}
+                    <p style={{ marginBottom: '1rem' }}>
+                      At Thread Saints, we want every piece you wear to feel perfect. If something isn't right, we offer a simple and hassle-free exchange process.
+                    </p>
+
+                    <h4 style={{ color: 'white', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
+                      Exchange Available Within 7 Days of Delivery
+                    </h4>
+                    <p style={{ marginBottom: '1rem' }}>
+                      You can request an exchange within 7 days of receiving your order.
+                    </p>
+
+                    <p style={{ marginBottom: '0.5rem' }}>To be eligible for an exchange, please ensure:</p>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                      <li>The product is unworn and unwashed</li>
+                      <li>All original tags and packaging are intact</li>
+                      <li>The request is raised within the 7-day window</li>
+                    </ul>
+
+                    <h4 style={{ color: 'white', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
+                      Important: Exchange Is Only for the Same Size
+                    </h4>
+                    <p style={{ marginBottom: '0.5rem' }}>
+                      We allow exchange only for the same size of the same product.<br />
+                      (Example: M → M, not M → L or S)
+                    </p>
+                    <p style={{ marginBottom: '1rem' }}>
+                      This is done to maintain exclusivity and preserve limited-drop inventory.
+                    </p>
+
+                    <h4 style={{ color: 'white', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
+                      How to Request an Exchange
+                    </h4>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                      <li>Share your order details with our support team</li>
+                      <li>Send clear photos of the product and packaging</li>
+                      <li>Once approved, we will arrange the exchange pickup</li>
+                    </ul>
+
+                    <h4 style={{ color: 'white', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
+                      Additional Notes
+                    </h4>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                      <li>No returns or refunds</li>
+                      <li>Exchange is subject to product inspection and availability</li>
+                      <li>If the item is out of stock, store credit will be offered</li>
+                    </ul>
+
+                    <p style={{ marginTop: '1.5rem', fontStyle: 'italic' }}>
+                      Your satisfaction matters to us, and we aim to create a smooth experience for every Thread Saint.
+                    </p>
                   </div>
                 )}
               </div>
