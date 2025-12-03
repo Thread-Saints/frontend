@@ -48,6 +48,7 @@ function Footer2() {
             <Link to="/contact" className={styles.footerLink}>Contact Us</Link>
             <Link to="/shipping-policy" className={styles.footerLink}>Shipping Policy</Link>
             <Link to="/exchange-policy" className={styles.footerLink}>Return & Exchange Policy</Link>
+            <Link to="/terms-and-conditions" className={styles.footerLink}>Terms & Conditions</Link>
           </div>
         </div>
       </div>

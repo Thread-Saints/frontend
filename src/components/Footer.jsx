@@ -5,6 +5,8 @@ import styles from './Footer.module.css'
 function Footer() {
   const [email, setEmail] = useState('')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [nextImageIndex, setNextImageIndex] = useState(1)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   const carouselImages = [
     '/corosal/Property 1=Frame 1.png',
@@ -17,15 +19,28 @@ function Footer() {
     '/corosal/Property 1=Frame 15.png'
   ]
 
+  // Preload all carousel images
+  useEffect(() => {
+    carouselImages.forEach(imageSrc => {
+      const img = new Image()
+      img.src = imageSrc
+    })
+  }, [])
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) =>
-        (prevIndex + 1) % carouselImages.length
-      )
+      setIsTransitioning(true)
+      setNextImageIndex((currentImageIndex + 1) % carouselImages.length)
+
+      // After fade transition completes (600ms), update current image
+      setTimeout(() => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length)
+        setIsTransitioning(false)
+      }, 600)
     }, 5000) // Change image every 5 seconds
 
     return () => clearInterval(interval)
-  }, [carouselImages.length])
+  }, [currentImageIndex, carouselImages.length])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -38,11 +53,17 @@ function Footer() {
       {/* Split section with doll */}
       <div className={styles.splitSection}>
         <div className={styles.backgroundSplit}>
+          {/* Current image layer */}
           <img
             src={carouselImages[currentImageIndex]}
             alt="Carousel"
-            className={styles.carouselImage}
-            key={currentImageIndex}
+            className={`${styles.carouselImage} ${styles.currentImage} ${isTransitioning ? styles.fadeOut : styles.fadeIn}`}
+          />
+          {/* Next image layer (for cross-fade) */}
+          <img
+            src={carouselImages[nextImageIndex]}
+            alt="Carousel"
+            className={`${styles.carouselImage} ${styles.nextImage} ${isTransitioning ? styles.fadeIn : styles.fadeOut}`}
           />
         </div>
         <div className={styles.dollContainer}>
@@ -89,6 +110,7 @@ function Footer() {
             <Link to="/contact" className={styles.footerLink}>Contact Us</Link>
             <Link to="/shipping-policy" className={styles.footerLink}>Shipping Policy</Link>
             <Link to="/exchange-policy" className={styles.footerLink}>Return & Exchange Policy</Link>
+            <Link to="/terms-and-conditions" className={styles.footerLink}>Terms & Conditions</Link>
           </div>
         </div>
       </div>
