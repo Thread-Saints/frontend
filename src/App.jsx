@@ -23,6 +23,7 @@ import Admin from './components/Admin'
 import ExchangePolicy from './components/ExchangePolicy'
 import ShippingPolicy from './components/ShippingPolicy'
 import TermsAndConditions from './components/TermsAndConditions'
+import ContactUs from './components/ContactUs'
 import ProtectedRoute from './components/ProtectedRoute'
 import Footer from './components/Footer'
 import Footer2 from './components/Footer2'
@@ -143,6 +144,12 @@ function App() {
             <Route path="/terms-and-conditions" element={
               <>
                 <TermsAndConditions />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/contact" element={
+              <>
+                <ContactUs />
                 <Footer2 />
               </>
             } />
