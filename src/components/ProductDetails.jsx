@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import Navbar from './Navbar'
@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext'
 function ProductDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedSize, setSelectedSize] = useState('')
@@ -127,13 +128,33 @@ function ProductDetails() {
           setSelectedSize(data.product.sizes[0])
         }
 
+        // Check if color is specified in URL query parameter
+        const colorFromUrl = searchParams.get('color')
+
         // Handle color selection based on colorVariants or legacy colors
         if (data.product.colorVariants && data.product.colorVariants.length > 0) {
-          // Use new color variants system
-          setSelectedColor(data.product.colorVariants[0].color)
+          // If color is specified in URL and exists, use it
+          if (colorFromUrl) {
+            const matchingVariant = data.product.colorVariants.find(
+              v => v.color.toLowerCase() === colorFromUrl.toLowerCase()
+            )
+            if (matchingVariant) {
+              setSelectedColor(matchingVariant.color)
+            } else {
+              // Fallback to first color if URL color not found
+              setSelectedColor(data.product.colorVariants[0].color)
+            }
+          } else {
+            // Use first color variant if no URL parameter
+            setSelectedColor(data.product.colorVariants[0].color)
+          }
         } else if (data.product.colors && data.product.colors.length > 0) {
           // Fallback to legacy colors
-          setSelectedColor(data.product.colors[0])
+          if (colorFromUrl && data.product.colors.includes(colorFromUrl)) {
+            setSelectedColor(colorFromUrl)
+          } else {
+            setSelectedColor(data.product.colors[0])
+          }
         }
       }
     } catch (error) {

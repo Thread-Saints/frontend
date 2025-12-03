@@ -42,7 +42,29 @@ function CategoryProducts() {
         return false
       })
 
-      setProducts(filteredProducts)
+      // Expand products into color variants
+      const expandedProducts = []
+      filteredProducts.forEach(product => {
+        if (product.colorVariants && product.colorVariants.length > 0) {
+          // Create a separate item for each color variant
+          product.colorVariants.forEach(variant => {
+            expandedProducts.push({
+              ...product,
+              _id: `${product._id}_${variant.color}`, // Unique ID for each variant
+              originalProductId: product._id, // Keep original product ID
+              selectedColorVariant: variant,
+              colorName: variant.color,
+              colorHex: variant.colorHex || '#000000',
+              variantImages: variant.images || []
+            })
+          })
+        } else {
+          // If no color variants, add the product as is
+          expandedProducts.push(product)
+        }
+      })
+
+      setProducts(expandedProducts)
     } catch (error) {
       console.error('Error fetching category products:', error)
       setProducts([])
@@ -51,8 +73,13 @@ function CategoryProducts() {
     }
   }
 
-  // Get all available images for a product
+  // Get all available images for a product/variant
   const getProductImages = (product) => {
+    // If this is an expanded color variant, use its specific images
+    if (product.variantImages && product.variantImages.length > 0) {
+      return product.variantImages
+    }
+
     const images = []
 
     // Get images from colorVariants (new structure)
@@ -142,7 +169,14 @@ function CategoryProducts() {
                   <div
                     key={product._id}
                     className={styles.productCard}
-                    onClick={() => navigate(`/product/${product._id}`)}
+                    onClick={() => {
+                      const productId = product.originalProductId || product._id
+                      if (product.colorName) {
+                        navigate(`/product/${productId}?color=${encodeURIComponent(product.colorName)}`)
+                      } else {
+                        navigate(`/product/${productId}`)
+                      }
+                    }}
                     onMouseEnter={(e) => {
                       const interval = handleMouseEnter(product._id)
                       e.currentTarget.dataset.intervalId = interval
@@ -167,6 +201,9 @@ function CategoryProducts() {
                     </div>
                     <div className={styles.productInfo}>
                       <h3 className={styles.productName}>{product.name}</h3>
+                      {product.colorName && (
+                        <p className={styles.colorName}>{product.colorName}</p>
+                      )}
                       <p className={styles.productPrice}>
                         {product.salePrice ? (
                           <>

@@ -54,6 +54,9 @@ function Admin() {
   // Edit product state
   const [editingProduct, setEditingProduct] = useState(null)
 
+  // Edit category state
+  const [editingCategory, setEditingCategory] = useState(null)
+
   // Image upload state
   const [imageFiles, setImageFiles] = useState([])
   const [uploadingImages, setUploadingImages] = useState(false)
@@ -562,7 +565,7 @@ function Admin() {
     }))
   }
 
-  // Submit category form
+  // Submit category form (create or update)
   const handleSubmitCategory = async (e) => {
     e.preventDefault()
 
@@ -575,7 +578,7 @@ function Admin() {
       setLoading(true)
 
       // Upload category image if provided
-      let imageUrl = null
+      let imageUrl = categoryForm.image || null
       if (categoryImageFile) {
         imageUrl = await uploadCategoryImage()
         if (!imageUrl) {
@@ -590,10 +593,17 @@ function Admin() {
         image: imageUrl
       }
 
-      const response = await axios.post(API_ENDPOINTS.CATEGORIES, categoryData)
+      let response
+      if (editingCategory) {
+        // Update existing category
+        response = await axios.put(API_ENDPOINTS.CATEGORY_BY_ID(editingCategory._id), categoryData)
+      } else {
+        // Create new category
+        response = await axios.post(API_ENDPOINTS.CATEGORIES, categoryData)
+      }
 
       if (response.data.success) {
-        showMessage('success', 'Category created successfully!')
+        showMessage('success', `Category ${editingCategory ? 'updated' : 'created'} successfully!`)
         setCategoryForm({
           name: '',
           description: '',
@@ -601,14 +611,40 @@ function Admin() {
           image: ''
         })
         setCategoryImageFile(null)
+        setEditingCategory(null)
         fetchCategories()
       }
     } catch (error) {
-      console.error('Error creating category:', error)
-      showMessage('error', error.response?.data?.message || 'Failed to create category')
+      console.error(`Error ${editingCategory ? 'updating' : 'creating'} category:`, error)
+      showMessage('error', error.response?.data?.message || `Failed to ${editingCategory ? 'update' : 'create'} category`)
     } finally {
       setLoading(false)
     }
+  }
+
+  // Handle edit category
+  const handleEditCategory = (category) => {
+    setEditingCategory(category)
+    setCategoryForm({
+      name: category.name,
+      description: category.description || '',
+      isActive: category.isActive,
+      image: category.image || ''
+    })
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Cancel editing category
+  const handleCancelEditCategory = () => {
+    setEditingCategory(null)
+    setCategoryForm({
+      name: '',
+      description: '',
+      isActive: true,
+      image: ''
+    })
+    setCategoryImageFile(null)
   }
 
   // Delete category
@@ -1261,7 +1297,16 @@ function Admin() {
 
             {/* Add Category Form */}
             <div className={styles.addCategorySection}>
-              <h3>Add New Category</h3>
+              <h3>{editingCategory ? 'Edit Category' : 'Add New Category'}</h3>
+              {editingCategory && (
+                <button
+                  type="button"
+                  onClick={handleCancelEditCategory}
+                  className={styles.cancelEditBtn}
+                >
+                  Cancel Editing
+                </button>
+              )}
               <form onSubmit={handleSubmitCategory} className={styles.categoryForm}>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
@@ -1290,6 +1335,16 @@ function Admin() {
 
                 <div className={styles.formGroup}>
                   <label>Category Image (Optional)</label>
+                  {editingCategory && categoryForm.image && !categoryImageFile && (
+                    <div className={styles.currentImagePreview}>
+                      <p>Current Image:</p>
+                      <img
+                        src={categoryForm.image}
+                        alt="Current category"
+                        style={{ maxWidth: '200px', marginBottom: '10px' }}
+                      />
+                    </div>
+                  )}
                   <input
                     type="file"
                     accept="image/*"
@@ -1332,7 +1387,7 @@ function Admin() {
                 </div>
 
                 <button type="submit" className={styles.submitBtn} disabled={loading || uploadingCategoryImage}>
-                  {uploadingCategoryImage ? 'Uploading Image...' : loading ? 'Creating...' : 'Create Category'}
+                  {uploadingCategoryImage ? 'Uploading Image...' : loading ? (editingCategory ? 'Updating...' : 'Creating...') : (editingCategory ? 'Update Category' : 'Create Category')}
                 </button>
               </form>
             </div>
@@ -1380,6 +1435,12 @@ function Admin() {
                           </td>
                           <td>
                             <div className={styles.actions}>
+                              <button
+                                onClick={() => handleEditCategory(category)}
+                                className={styles.editBtn}
+                              >
+                                Edit
+                              </button>
                               <button
                                 onClick={() => toggleCategoryStatus(category)}
                                 className={styles.toggleBtn}
