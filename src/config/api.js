@@ -51,6 +51,13 @@ export const API_ENDPOINTS = {
   ADD_ADDRESS: `${API_BASE_URL}/api/profile/addresses`,
   UPDATE_ADDRESS: (addressId) => `${API_BASE_URL}/api/profile/addresses/${addressId}`,
   DELETE_ADDRESS: (addressId) => `${API_BASE_URL}/api/profile/addresses/${addressId}`,
+
+  // Contact endpoints
+  CONTACT_SUBMIT: `${API_BASE_URL}/api/contact`,
+  CONTACT_GET_ALL: `${API_BASE_URL}/api/contact/admin`,
+  CONTACT_GET_STATS: `${API_BASE_URL}/api/contact/admin/stats`,
+  CONTACT_UPDATE_STATUS: (id) => `${API_BASE_URL}/api/contact/admin/${id}/status`,
+  CONTACT_DELETE: (id) => `${API_BASE_URL}/api/contact/admin/${id}`,
 }
 
 export default API_BASE_URL

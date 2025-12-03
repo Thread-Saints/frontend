@@ -365,17 +365,10 @@ function MyProfile() {
             <div className={styles.section}>
               <button
                 className={styles.menuItem}
-                onClick={() => setSelectedSection(selectedSection === 'contact' ? '' : 'contact')}
+                onClick={() => navigate('/contact')}
               >
                 Contact Us
               </button>
-              {selectedSection === 'contact' && (
-                <div className={styles.sectionContent}>
-                  <div className={styles.textContent}>
-                    <p>Contact information will appear here</p>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Shipping Section */}

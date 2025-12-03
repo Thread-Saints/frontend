@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import { toast } from 'react-toastify'
+import { API_ENDPOINTS } from '../config/api'
 import Navbar from './Navbar'
 import styles from './ContactUs.module.css'
 
@@ -14,6 +16,11 @@ function ContactUs() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -26,22 +33,23 @@ function ContactUs() {
     setIsSubmitting(true)
 
     try {
-      // TODO: Implement actual API call when backend is ready
-      // For now, just simulate submission
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await axios.post(API_ENDPOINTS.CONTACT_SUBMIT, formData)
 
-      toast.success('Message sent successfully! We will get back to you soon.')
+      if (response.data.success) {
+        toast.success(response.data.message)
 
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      })
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        })
+      }
     } catch (error) {
-      toast.error('Failed to send message. Please try again.')
+      console.error('Error submitting contact form:', error)
+      toast.error(error.response?.data?.message || 'Failed to send message. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -71,8 +79,8 @@ function ContactUs() {
                   </svg>
                 </div>
                 <h3 className={styles.infoTitle}>Email Us</h3>
-                <p className={styles.infoText}>support@threadsaints.com</p>
-                <p className={styles.infoText}>orders@threadsaints.com</p>
+                <p className={styles.infoText}>thrdsaints@gmail.com</p>
+                {/* <p className={styles.infoText}>orders@threadsaints.com</p> */}
               </div>
 
               <div className={styles.infoCard}>
@@ -84,17 +92,6 @@ function ContactUs() {
                 <h3 className={styles.infoTitle}>Call Us</h3>
                 <p className={styles.infoText}>+91 XXXXX XXXXX</p>
                 <p className={styles.infoSubtext}>Mon-Sat: 10 AM - 7 PM IST</p>
-              </div>
-
-              <div className={styles.infoCard}>
-                <div className={styles.iconWrapper}>
-                  <svg className={styles.icon} fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <h3 className={styles.infoTitle}>Visit Us</h3>
-                <p className={styles.infoText}>Thread Saints</p>
-                <p className={styles.infoText}>Delhi NCR, India</p>
               </div>
 
               <div className={styles.infoCard}>

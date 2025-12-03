@@ -11,6 +11,8 @@ function Admin() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [orders, setOrders] = useState([])
+  const [contacts, setContacts] = useState([])
+  const [contactStats, setContactStats] = useState({ new: 0, inProgress: 0, resolved: 0, total: 0 })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -109,10 +111,72 @@ function Admin() {
     }
   }
 
+  // Fetch all contact queries
+  const fetchContacts = async () => {
+    try {
+      setLoading(true)
+      const [contactsResponse, statsResponse] = await Promise.all([
+        axios.get(API_ENDPOINTS.CONTACT_GET_ALL),
+        axios.get(API_ENDPOINTS.CONTACT_GET_STATS)
+      ])
+
+      if (contactsResponse.data.success) {
+        setContacts(contactsResponse.data.contacts)
+      }
+
+      if (statsResponse.data.success) {
+        setContactStats(statsResponse.data.stats)
+      }
+    } catch (error) {
+      console.error('Error fetching contacts:', error)
+      showMessage('error', 'Failed to fetch contact queries')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Update contact status
+  const updateContactStatus = async (contactId, newStatus) => {
+    try {
+      const response = await axios.patch(
+        API_ENDPOINTS.CONTACT_UPDATE_STATUS(contactId),
+        { status: newStatus }
+      )
+
+      if (response.data.success) {
+        showMessage('success', 'Status updated successfully')
+        fetchContacts()
+      }
+    } catch (error) {
+      console.error('Error updating contact status:', error)
+      showMessage('error', 'Failed to update status')
+    }
+  }
+
+  // Delete contact query
+  const deleteContact = async (contactId) => {
+    if (!window.confirm('Are you sure you want to delete this contact query?')) {
+      return
+    }
+
+    try {
+      const response = await axios.delete(API_ENDPOINTS.CONTACT_DELETE(contactId))
+
+      if (response.data.success) {
+        showMessage('success', 'Contact query deleted successfully')
+        fetchContacts()
+      }
+    } catch (error) {
+      console.error('Error deleting contact:', error)
+      showMessage('error', 'Failed to delete contact query')
+    }
+  }
+
   useEffect(() => {
     fetchProducts()
     fetchCategories()
     fetchOrders()
+    fetchContacts()
   }, [])
 
   const showMessage = (type, text) => {
@@ -788,6 +852,12 @@ function Admin() {
         >
           Orders ({orders.length})
         </button>
+        <button
+          className={activeTab === 'contacts' ? styles.activeTab : ''}
+          onClick={() => setActiveTab('contacts')}
+        >
+          Contact Queries ({contactStats.new})
+        </button>
       </div>
 
       <div className={styles.content}>
@@ -1285,6 +1355,91 @@ function Admin() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Contact Queries Tab */}
+        {activeTab === 'contacts' && (
+          <div className={styles.contactsSection}>
+            <div className={styles.statsBar}>
+              <div className={styles.statCard}>
+                <h3>New</h3>
+                <p className={styles.statNumber}>{contactStats.new}</p>
+              </div>
+              <div className={styles.statCard}>
+                <h3>In Progress</h3>
+                <p className={styles.statNumber}>{contactStats.inProgress}</p>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Resolved</h3>
+                <p className={styles.statNumber}>{contactStats.resolved}</p>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Total</h3>
+                <p className={styles.statNumber}>{contactStats.total}</p>
+              </div>
+            </div>
+
+            <h2>Contact Queries ({contacts.length})</h2>
+
+            {contacts.length === 0 ? (
+              <p className={styles.noProducts}>No contact queries found.</p>
+            ) : (
+              <div className={styles.contactsGrid}>
+                {contacts.map(contact => (
+                  <div key={contact._id} className={styles.contactCard}>
+                    <div className={styles.contactHeader}>
+                      <div className={styles.contactInfo}>
+                        <h3>{contact.name}</h3>
+                        <p className={styles.contactEmail}>{contact.email}</p>
+                        {contact.phone && (
+                          <p className={styles.contactPhone}>Phone: {contact.phone}</p>
+                        )}
+                      </div>
+                      <span
+                        className={`${styles.statusBadge} ${styles[contact.status]}`}
+                      >
+                        {contact.status === 'new' && 'New'}
+                        {contact.status === 'in-progress' && 'In Progress'}
+                        {contact.status === 'resolved' && 'Resolved'}
+                      </span>
+                    </div>
+
+                    <div className={styles.contactBody}>
+                      <p className={styles.contactSubject}><strong>Subject:</strong> {contact.subject}</p>
+                      <p className={styles.contactMessage}>{contact.message}</p>
+                      <p className={styles.contactDate}>
+                        Received: {new Date(contact.createdAt).toLocaleString('en-IN', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+
+                    <div className={styles.contactActions}>
+                      <select
+                        value={contact.status}
+                        onChange={(e) => updateContactStatus(contact._id, e.target.value)}
+                        className={styles.statusSelect}
+                      >
+                        <option value="new">New</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                      </select>
+                      <button
+                        onClick={() => deleteContact(contact._id)}
+                        className={styles.deleteButton}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
