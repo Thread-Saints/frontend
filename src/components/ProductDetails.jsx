@@ -608,7 +608,30 @@ function ProductDetails() {
                 </button>
                 {activeSection === 'shipping' && (
                   <div className={styles.infoContent}>
-                    {product.shippingInfo || 'Standard shipping: 5-7 business days.'}
+                    <div className={styles.shippingDetails}>
+                      <p className={styles.shippingTitle}>Delivery Timeline:</p>
+                      <ul className={styles.shippingList}>
+                        <li><strong>All Over India:</strong> 7-10 working days</li>
+                        <li><strong>Delhi-NCR:</strong> 5-7 working days</li>
+                      </ul>
+
+                      <p className={styles.shippingTitle}>Shipping Charges:</p>
+                      <ul className={styles.shippingList}>
+                        <li><strong>Free Shipping</strong> on orders above ₹4,999</li>
+                        <li><strong>Delhi-NCR:</strong> ₹90 (orders below ₹4,999)</li>
+                        <li><strong>Rest of India:</strong> ₹150 (orders below ₹4,999)</li>
+                      </ul>
+
+                      <p className={styles.shippingTitle}>Order Processing:</p>
+                      <ul className={styles.shippingList}>
+                        <li>Orders processed within 24-48 hours of confirmation</li>
+                        <li>Tracking ID sent via email/WhatsApp after dispatch</li>
+                      </ul>
+
+                      <p className={styles.shippingNote}>
+                        <strong>Special Offer:</strong> Orders above ₹20,000 eligible for 20% discount
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

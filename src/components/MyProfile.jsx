@@ -350,17 +350,10 @@ function MyProfile() {
             <div className={styles.section}>
               <button
                 className={styles.menuItem}
-                onClick={() => setSelectedSection(selectedSection === 'terms' ? '' : 'terms')}
+                onClick={() => navigate('/terms-and-conditions')}
               >
                 Terms and Condition
               </button>
-              {selectedSection === 'terms' && (
-                <div className={styles.sectionContent}>
-                  <div className={styles.textContent}>
-                    <p>Terms and Conditions content will appear here</p>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Contact Section */}
@@ -384,17 +377,10 @@ function MyProfile() {
             <div className={styles.section}>
               <button
                 className={styles.menuItem}
-                onClick={() => setSelectedSection(selectedSection === 'shipping' ? '' : 'shipping')}
+                onClick={() => navigate('/shipping-policy')}
               >
                 Shipping Policy
               </button>
-              {selectedSection === 'shipping' && (
-                <div className={styles.sectionContent}>
-                  <div className={styles.textContent}>
-                    <p>Shipping policy content will appear here</p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

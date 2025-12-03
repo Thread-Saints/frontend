@@ -21,6 +21,8 @@ import OrderDetails from './components/OrderDetails'
 import MyProfile from './components/MyProfile'
 import Admin from './components/Admin'
 import ExchangePolicy from './components/ExchangePolicy'
+import ShippingPolicy from './components/ShippingPolicy'
+import TermsAndConditions from './components/TermsAndConditions'
 import ProtectedRoute from './components/ProtectedRoute'
 import Footer from './components/Footer'
 import Footer2 from './components/Footer2'
@@ -129,6 +131,18 @@ function App() {
             <Route path="/exchange-policy" element={
               <>
                 <ExchangePolicy />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/shipping-policy" element={
+              <>
+                <ShippingPolicy />
+                <Footer2 />
+              </>
+            } />
+            <Route path="/terms-and-conditions" element={
+              <>
+                <TermsAndConditions />
                 <Footer2 />
               </>
             } />

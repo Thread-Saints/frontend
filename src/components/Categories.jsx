@@ -11,6 +11,7 @@ function Categories() {
 
   useEffect(() => {
     fetchCategories()
+    window.scrollTo(0, 0)
   }, [])
 
   const fetchCategories = async () => {

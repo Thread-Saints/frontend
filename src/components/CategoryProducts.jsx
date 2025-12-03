@@ -16,6 +16,11 @@ function CategoryProducts() {
     fetchCategoryProducts()
   }, [name])
 
+  // Scroll to top when category changes
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [name])
+
   const fetchCategoryProducts = async () => {
     setLoading(true)
     try {

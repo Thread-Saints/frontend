@@ -46,7 +46,7 @@ function Footer2() {
           <div className={styles.linkColumn}>
             <h4 className={styles.columnHeading}>Need Help</h4>
             <Link to="/contact" className={styles.footerLink}>Contact Us</Link>
-            <Link to="/shipping" className={styles.footerLink}>Shipping Policy</Link>
+            <Link to="/shipping-policy" className={styles.footerLink}>Shipping Policy</Link>
             <Link to="/exchange-policy" className={styles.footerLink}>Return & Exchange Policy</Link>
           </div>
         </div>
