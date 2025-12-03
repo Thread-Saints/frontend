@@ -37,10 +37,10 @@ function Footer2() {
         <div className={styles.links}>
           <div className={styles.linkColumn}>
             <h4 className={styles.columnHeading}>Collections</h4>
-            <Link to="/category/Tshirts" className={styles.footerLink}>Tshirts</Link>
+            <Link to="/category/T-Shirts" className={styles.footerLink}>T-Shirts</Link>
             <Link to="/category/Sweatshirts" className={styles.footerLink}>Sweatshirts</Link>
             <Link to="/category/Jeans" className={styles.footerLink}>Jeans</Link>
-            <Link to="/category/Hoodies" className={styles.footerLink}>Hoodies</Link>
+            <Link to="/category/Jackets" className={styles.footerLink}>Jackets</Link>
           </div>
 
           <div className={styles.linkColumn}>
