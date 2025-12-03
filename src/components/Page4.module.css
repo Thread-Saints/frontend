@@ -148,6 +148,39 @@
   font-size: 0.95rem;
 }
 
+/* Color Selector Styles */
+.colorSelector {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.colorDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.colorDot:hover {
+  transform: scale(1.15);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.colorDotActive {
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .productsGrid {
@@ -196,6 +229,16 @@
   .salePrice {
     font-size: 0.8rem;
   }
+
+  .colorDot {
+    width: 16px;
+    height: 16px;
+  }
+
+  .colorSelector {
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -240,6 +283,16 @@
 
   .salePrice {
     font-size: 0.75rem;
+  }
+
+  .colorDot {
+    width: 14px;
+    height: 14px;
+  }
+
+  .colorSelector {
+    gap: 0.35rem;
+    margin-top: 0.35rem;
   }
 }
 
