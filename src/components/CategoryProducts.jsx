@@ -21,6 +21,22 @@ function CategoryProducts() {
     window.scrollTo(0, 0)
   }, [name])
 
+  // Preload images for better hover performance
+  useEffect(() => {
+    if (products.length > 0) {
+      products.forEach(product => {
+        const images = getProductImages(product)
+        // Preload first 3 images for each product
+        images.slice(0, 3).forEach(imageUrl => {
+          if (imageUrl && imageUrl !== '/placeholder-image.png') {
+            const img = new Image()
+            img.src = imageUrl
+          }
+        })
+      })
+    }
+  }, [products])
+
   const fetchCategoryProducts = async () => {
     setLoading(true)
     try {
@@ -111,6 +127,14 @@ function CategoryProducts() {
     const images = getProductImages(product)
 
     if (images.length > 1) {
+      // Preload remaining images on hover for smooth cycling
+      images.slice(3).forEach(imageUrl => {
+        if (imageUrl && imageUrl !== '/placeholder-image.png') {
+          const img = new Image()
+          img.src = imageUrl
+        }
+      })
+
       setCurrentImageIndex(prev => ({ ...prev, [productId]: 1 }))
 
       // Cycle through remaining images
