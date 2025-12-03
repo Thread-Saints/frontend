@@ -20,6 +20,7 @@ import Orders from './components/Orders'
 import OrderDetails from './components/OrderDetails'
 import MyProfile from './components/MyProfile'
 import Admin from './components/Admin'
+import ExchangePolicy from './components/ExchangePolicy'
 import ProtectedRoute from './components/ProtectedRoute'
 import Footer from './components/Footer'
 import Footer2 from './components/Footer2'
@@ -122,6 +123,12 @@ function App() {
                 <ProtectedRoute adminOnly={true}>
                   <Admin />
                 </ProtectedRoute>
+                <Footer2 />
+              </>
+            } />
+            <Route path="/exchange-policy" element={
+              <>
+                <ExchangePolicy />
                 <Footer2 />
               </>
             } />

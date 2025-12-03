@@ -122,8 +122,9 @@
 /* Branding section */
 .brandingSection {
   width: 100%;
-  padding: 0 2rem;
+  padding: 0 2rem 2rem;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-image: url('/footer bg.png');
@@ -137,6 +138,14 @@
   /* max-width: 800px; */
   height: 200px;
   object-fit: contain;
+}
+
+.managedByText {
+  color: #888;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
 @media (max-width: 768px) {
@@ -188,6 +197,11 @@
     width: 100%;
     max-width: 600px;
     height: 150px;
+  }
+
+  .managedByText {
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
   }
 }
 
@@ -254,12 +268,17 @@
   }
 
   .brandingSection {
-    padding: 0 1rem;
+    padding: 0 1rem 1.5rem;
   }
 
   .brandingImage {
     width: 100%;
     max-width: 400px;
     height: 120px;
+  }
+
+  .managedByText {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
   }
 }

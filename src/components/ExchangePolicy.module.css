@@ -1,0 +1,171 @@
+.container {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  padding-top: 100px;
+}
+
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 3rem;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.intro {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #e0e0e0;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.heading {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #cccccc;
+  margin-bottom: 1rem;
+}
+
+.list {
+  list-style: none;
+  padding-left: 0;
+  margin: 1rem 0;
+}
+
+.list li {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #cccccc;
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.list li::before {
+  content: "●";
+  position: absolute;
+  left: 0;
+  color: #ffffff;
+}
+
+.orderedList {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.orderedList li {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #cccccc;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footerText {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #e0e0e0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding-top: 80px;
+  }
+
+  .content {
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .intro {
+    font-size: 1rem;
+  }
+
+  .heading {
+    font-size: 1.4rem;
+  }
+
+  .text {
+    font-size: 1rem;
+  }
+
+  .list li,
+  .orderedList li {
+    font-size: 1rem;
+  }
+
+  .footerText {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-top: 70px;
+  }
+
+  .content {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .title {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .intro {
+    font-size: 0.95rem;
+  }
+
+  .heading {
+    font-size: 1.2rem;
+  }
+
+  .text {
+    font-size: 0.95rem;
+  }
+
+  .list li,
+  .orderedList li {
+    font-size: 0.95rem;
+  }
+
+  .footerText {
+    font-size: 0.95rem;
+  }
+}

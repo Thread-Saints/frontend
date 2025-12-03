@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import styles from './Footer2.module.css'
 
 function Footer2() {
@@ -17,10 +18,8 @@ function Footer2() {
         <div className={styles.newsletter}>
           <h3 className={styles.heading}>Subscribe to our email</h3>
           <p className={styles.termsText}>
-            By subscribing you agree to{' '}
-            <a href="/terms" className={styles.link}>Terms of use</a>
-            {' '}and{' '}
-            <a href="/privacy" className={styles.link}>Privacy Policy</a>
+            By subscribing you will be getting updates on our new drops on your mail
+            
           </p>
           <form className={styles.form} onSubmit={handleSubmit}>
             <input
@@ -31,24 +30,24 @@ function Footer2() {
               className={styles.input}
               required
             />
-            <button type="submit" className={styles.button}>Sign Up</button>
+            <button type="submit" className={styles.button}>Subscribe</button>
           </form>
         </div>
 
         <div className={styles.links}>
           <div className={styles.linkColumn}>
             <h4 className={styles.columnHeading}>Collections</h4>
-            <a href="/collections/tshirts" className={styles.footerLink}>Tshirts</a>
-            <a href="/collections/sweatshirts" className={styles.footerLink}>Sweatshirts</a>
-            <a href="/collections/jeans" className={styles.footerLink}>Jeans</a>
-            <a href="/collections/hoodies" className={styles.footerLink}>Hoodies</a>
+            <Link to="/category/Tshirts" className={styles.footerLink}>Tshirts</Link>
+            <Link to="/category/Sweatshirts" className={styles.footerLink}>Sweatshirts</Link>
+            <Link to="/category/Jeans" className={styles.footerLink}>Jeans</Link>
+            <Link to="/category/Hoodies" className={styles.footerLink}>Hoodies</Link>
           </div>
 
           <div className={styles.linkColumn}>
             <h4 className={styles.columnHeading}>Need Help</h4>
-            <a href="/contact" className={styles.footerLink}>Contact Us</a>
-            <a href="/shipping" className={styles.footerLink}>Shipping Policy</a>
-            <a href="/returns" className={styles.footerLink}>Return & Exchange Policy</a>
+            <Link to="/contact" className={styles.footerLink}>Contact Us</Link>
+            <Link to="/shipping" className={styles.footerLink}>Shipping Policy</Link>
+            <Link to="/exchange-policy" className={styles.footerLink}>Return & Exchange Policy</Link>
           </div>
         </div>
       </div>
@@ -56,6 +55,7 @@ function Footer2() {
       {/* Thread Saints branding */}
       <div className={styles.brandingSection}>
         <img src="/Group 24.png" alt="Thread Saints" className={styles.brandingImage} />
+        <p className={styles.managedByText}>Managed by Jawa hospitality</p>
       </div>
     </footer>
   )

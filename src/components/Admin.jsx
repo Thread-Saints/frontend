@@ -13,6 +13,8 @@ function Admin() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState(null)
 
   const sizes = ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL']
 
@@ -695,6 +697,17 @@ function Admin() {
     }
   }
 
+  // Handle opening order details modal
+  const handleViewDetails = (order) => {
+    setSelectedOrder(order)
+    setShowDetailsModal(true)
+  }
+
+  const handleCloseDetailsModal = () => {
+    setShowDetailsModal(false)
+    setSelectedOrder(null)
+  }
+
   // Group products by category
   const productsByCategory = categories.reduce((acc, category) => {
     acc[category.name] = products.filter(p => p.category === category.name)
@@ -1166,6 +1179,7 @@ function Admin() {
                       <th>Payment</th>
                       <th>Status</th>
                       <th>Date</th>
+                      <th>Details</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -1208,6 +1222,14 @@ function Admin() {
                             month: 'short',
                             day: 'numeric'
                           })}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleViewDetails(order)}
+                            className={styles.detailsBtn}
+                          >
+                            View Details
+                          </button>
                         </td>
                         <td>
                           <select
@@ -1382,6 +1404,176 @@ function Admin() {
           </div>
         )}
       </div>
+
+      {/* Order Details Modal */}
+      {showDetailsModal && selectedOrder && (
+        <div className={styles.modalOverlay} onClick={handleCloseDetailsModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Order Details</h2>
+              <button onClick={handleCloseDetailsModal} className={styles.closeModalBtn}>
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              {/* Order Information */}
+              <div className={styles.detailSection}>
+                <h3>Order Information</h3>
+                <div className={styles.detailGrid}>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Order Number:</span>
+                    <span className={styles.detailValue}>{selectedOrder.orderNumber}</span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Order Date:</span>
+                    <span className={styles.detailValue}>
+                      {new Date(selectedOrder.createdAt).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Payment Status:</span>
+                    <span className={styles.detailValue}>
+                      <span
+                        style={{
+                          backgroundColor: selectedOrder.paymentStatus === 'Paid' ? '#4caf50' : '#f44336',
+                          color: 'white',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        {selectedOrder.paymentStatus}
+                      </span>
+                    </span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Order Status:</span>
+                    <span className={styles.detailValue}>
+                      <span
+                        style={{
+                          backgroundColor: getStatusColor(selectedOrder.orderStatus),
+                          color: 'white',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        {selectedOrder.orderStatus}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Information */}
+              <div className={styles.detailSection}>
+                <h3>Customer Information</h3>
+                <div className={styles.detailGrid}>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Name:</span>
+                    <span className={styles.detailValue}>{selectedOrder.user?.name || 'N/A'}</span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Email:</span>
+                    <span className={styles.detailValue}>{selectedOrder.user?.email || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div className={styles.detailSection}>
+                <h3>Shipping Address</h3>
+                <div className={styles.addressBox}>
+                  <p><strong>{selectedOrder.shippingAddress?.fullName}</strong></p>
+                  <p>{selectedOrder.shippingAddress?.address}</p>
+                  <p>{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} - {selectedOrder.shippingAddress?.pincode}</p>
+                  <p>Phone: {selectedOrder.shippingAddress?.phone}</p>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className={styles.detailSection}>
+                <h3>Order Items</h3>
+                <div className={styles.orderItemsList}>
+                  {selectedOrder.orderItems.map((item, index) => (
+                    <div key={index} className={styles.orderItemCard}>
+                      <img src={item.image} alt={item.name} className={styles.orderItemImage} />
+                      <div className={styles.orderItemInfo}>
+                        <p className={styles.orderItemName}>{item.name}</p>
+                        {item.size && <p className={styles.orderItemDetail}>Size: {item.size}</p>}
+                        {item.color && <p className={styles.orderItemDetail}>Color: {item.color}</p>}
+                        <p className={styles.orderItemDetail}>Quantity: {item.quantity}</p>
+                        <p className={styles.orderItemPrice}>Rs.{item.price.toFixed(2)} × {item.quantity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Breakdown */}
+              <div className={styles.detailSection}>
+                <h3>Price Breakdown</h3>
+                <div className={styles.priceBreakdown}>
+                  <div className={styles.priceRow}>
+                    <span>Subtotal:</span>
+                    <span>Rs.{selectedOrder.itemsPrice?.toFixed(2)}</span>
+                  </div>
+                  {selectedOrder.discount > 0 && (
+                    <div className={styles.priceRow}>
+                      <span>Discount:</span>
+                      <span style={{ color: '#4caf50' }}>-Rs.{selectedOrder.discount?.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className={styles.priceRow}>
+                    <span>Shipping:</span>
+                    <span>{selectedOrder.shippingPrice === 0 ? 'FREE' : `Rs.${selectedOrder.shippingPrice?.toFixed(2)}`}</span>
+                  </div>
+                  <div className={styles.priceRow}>
+                    <span>Tax (GST):</span>
+                    <span>Rs.{selectedOrder.taxPrice?.toFixed(2)}</span>
+                  </div>
+                  <div className={styles.priceRow} style={{ borderTop: '2px solid #ddd', paddingTop: '0.5rem', marginTop: '0.5rem', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                    <span>Total:</span>
+                    <span>Rs.{selectedOrder.totalPrice?.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Information */}
+              {selectedOrder.paymentResult && (
+                <div className={styles.detailSection}>
+                  <h3>Payment Information</h3>
+                  <div className={styles.detailGrid}>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Payment ID:</span>
+                      <span className={styles.detailValue}>{selectedOrder.paymentResult.razorpayPaymentId || 'N/A'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Payment Date:</span>
+                      <span className={styles.detailValue}>
+                        {selectedOrder.paidAt ? new Date(selectedOrder.paidAt).toLocaleDateString('en-IN', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

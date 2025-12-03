@@ -659,3 +659,11 @@
     display: none;
   }
 }
+
+@media (max-width: 400px) {
+
+  .heroOverlay{
+    bottom: -80px;
+  }
+
+}
