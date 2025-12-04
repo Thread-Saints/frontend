@@ -551,6 +551,18 @@ function ProductDetails() {
                     </p>
 
                     <h4 style={{ color: 'white', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
+                      Damaged or Defective Products
+                    </h4>
+                    <p style={{ marginBottom: '1rem' }}>
+                      Returns/exchanges are accepted only if the product is damaged or defective upon delivery.
+                    </p>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                      <li>Notify us within 48 hours of delivery with photo proof of damage or defect</li>
+                      <li>Items must be unused and in original packaging</li>
+                      <li>Once we verify the defective or damaged product, we will re-deliver either exchange or replace the product within 7-14 days</li>
+                    </ul>
+
+                    <h4 style={{ color: 'white', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
                       Exchange Available Within 7 Days of Delivery
                     </h4>
                     <p style={{ marginBottom: '1rem' }}>
