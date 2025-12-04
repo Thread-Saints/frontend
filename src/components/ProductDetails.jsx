@@ -590,7 +590,7 @@ function ProductDetails() {
                     <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1rem' }}>
                       <li>No returns or refunds</li>
                       <li>Exchange is subject to product inspection and availability</li>
-                      <li>If the item is out of stock, store credit will be offered</li>
+                      {/* <li>If the item is out of stock, store credit will be offered</li> */}
                     </ul>
 
                     <p style={{ marginTop: '1.5rem', fontStyle: 'italic' }}>

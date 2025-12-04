@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import SignupPopup from './SignupPopup'
 import LoginModal from './LoginModal'
@@ -6,6 +7,7 @@ import { useAuth } from '../context/AuthContext'
 import styles from './Home.module.css'
 
 function Home() {
+  const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const [showPopup, setShowPopup] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
@@ -79,7 +81,7 @@ function Home() {
           <div className={styles.headerBorder}></div>
           <img src="/Group 24.png" alt="Thread Saints" className={styles.headerText} />
         </div>
-        <button className={styles.flexButton}>FLEX NOW</button>
+        <button className={styles.flexButton} onClick={() => navigate('/categories')}>FLEX NOW</button>
         <div className={styles.ticker}>
           <div className={styles.tickerContent}>
             <div className={styles.tickerText}>

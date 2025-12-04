@@ -57,7 +57,7 @@ function ExchangePolicy() {
           <ul className={styles.list}>
             <li>No returns or refunds</li>
             <li>Exchange is subject to product inspection and availability</li>
-            <li>If the item is out of stock, store credit will be offered</li>
+            {/* <li>If the item is out of stock, store credit will be offered</li> */}
           </ul>
         </div>
 
