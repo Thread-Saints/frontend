@@ -481,17 +481,6 @@ function ProductDetails() {
               <button className={styles.buyNowBtn} disabled={getSelectedStock() === 0}>Buy Now</button>
             </div>
 
-            {/* Returns/Exchange Policy Notice */}
-            <div className={styles.policyNotice}>
-              <h3 className={styles.policyTitle}>Returns & Exchanges Policy (Points):</h3>
-              <ul className={styles.policyList}>
-                <li>Returns/exchanges are accepted only if the product is damaged or defective upon delivery.</li>
-                <li>You must notify us within 48 hours of delivery along with clear photo/video proof of the damage.</li>
-                <li>The item must be unused, unworn, and in its original packaging.</li>
-                <li>Once we verify the damaged or defective product, we will re-deliver, exchange, or replace the product within 7–14 business days.</li>
-              </ul>
-            </div>
-
             {/* Expandable Sections */}
             <div className={styles.infoSections}>
               <div className={styles.infoSection}>

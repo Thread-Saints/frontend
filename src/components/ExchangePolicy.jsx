@@ -21,6 +21,18 @@ function ExchangePolicy() {
         </div>
 
         <div className={styles.section}>
+          <h2 className={styles.heading}>Damaged or Defective Products</h2>
+          <p className={styles.text}>
+            Returns/exchanges are accepted only if the product is damaged or defective upon delivery.
+          </p>
+          <ul className={styles.list}>
+            <li>You must notify us within 48 hours of delivery along with clear photo/video proof of the damage.</li>
+            <li>The item must be unused, unworn, and in its original packaging.</li>
+            <li>Once we verify the damaged or defective product, we will re-deliver, exchange, or replace the product within 7–14 business days.</li>
+          </ul>
+        </div>
+
+        <div className={styles.section}>
           <h2 className={styles.heading}>Exchange Available Within 7 Days of Delivery</h2>
           <p className={styles.text}>
             You can request an exchange within 7 days of receiving your order.
