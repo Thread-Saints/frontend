@@ -23,6 +23,7 @@ function ProductDetails() {
   const [addingToCart, setAddingToCart] = useState(false)
   const [addingToWishlist, setAddingToWishlist] = useState(false)
   const [showSizeChart, setShowSizeChart] = useState(false)
+  const [showImageZoom, setShowImageZoom] = useState(false)
   const { addToCart } = useCart()
   const { addToWishlist, removeFromWishlist, checkIsInWishlist, wishlist } = useWishlist()
   const { isAuthenticated } = useAuth()
@@ -326,13 +327,14 @@ function ProductDetails() {
         <div className={styles.productContent}>
           {/* Product Images */}
           <div className={styles.productImages}>
-            <div className={styles.mainImage}>
+            <div className={styles.mainImage} onClick={() => setShowImageZoom(true)}>
               {getCurrentImages().length > 0 ? (
                 <img
                   key={`${selectedColor}-${selectedImage}`}
                   src={getCurrentImages()[selectedImage]}
                   alt={product.name}
                   className={styles.image}
+                  style={{ cursor: 'pointer' }}
                 />
               ) : (
                 <div className={styles.noImage}>No Image</div>
@@ -654,6 +656,25 @@ function ProductDetails() {
               src="/Group 52.png"
               alt="Size Chart"
               className={styles.sizeChartImage}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Image Zoom Modal */}
+      {showImageZoom && (
+        <div className={styles.imageZoomOverlay} onClick={() => setShowImageZoom(false)}>
+          <div className={styles.imageZoomContent} onClick={(e) => e.stopPropagation()}>
+            <button
+              className={styles.closeModal}
+              onClick={() => setShowImageZoom(false)}
+            >
+              ×
+            </button>
+            <img
+              src={getCurrentImages()[selectedImage]}
+              alt={product.name}
+              className={styles.zoomedImage}
             />
           </div>
         </div>
