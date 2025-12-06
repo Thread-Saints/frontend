@@ -290,7 +290,12 @@ function Page4() {
                 <div
                   key={product._id}
                   className={styles.productCard}
-                  onClick={() => navigate(`/product/${product._id}`)}
+                  onClick={() => {
+                    const url = selectedColor
+                      ? `/product/${product._id}?color=${encodeURIComponent(selectedColor)}`
+                      : `/product/${product._id}`
+                    navigate(url)
+                  }}
                   onMouseEnter={() => handleMouseEnter(product._id)}
                   onMouseLeave={() => handleMouseLeave(product._id)}
                 >
