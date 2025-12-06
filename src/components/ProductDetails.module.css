@@ -778,6 +778,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1.5rem;
+}
+
+.zoomedImageWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .zoomedImage {
@@ -801,15 +811,127 @@
   }
 }
 
+/* Zoom Thumbnails for Desktop (Left Side) */
+.zoomThumbnailsDesktop {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.3);
+}
+
+.zoomThumbnailsDesktop::-webkit-scrollbar {
+  width: 6px;
+}
+
+.zoomThumbnailsDesktop::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.zoomThumbnailsDesktop::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.zoomThumbnailsDesktop::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Zoom Thumbnails for Mobile (Bottom) */
+.zoomThumbnailsMobile {
+  display: none;
+}
+
+/* Individual Zoom Thumbnail */
+.zoomThumbnail {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  background: #2a2a2a;
+  flex-shrink: 0;
+}
+
+.zoomThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.zoomThumbnail:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.zoomThumbnailActive {
+  border-color: white !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
   .imageZoomContent {
     max-width: 100vw;
     max-height: 100vh;
     padding: 3rem 0.5rem 0.5rem 0.5rem;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .zoomedImageWrapper {
+    max-height: 100%;
+    gap: 0.75rem;
   }
 
   .zoomedImage {
-    max-height: calc(100vh - 4rem);
+    max-height: calc(100vh - 8rem);
     border-radius: 4px;
+  }
+
+  /* Hide desktop thumbnails on mobile */
+  .zoomThumbnailsDesktop {
+    display: none;
+  }
+
+  /* Show mobile thumbnails at bottom */
+  .zoomThumbnailsMobile {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+    max-width: 100vw;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.3);
+  }
+
+  .zoomThumbnailsMobile::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .zoomThumbnailsMobile::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+  }
+
+  .zoomThumbnailsMobile::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  .zoomThumbnailsMobile::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .zoomThumbnail {
+    width: 60px;
+    height: 60px;
   }
 }

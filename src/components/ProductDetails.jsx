@@ -683,11 +683,44 @@ function ProductDetails() {
             >
               ×
             </button>
-            <img
-              src={getCurrentImages()[selectedImage]}
-              alt={product.name}
-              className={styles.zoomedImage}
-            />
+
+            {/* Thumbnails for Desktop (Left Side) */}
+            {getCurrentImages().length > 1 && (
+              <div className={styles.zoomThumbnailsDesktop}>
+                {getCurrentImages().map((img, index) => (
+                  <div
+                    key={index}
+                    className={`${styles.zoomThumbnail} ${selectedImage === index ? styles.zoomThumbnailActive : ''}`}
+                    onClick={() => setSelectedImage(index)}
+                  >
+                    <img src={img} alt={`${product.name} ${index + 1}`} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className={styles.zoomedImageWrapper}>
+              <img
+                src={getCurrentImages()[selectedImage]}
+                alt={product.name}
+                className={styles.zoomedImage}
+              />
+
+              {/* Thumbnails for Mobile (Bottom) */}
+              {getCurrentImages().length > 1 && (
+                <div className={styles.zoomThumbnailsMobile}>
+                  {getCurrentImages().map((img, index) => (
+                    <div
+                      key={index}
+                      className={`${styles.zoomThumbnail} ${selectedImage === index ? styles.zoomThumbnailActive : ''}`}
+                      onClick={() => setSelectedImage(index)}
+                    >
+                      <img src={img} alt={`${product.name} ${index + 1}`} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
