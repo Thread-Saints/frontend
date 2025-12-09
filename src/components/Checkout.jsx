@@ -128,7 +128,8 @@ function Checkout() {
     const discountedPrice = itemsPrice - discount
     const shippingPrice = discountedPrice > 1000 ? 0 : 50 // Free shipping above Rs. 1000
     const taxPrice = Math.round(discountedPrice * 0.18) // 18% GST
-    const totalPrice = discountedPrice + shippingPrice + taxPrice
+    // const totalPrice = discountedPrice + shippingPrice + taxPrice
+    const totalPrice = discountedPrice
 
     return { itemsPrice, discount, discountedPrice, shippingPrice, taxPrice, totalPrice }
   }
@@ -238,14 +239,9 @@ function Checkout() {
                   }
                 } else {
                   // Payment failed or pending
-                  const status = statusResponse.data.order?.paymentStatus || 'Unknown'
+                  const status = statusResponse.data.paymentStatus || 'Unknown'
                   console.error('Payment not successful. Status:', status)
-
-                  if (status === 'Pending') {
-                    toast.warning('Payment is still being processed. Please check your orders page.')
-                  } else {
-                    toast.error(`Payment ${status.toLowerCase()}. Please check your order status.`)
-                  }
+                  toast.error(`Payment ${status.toLowerCase()}. Please check your order status.`)
                 }
               } catch (error) {
                 console.error('Error checking payment status:', error)
