@@ -126,7 +126,8 @@ function Checkout() {
     const itemsPrice = getCartTotal()
     const discount = hasDiscount ? Math.round(itemsPrice * 0.10) : 0 // 10% discount
     const discountedPrice = itemsPrice - discount
-    const shippingPrice = discountedPrice > 1000 ? 0 : 50 // Free shipping above Rs. 1000
+    // const shippingPrice = discountedPrice > 1000 ? 0 : 50 // Free shipping above Rs. 1000
+    const shippingPrice = 0;
     const taxPrice = Math.round(discountedPrice * 0.18) // 18% GST
     // const totalPrice = discountedPrice + shippingPrice + taxPrice
     const totalPrice = discountedPrice
