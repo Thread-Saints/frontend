@@ -13,7 +13,7 @@ function Checkout() {
   const { cart, getCartTotal, clearCart } = useCart()
   const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(false)
-  const [razorpayKey, setRazorpayKey] = useState('')
+  const [phonePeConfig, setPhonePeConfig] = useState(null)
   const [hasDiscount, setHasDiscount] = useState(false)
   const [discountChecked, setDiscountChecked] = useState(false)
   const [savedAddresses, setSavedAddresses] = useState([])
@@ -40,7 +40,7 @@ function Checkout() {
       navigate('/cart')
     }
 
-    fetchRazorpayKey()
+    fetchPhonePeConfig()
     checkDiscountEligibility()
     fetchSavedAddresses()
   }, [isAuthenticated, cart, navigate])
@@ -90,14 +90,14 @@ function Checkout() {
     }
   }
 
-  const fetchRazorpayKey = async () => {
+  const fetchPhonePeConfig = async () => {
     try {
-      const response = await axios.get(API_ENDPOINTS.GET_RAZORPAY_KEY)
+      const response = await axios.get(API_ENDPOINTS.GET_PHONEPE_CONFIG)
       if (response.data.success) {
-        setRazorpayKey(response.data.key)
+        setPhonePeConfig(response.data)
       }
     } catch (error) {
-      console.error('Error fetching Razorpay key:', error)
+      console.error('Error fetching PhonePe config:', error)
     }
   }
 
@@ -159,8 +159,8 @@ function Checkout() {
         color: item.color
       }))
 
-      // Create order on backend
-      const orderResponse = await axios.post(API_ENDPOINTS.CREATE_ORDER, {
+      // Create order on backend (now creates PhonePe payment)
+      const orderResponse = await axios.post(API_ENDPOINTS.CREATE_PAYMENT, {
         orderItems,
         shippingAddress,
         itemsPrice,
@@ -177,70 +177,90 @@ function Checkout() {
         return
       }
 
-      const { order, razorpayOrder } = orderResponse.data
+      const { order, redirectUrl, merchantTransactionId } = orderResponse.data
 
-      // Initialize Razorpay payment
-      const options = {
-        key: razorpayKey,
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency,
-        name: 'Thread Saints',
-        description: 'Order Payment',
-        order_id: razorpayOrder.id,
-        handler: async function (response) {
-          try {
-            // Verify payment on backend
-            const verifyResponse = await axios.post(API_ENDPOINTS.VERIFY_PAYMENT, {
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-              orderId: order._id
-            })
+      // Check if PhonePe checkout bundle is loaded
+      if (window.PhonePeCheckout && typeof window.PhonePeCheckout.transact === 'function') {
+        // Open payment in iframe (modal-like experience)
+        window.PhonePeCheckout.transact({
+          tokenUrl: redirectUrl,
+          type: "IFRAME",
+          callback: async function(response) {
+            console.log('PhonePe payment callback response:', response)
 
-            if (verifyResponse.data.success) {
-              // Save address to profile if checkbox was checked and it's a new address
-              if (saveAddress && useNewAddress) {
-                try {
-                  await axios.post(API_ENDPOINTS.ADD_ADDRESS, {
-                    ...shippingAddress,
-                    isDefault: makeDefault
-                  })
-                  toast.success('Payment successful! Address saved to your profile.')
-                } catch (error) {
-                  console.error('Error saving address:', error)
-                  toast.success('Payment successful! Your order has been placed.')
-                }
-              } else {
-                toast.success('Payment successful! Your order has been placed.')
-              }
-              navigate(`/orders/${order._id}`)
-            } else {
-              toast.error('Payment verification failed')
+            // PhonePe callback returns only 'USER_CANCEL' or 'CONCLUDED'
+            // It does NOT tell you if payment succeeded or failed
+            if (response === 'USER_CANCEL') {
+              console.log('Payment cancelled by user')
+              toast.info('Payment cancelled')
+              setLoading(false)
+              return
             }
-          } catch (error) {
-            console.error('Payment verification error:', error)
-            toast.error('Payment verification failed')
-          }
-          setLoading(false)
-        },
-        prefill: {
-          name: shippingAddress.fullName,
-          email: user?.email,
-          contact: shippingAddress.phone
-        },
-        theme: {
-          color: '#000000'
-        },
-        modal: {
-          ondismiss: function() {
-            setLoading(false)
-            toast.info('Payment cancelled')
-          }
-        }
-      }
 
-      const razorpay = new window.Razorpay(options)
-      razorpay.open()
+            if (response === 'CONCLUDED') {
+              // Payment reached terminal state - need to verify status with backend
+              console.log('Payment concluded, verifying status...')
+
+              try {
+                // Check payment status from backend
+                const statusResponse = await axios.get(
+                  API_ENDPOINTS.CHECK_PAYMENT_STATUS(merchantTransactionId)
+                )
+
+                console.log('Payment status response:', statusResponse.data)
+
+                if (statusResponse.data.success && statusResponse.data.order &&
+                    statusResponse.data.order.paymentStatus === 'Paid') {
+                  // Payment successful
+                  try {
+                    // Save address to profile if checkbox was checked and it's a new address
+                    if (saveAddress && useNewAddress) {
+                      try {
+                        await axios.post(API_ENDPOINTS.ADD_ADDRESS, {
+                          ...shippingAddress,
+                          isDefault: makeDefault
+                        })
+                        toast.success('Payment successful! Address saved to your profile.')
+                      } catch (error) {
+                        console.error('Error saving address:', error)
+                        toast.success('Payment successful! Your order has been placed.')
+                      }
+                    } else {
+                      toast.success('Payment successful! Your order has been placed.')
+                    }
+
+                    // Redirect to order details
+                    navigate(`/orders/${order._id}`)
+                  } catch (error) {
+                    console.error('Post-payment error:', error)
+                    toast.success('Payment successful! Your order has been placed.')
+                    navigate(`/orders/${order._id}`)
+                  }
+                } else {
+                  // Payment failed or pending
+                  const status = statusResponse.data.order?.paymentStatus || 'Unknown'
+                  console.error('Payment not successful. Status:', status)
+
+                  if (status === 'Pending') {
+                    toast.warning('Payment is still being processed. Please check your orders page.')
+                  } else {
+                    toast.error(`Payment ${status.toLowerCase()}. Please check your order status.`)
+                  }
+                }
+              } catch (error) {
+                console.error('Error checking payment status:', error)
+                toast.error('Unable to verify payment status. Please check your orders page.')
+              }
+
+              setLoading(false)
+            }
+          }
+        })
+      } else {
+        // Fallback: redirect if PhonePe bundle not loaded
+        console.warn('PhonePe checkout bundle not loaded, redirecting...')
+        window.location.href = redirectUrl
+      }
     } catch (error) {
       console.error('Payment error:', error)
       toast.error(error.response?.data?.message || 'Failed to initiate payment')

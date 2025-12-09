@@ -2,6 +2,7 @@
 // const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.threadsaints.com'
 
+
 export const API_ENDPOINTS = {
   // Auth endpoints
   LOGIN: `${API_BASE_URL}/api/auth/login`,
@@ -35,11 +36,13 @@ export const API_ENDPOINTS = {
   WISHLIST_CHECK: (productId) => `${API_BASE_URL}/api/wishlist/check/${productId}`,
 
   // Payment endpoints
-  CREATE_ORDER: `${API_BASE_URL}/api/payment/create-order`,
-  VERIFY_PAYMENT: `${API_BASE_URL}/api/payment/verify`,
+  CREATE_PAYMENT: `${API_BASE_URL}/api/payment/create-order`,
+  PAYMENT_CALLBACK: `${API_BASE_URL}/api/payment/callback`,
+  PAYMENT_REDIRECT: `${API_BASE_URL}/api/payment/redirect`,
   GET_ORDERS: `${API_BASE_URL}/api/payment/orders`,
   GET_ORDER_BY_ID: (id) => `${API_BASE_URL}/api/payment/orders/${id}`,
-  GET_RAZORPAY_KEY: `${API_BASE_URL}/api/payment/razorpay-key`,
+  GET_PHONEPE_CONFIG: `${API_BASE_URL}/api/payment/phonepe-config`,
+  CHECK_PAYMENT_STATUS: (txnId) => `${API_BASE_URL}/api/payment/check-status/${txnId}`,
   CHECK_DISCOUNT_ELIGIBILITY: `${API_BASE_URL}/api/payment/check-discount`,
 
   // Admin Order endpoints

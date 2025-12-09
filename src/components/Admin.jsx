@@ -1763,13 +1763,21 @@ function Admin() {
               </div>
 
               {/* Payment Information */}
-              {selectedOrder.paymentResult && (
+              {selectedOrder.paymentInfo && (
                 <div className={styles.detailSection}>
                   <h3>Payment Information</h3>
                   <div className={styles.detailGrid}>
                     <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Payment ID:</span>
-                      <span className={styles.detailValue}>{selectedOrder.paymentResult.razorpayPaymentId || 'N/A'}</span>
+                      <span className={styles.detailLabel}>Transaction ID:</span>
+                      <span className={styles.detailValue}>{selectedOrder.paymentInfo?.phonePeTransactionId || 'N/A'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Merchant Txn ID:</span>
+                      <span className={styles.detailValue}>{selectedOrder.paymentInfo?.merchantTransactionId || 'N/A'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Payment Method:</span>
+                      <span className={styles.detailValue}>{selectedOrder.paymentInfo?.paymentMethod || 'N/A'}</span>
                     </div>
                     <div className={styles.detailItem}>
                       <span className={styles.detailLabel}>Payment Date:</span>

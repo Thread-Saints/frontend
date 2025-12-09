@@ -176,18 +176,24 @@ function OrderDetails() {
             </div>
 
             {/* Payment Info */}
-            {order.paymentInfo.razorpayPaymentId && (
+            {order.paymentInfo.phonePeTransactionId && (
               <div className={styles.orderSection}>
                 <h2 className={styles.sectionTitle}>Payment Information</h2>
                 <div className={styles.paymentInfo}>
                   <p className={styles.paymentRow}>
-                    <span className={styles.paymentLabel}>Payment ID:</span>
-                    <span className={styles.paymentValue}>{order.paymentInfo.razorpayPaymentId}</span>
+                    <span className={styles.paymentLabel}>Transaction ID:</span>
+                    <span className={styles.paymentValue}>{order.paymentInfo.phonePeTransactionId}</span>
                   </p>
                   <p className={styles.paymentRow}>
-                    <span className={styles.paymentLabel}>Order ID:</span>
-                    <span className={styles.paymentValue}>{order.paymentInfo.razorpayOrderId}</span>
+                    <span className={styles.paymentLabel}>Merchant Txn ID:</span>
+                    <span className={styles.paymentValue}>{order.paymentInfo.merchantTransactionId}</span>
                   </p>
+                  {order.paymentInfo.paymentMethod && (
+                    <p className={styles.paymentRow}>
+                      <span className={styles.paymentLabel}>Payment Method:</span>
+                      <span className={styles.paymentValue}>{order.paymentInfo.paymentMethod}</span>
+                    </p>
+                  )}
                   {order.paidAt && (
                     <p className={styles.paymentRow}>
                       <span className={styles.paymentLabel}>Paid At:</span>
