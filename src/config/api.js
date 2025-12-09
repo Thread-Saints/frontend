@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
   // Auth endpoints
   LOGIN: `${API_BASE_URL}/api/auth/login`,
   SIGNUP: `${API_BASE_URL}/api/auth/signup`,
+  NEWSLETTER: `${API_BASE_URL}/api/auth/newsletter`,
 
   // Product endpoints
   PRODUCTS: `${API_BASE_URL}/api/products`,

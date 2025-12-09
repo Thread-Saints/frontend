@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import axios from 'axios'
 import { toast } from 'react-toastify'
-import API from '../config/api'
+import { API_ENDPOINTS } from '../config/api'
 import styles from './SignupPopup.module.css'
 
 function SignupPopup({ isOpen, onClose, onOpenLogin }) {
@@ -19,7 +20,7 @@ function SignupPopup({ isOpen, onClose, onOpenLogin }) {
 
     try {
       // Call newsletter API
-      const response = await API.post('/auth/newsletter', { email })
+      const response = await axios.post(API_ENDPOINTS.NEWSLETTER, { email })
 
       if (response.data.success) {
         const { userExists, hasDiscount } = response.data
