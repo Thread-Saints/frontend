@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import Navbar from './Navbar'
@@ -10,6 +10,7 @@ import styles from './Checkout.module.css'
 
 function Checkout() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { cart, getCartTotal, clearCart } = useCart()
   const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(false)
@@ -21,6 +22,9 @@ function Checkout() {
   const [useNewAddress, setUseNewAddress] = useState(false)
   const [saveAddress, setSaveAddress] = useState(false)
   const [makeDefault, setMakeDefault] = useState(false)
+
+  // Get buy now item from navigation state
+  const buyNowItem = location.state?.buyNowItem
 
   const [shippingAddress, setShippingAddress] = useState({
     fullName: '',
@@ -34,16 +38,19 @@ function Checkout() {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/cart')
+      return
     }
 
-    if (!cart || cart.items.length === 0) {
+    // Check if we have items (either from buy now or cart)
+    if (!buyNowItem && (!cart || cart.items.length === 0)) {
       navigate('/cart')
+      return
     }
 
     fetchPhonePeConfig()
     checkDiscountEligibility()
     fetchSavedAddresses()
-  }, [isAuthenticated, cart, navigate])
+  }, [isAuthenticated, cart, navigate, buyNowItem])
 
   const fetchSavedAddresses = async () => {
     try {
@@ -123,7 +130,14 @@ function Checkout() {
   }
 
   const calculatePrices = () => {
-    const itemsPrice = getCartTotal()
+    // Calculate total based on buy now item or cart
+    let itemsPrice
+    if (buyNowItem) {
+      itemsPrice = buyNowItem.price * buyNowItem.quantity
+    } else {
+      itemsPrice = getCartTotal()
+    }
+
     const discount = hasDiscount ? Math.round(itemsPrice * 0.10) : 0 // 10% discount
     const discountedPrice = itemsPrice - discount
     const shippingPrice = discountedPrice > 1000 ? 0 : 50 // Free shipping above Rs. 1000
@@ -150,16 +164,31 @@ function Checkout() {
     try {
       const { itemsPrice, discount, discountedPrice, shippingPrice, taxPrice, totalPrice } = calculatePrices()
 
-      // Create order items from cart (filter out items with deleted products)
-      const orderItems = cart.items.filter(item => item.product).map(item => ({
-        product: item.product._id,
-        name: item.name,
-        image: item.image,
-        price: item.price,
-        quantity: item.quantity,
-        size: item.size,
-        color: item.color
-      }))
+      // Create order items from buy now or cart
+      let orderItems
+      if (buyNowItem) {
+        // Buy now mode - only include the selected item
+        orderItems = [{
+          product: buyNowItem.product._id,
+          name: buyNowItem.name,
+          image: buyNowItem.image,
+          price: buyNowItem.price,
+          quantity: buyNowItem.quantity,
+          size: buyNowItem.size,
+          color: buyNowItem.color
+        }]
+      } else {
+        // Cart mode - filter out items with deleted products
+        orderItems = cart.items.filter(item => item.product).map(item => ({
+          product: item.product._id,
+          name: item.name,
+          image: item.image,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color
+        }))
+      }
 
       // Create order on backend (now creates PhonePe payment)
       const orderResponse = await axios.post(API_ENDPOINTS.CREATE_PAYMENT, {
@@ -265,7 +294,8 @@ function Checkout() {
     }
   }
 
-  if (!cart || cart.items.length === 0) {
+  // Don't render if no items (either from buy now or cart)
+  if (!buyNowItem && (!cart || cart.items.length === 0)) {
     return null
   }
 
@@ -487,18 +517,33 @@ function Checkout() {
               <h2 className={styles.sectionTitle}>Order Summary</h2>
 
               <div className={styles.orderItems}>
-                {cart.items.filter(item => item.product).map((item) => (
-                  <div key={item._id} className={styles.orderItem}>
-                    <img src={item.image} alt={item.name} className={styles.itemImage} />
+                {buyNowItem ? (
+                  // Show buy now item
+                  <div className={styles.orderItem}>
+                    <img src={buyNowItem.image} alt={buyNowItem.name} className={styles.itemImage} />
                     <div className={styles.itemDetails}>
-                      <p className={styles.itemName}>{item.name}</p>
-                      {item.size && <p className={styles.itemSize}>Size: {item.size}</p>}
-                      {item.color && <p className={styles.itemColor}>Color: {item.color}</p>}
-                      <p className={styles.itemQuantity}>Qty: {item.quantity}</p>
+                      <p className={styles.itemName}>{buyNowItem.name}</p>
+                      {buyNowItem.size && <p className={styles.itemSize}>Size: {buyNowItem.size}</p>}
+                      {buyNowItem.color && <p className={styles.itemColor}>Color: {buyNowItem.color}</p>}
+                      <p className={styles.itemQuantity}>Qty: {buyNowItem.quantity}</p>
                     </div>
-                    <p className={styles.itemPrice}>Rs.{(item.price * item.quantity).toFixed(2)}</p>
+                    <p className={styles.itemPrice}>Rs.{(buyNowItem.price * buyNowItem.quantity).toFixed(2)}</p>
                   </div>
-                ))}
+                ) : (
+                  // Show cart items
+                  cart.items.filter(item => item.product).map((item) => (
+                    <div key={item._id} className={styles.orderItem}>
+                      <img src={item.image} alt={item.name} className={styles.itemImage} />
+                      <div className={styles.itemDetails}>
+                        <p className={styles.itemName}>{item.name}</p>
+                        {item.size && <p className={styles.itemSize}>Size: {item.size}</p>}
+                        {item.color && <p className={styles.itemColor}>Color: {item.color}</p>}
+                        <p className={styles.itemQuantity}>Qty: {item.quantity}</p>
+                      </div>
+                      <p className={styles.itemPrice}>Rs.{(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                  ))
+                )}
               </div>
 
               <div className={styles.priceBreakdown}>

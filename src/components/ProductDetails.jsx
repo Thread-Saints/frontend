@@ -298,6 +298,40 @@ function ProductDetails() {
     setAddingToWishlist(false)
   }
 
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to continue')
+      return
+    }
+
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      toast.warning('Please select a size')
+      return
+    }
+
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      toast.warning('Please select a color')
+      return
+    }
+
+    // Navigate to checkout with product details (bypass cart)
+    const buyNowItem = {
+      product: {
+        _id: product._id,
+        name: product.name,
+        price: product.salePrice || product.price
+      },
+      name: product.name,
+      image: getCurrentImages()[0],
+      price: product.salePrice || product.price,
+      quantity: quantity,
+      size: selectedSize,
+      color: selectedColor
+    }
+
+    navigate('/checkout', { state: { buyNowItem } })
+  }
+
   if (loading) {
     return (
       <>
@@ -364,7 +398,7 @@ function ProductDetails() {
           {/* Product Info */}
           <div className={styles.productInfo}>
             <div className={styles.productHeader}>
-              <h1 className={styles.productName}>{product.name}</h1>
+              <h1 className={styles.productName}>{product.name.toUpperCase()}</h1>
               <button
                 className={styles.wishlistBtn}
                 onClick={handleToggleWishlist}
@@ -416,12 +450,16 @@ function ProductDetails() {
               <div className={styles.sizesSection}>
                 <div className={styles.sizeHeader}>
                   <label className={styles.label}>Size</label>
-                  <button
-                    className={styles.sizeChartBtn}
-                    onClick={() => setShowSizeChart(true)}
-                  >
-                    Size Chart (Cm)
-                  </button>
+                  {/* Hide size chart button for jackets and jeans */}
+                  {product.category &&
+                   !['jackets', 'jeans'].includes(product.category.toLowerCase()) && (
+                    <button
+                      className={styles.sizeChartBtn}
+                      onClick={() => setShowSizeChart(true)}
+                    >
+                      Size Chart (Cm)
+                    </button>
+                  )}
                 </div>
                 <div className={styles.sizeOptions}>
                   {product.sizes.map((size) => {
@@ -478,7 +516,13 @@ function ProductDetails() {
               >
                 {addingToCart ? 'Adding...' : getSelectedStock() === 0 ? 'Out of Stock' : 'Add To Cart'}
               </button>
-              <button className={styles.buyNowBtn} disabled={getSelectedStock() === 0}>Buy Now</button>
+              <button
+                className={styles.buyNowBtn}
+                onClick={handleBuyNow}
+                disabled={getSelectedStock() === 0}
+              >
+                {getSelectedStock() === 0 ? 'Out of Stock' : 'Buy Now'}
+              </button>
             </div>
 
             {/* Expandable Sections */}

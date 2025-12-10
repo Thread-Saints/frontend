@@ -14,7 +14,7 @@ function Page2() {
         Your browser does not support the video tag.
       </video>
       <div className={styles.content}>
-        <h2 className={styles.tagline}>"No Mid Fits, Only Main Character Energy"</h2>
+        <h2 className={styles.tagline}>"NO MID FITS, ONLY MAIN CHARACTER ENERGY"</h2>
       </div>
     </div>
   )
