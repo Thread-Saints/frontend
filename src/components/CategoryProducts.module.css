@@ -75,6 +75,30 @@
   transform: scale(1.05);
 }
 
+.outOfStockImage {
+  opacity: 0.4;
+  filter: grayscale(50%);
+}
+
+.outOfStockBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-family: 'Rasputin', serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  z-index: 10;
+  pointer-events: none;
+}
+
 .noImage {
   width: 100%;
   height: 100%;

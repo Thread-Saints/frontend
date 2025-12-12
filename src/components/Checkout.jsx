@@ -35,21 +35,26 @@ function Checkout() {
     pincode: ''
   })
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/cart')
-      return
-    }
+  const [guestEmail, setGuestEmail] = useState('')
 
+  useEffect(() => {
     // Check if we have items (either from buy now or cart)
+    // No auth check - allow guest checkout!
     if (!buyNowItem && (!cart || cart.items.length === 0)) {
       navigate('/cart')
       return
     }
 
     fetchPhonePeConfig()
-    checkDiscountEligibility()
-    fetchSavedAddresses()
+
+    // Only check discount and fetch addresses for authenticated users
+    if (isAuthenticated) {
+      checkDiscountEligibility()
+      fetchSavedAddresses()
+    } else {
+      // For guests, always use new address
+      setUseNewAddress(true)
+    }
   }, [isAuthenticated, cart, navigate, buyNowItem])
 
   const fetchSavedAddresses = async () => {
@@ -195,11 +200,12 @@ function Checkout() {
         orderItems,
         shippingAddress,
         itemsPrice,
-        discount,
-        discountCode: hasDiscount ? 'WELCOME10' : null,
+        discount: isAuthenticated ? discount : 0,  // Guests cannot use discounts
+        discountCode: (isAuthenticated && hasDiscount) ? 'WELCOME10' : null,
         shippingPrice,
         taxPrice,
-        totalPrice
+        totalPrice,
+        guestEmail: !isAuthenticated ? guestEmail : null  // Include guest email if not authenticated
       })
 
       if (!orderResponse.data.success) {
@@ -244,8 +250,8 @@ function Checkout() {
                     statusResponse.data.order.paymentStatus === 'Paid') {
                   // Payment successful
                   try {
-                    // Save address to profile if checkbox was checked and it's a new address
-                    if (saveAddress && useNewAddress) {
+                    // Save address to profile if checkbox was checked and it's a new address (authenticated users only)
+                    if (isAuthenticated && saveAddress && useNewAddress) {
                       try {
                         await axios.post(API_ENDPOINTS.ADD_ADDRESS, {
                           ...shippingAddress,
@@ -260,8 +266,19 @@ function Checkout() {
                       toast.success('Payment successful! Your order has been placed.')
                     }
 
-                    // Redirect to order details
-                    navigate(`/orders/${order._id}`)
+                    // Redirect based on user type
+                    if (isAuthenticated) {
+                      // Authenticated users: go to order details
+                      navigate(`/orders/${order._id}`)
+                    } else {
+                      // Guest users: show confirmation message and redirect to home
+                      toast.success(`Order confirmed! Transaction ID: ${merchantTransactionId}. Please save this for reference.`, {
+                        autoClose: 10000
+                      })
+                      setTimeout(() => {
+                        navigate('/')
+                      }, 3000)
+                    }
                   } catch (error) {
                     console.error('Post-payment error:', error)
                     toast.success('Payment successful! Your order has been placed.')
@@ -313,8 +330,17 @@ function Checkout() {
             <div className={styles.shippingSection}>
               <h2 className={styles.sectionTitle}>Shipping Address</h2>
 
-              {/* Saved Addresses */}
-              {savedAddresses.length > 0 && !useNewAddress && (
+              {/* Guest Checkout Banner */}
+              {!isAuthenticated && (
+                <div className={styles.guestBanner}>
+                  <p className={styles.guestBannerText}>
+                    🎁 <strong>Login or create an account</strong> to get 10% off your first order and track your orders!
+                  </p>
+                </div>
+              )}
+
+              {/* Saved Addresses - Only for authenticated users */}
+              {isAuthenticated && savedAddresses.length > 0 && !useNewAddress && (
                 <div className={styles.savedAddressesSection}>
                   <h3 className={styles.subTitle}>Select Address</h3>
                   <div className={styles.addressOptions}>
@@ -367,9 +393,9 @@ function Checkout() {
               )}
 
               {/* Show form if using new address or no saved addresses */}
-              {(useNewAddress || savedAddresses.length === 0) && (
+              {(useNewAddress || savedAddresses.length === 0 || !isAuthenticated) && (
                 <>
-                  {savedAddresses.length > 0 && (
+                  {isAuthenticated && savedAddresses.length > 0 && (
                     <button
                       type="button"
                       className={styles.backToSavedBtn}
@@ -391,7 +417,21 @@ function Checkout() {
               )}
 
               <form onSubmit={handlePayment} className={styles.form}>
-                {(useNewAddress || savedAddresses.length === 0 || !selectedAddressId) && (
+                {/* Guest Email Field - Only for guests */}
+                {!isAuthenticated && (
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Email (Optional - for order confirmation)</label>
+                    <input
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      className={styles.input}
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+                )}
+
+                {(useNewAddress || savedAddresses.length === 0 || !selectedAddressId || !isAuthenticated) && (
                   <>
                     <div className={styles.formGroup}>
                       <label className={styles.label}>Full Name *</label>
@@ -469,36 +509,38 @@ function Checkout() {
                       />
                     </div>
 
-                    {/* Save Address Checkboxes */}
-                    <div className={styles.saveAddressSection}>
-                      <div className={styles.checkboxGroup}>
-                        <input
-                          type="checkbox"
-                          id="saveAddress"
-                          checked={saveAddress}
-                          onChange={(e) => setSaveAddress(e.target.checked)}
-                          className={styles.checkbox}
-                        />
-                        <label htmlFor="saveAddress" className={styles.checkboxLabel}>
-                          Save this address to my profile
-                        </label>
-                      </div>
-
-                      {saveAddress && (
+                    {/* Save Address Checkboxes - Only for authenticated users */}
+                    {isAuthenticated && (
+                      <div className={styles.saveAddressSection}>
                         <div className={styles.checkboxGroup}>
                           <input
                             type="checkbox"
-                            id="makeDefault"
-                            checked={makeDefault}
-                            onChange={(e) => setMakeDefault(e.target.checked)}
+                            id="saveAddress"
+                            checked={saveAddress}
+                            onChange={(e) => setSaveAddress(e.target.checked)}
                             className={styles.checkbox}
                           />
-                          <label htmlFor="makeDefault" className={styles.checkboxLabel}>
-                            Make this my default address
+                          <label htmlFor="saveAddress" className={styles.checkboxLabel}>
+                            Save this address to my profile
                           </label>
                         </div>
-                      )}
-                    </div>
+
+                        {saveAddress && (
+                          <div className={styles.checkboxGroup}>
+                            <input
+                              type="checkbox"
+                              id="makeDefault"
+                              checked={makeDefault}
+                              onChange={(e) => setMakeDefault(e.target.checked)}
+                              className={styles.checkbox}
+                            />
+                            <label htmlFor="makeDefault" className={styles.checkboxLabel}>
+                              Make this my default address
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
 

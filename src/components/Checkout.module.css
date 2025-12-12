@@ -38,6 +38,27 @@
   font-weight: 600;
 }
 
+/* Guest Banner */
+.guestBanner {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.guestBannerText {
+  color: white;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.guestBannerText strong {
+  font-weight: 700;
+}
+
 .form {
   display: flex;
   flex-direction: column;

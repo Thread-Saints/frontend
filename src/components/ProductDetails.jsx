@@ -254,6 +254,18 @@ function ProductDetails() {
       return
     }
 
+    // Check stock availability
+    const availableStock = getSelectedStock()
+    if (availableStock === 0) {
+      toast.error('This item is out of stock')
+      return
+    }
+
+    if (quantity > availableStock) {
+      toast.error(`Only ${availableStock} items available`)
+      return
+    }
+
     setAddingToCart(true)
     const result = await addToCart(id, quantity, selectedSize, selectedColor)
     setAddingToCart(false)
@@ -299,10 +311,7 @@ function ProductDetails() {
   }
 
   const handleBuyNow = () => {
-    if (!isAuthenticated) {
-      toast.error('Please login to continue')
-      return
-    }
+    // No login required for Buy Now - supports guest checkout!
 
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
       toast.warning('Please select a size')
@@ -311,6 +320,18 @@ function ProductDetails() {
 
     if (product.colors && product.colors.length > 0 && !selectedColor) {
       toast.warning('Please select a color')
+      return
+    }
+
+    // Check stock availability
+    const availableStock = getSelectedStock()
+    if (availableStock === 0) {
+      toast.error('This item is out of stock')
+      return
+    }
+
+    if (quantity > availableStock) {
+      toast.error(`Only ${availableStock} items available`)
       return
     }
 

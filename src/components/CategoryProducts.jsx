@@ -120,6 +120,27 @@ function CategoryProducts() {
     return images.length > 0 ? images : ['/placeholder-image.png']
   }
 
+  // Calculate total stock for a product/variant
+  const getProductStock = (product) => {
+    // If this is an expanded color variant
+    if (product.selectedColorVariant && product.selectedColorVariant.sizeStock) {
+      return product.selectedColorVariant.sizeStock.reduce((sum, s) => sum + s.stock, 0)
+    }
+
+    // If product has color variants but not expanded
+    if (product.colorVariants && product.colorVariants.length > 0) {
+      return product.colorVariants.reduce((total, variant) => {
+        if (variant.sizeStock && variant.sizeStock.length > 0) {
+          return total + variant.sizeStock.reduce((sum, s) => sum + s.stock, 0)
+        }
+        return total
+      }, 0)
+    }
+
+    // Fallback to global stock
+    return product.stock || 0
+  }
+
   // Handle mouse enter - start cycling images
   const handleMouseEnter = (productId) => {
     setHoveredProduct(productId)
@@ -193,6 +214,8 @@ function CategoryProducts() {
                 const images = getProductImages(product)
                 const currentIndex = currentImageIndex[product._id] || 0
                 const currentImage = images[currentIndex]
+                const stock = getProductStock(product)
+                const isOutOfStock = stock === 0
 
                 return (
                   <div
@@ -220,11 +243,16 @@ function CategoryProducts() {
                         <img
                           src={currentImage}
                           alt={product.name}
-                          className={styles.productImage}
+                          className={`${styles.productImage} ${isOutOfStock ? styles.outOfStockImage : ''}`}
                         />
                       ) : (
                         <div className={styles.noImage}>
                           <span className={styles.noImageText}>No Image</span>
+                        </div>
+                      )}
+                      {isOutOfStock && (
+                        <div className={styles.outOfStockBadge}>
+                          <span>OUT OF STOCK</span>
                         </div>
                       )}
                     </div>
