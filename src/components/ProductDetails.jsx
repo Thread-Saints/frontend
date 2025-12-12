@@ -442,8 +442,8 @@ function ProductDetails() {
               )}
             </div>
 
-            {/* Colors */}
-            {getAvailableColors().length > 0 && (
+            {/* Colors - Only show if more than 1 color available */}
+            {getAvailableColors().length > 1 && (
               <div className={styles.colorsSection}>
                 <label className={styles.label}>Colors Available</label>
                 <div className={styles.colorOptions}>
@@ -471,9 +471,9 @@ function ProductDetails() {
               <div className={styles.sizesSection}>
                 <div className={styles.sizeHeader}>
                   <label className={styles.label}>Size</label>
-                  {/* Hide size chart button for jackets and jeans */}
+                  {/* Hide size chart button for jackets, jeans, and sweatshirts */}
                   {product.category &&
-                   !['jackets', 'jeans'].includes(product.category.toLowerCase()) && (
+                   !['jackets', 'jeans', 'sweatshirts'].includes(product.category.toLowerCase()) && (
                     <button
                       className={styles.sizeChartBtn}
                       onClick={() => setShowSizeChart(true)}

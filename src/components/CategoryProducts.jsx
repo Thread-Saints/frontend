@@ -63,10 +63,11 @@ function CategoryProducts() {
         return false
       })
 
-      // Expand products into color variants
+      // Expand products into color variants (only if more than 1 color)
       const expandedProducts = []
       filteredProducts.forEach(product => {
-        if (product.colorVariants && product.colorVariants.length > 0) {
+        // Only expand if there are multiple color variants (more than 1)
+        if (product.colorVariants && product.colorVariants.length > 1) {
           // Create a separate item for each color variant
           product.colorVariants.forEach(variant => {
             expandedProducts.push({
@@ -80,7 +81,7 @@ function CategoryProducts() {
             })
           })
         } else {
-          // If no color variants, add the product as is
+          // If no color variants or only 1 color, add the product as is (without color name)
           expandedProducts.push(product)
         }
       })

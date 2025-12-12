@@ -325,7 +325,8 @@ function Page4() {
                         <span>₹{product.price}</span>
                       )}
                     </p>
-                    {availableColors.length > 0 && (
+                    {/* Only show color dots if more than 1 color available */}
+                    {availableColors.length > 1 && (
                       <div className={styles.colorSelector}>
                         {availableColors.map((colorInfo) => (
                           <div

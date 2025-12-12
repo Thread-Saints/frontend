@@ -32,10 +32,11 @@ function Checkout() {
     address: '',
     city: '',
     state: '',
-    pincode: ''
+    pincode: '',
+    region: 'rest-of-india' // Default to Rest of India
   })
 
-  const [guestEmail, setGuestEmail] = useState('')
+  const [email, setEmail] = useState('') // Mandatory email for both guest and logged-in users
 
   useEffect(() => {
     // Check if we have items (either from buy now or cart)
@@ -51,11 +52,15 @@ function Checkout() {
     if (isAuthenticated) {
       checkDiscountEligibility()
       fetchSavedAddresses()
+      // Auto-fill email for logged-in users
+      if (user && user.email) {
+        setEmail(user.email)
+      }
     } else {
       // For guests, always use new address
       setUseNewAddress(true)
     }
-  }, [isAuthenticated, cart, navigate, buyNowItem])
+  }, [isAuthenticated, cart, navigate, buyNowItem, user])
 
   const fetchSavedAddresses = async () => {
     try {
@@ -145,21 +150,39 @@ function Checkout() {
 
     const discount = hasDiscount ? Math.round(itemsPrice * 0.10) : 0 // 10% discount
     const discountedPrice = itemsPrice - discount
-    const shippingPrice = discountedPrice > 1000 ? 0 : 50 // Free shipping above Rs. 1000
-    // const shippingPrice = 0;
-    const taxPrice = Math.round(discountedPrice * 0.18) // 18% GST
-    const totalPrice = discountedPrice + shippingPrice + taxPrice
-    // const totalPrice = discountedPrice
 
-    return { itemsPrice, discount, discountedPrice, shippingPrice, taxPrice, totalPrice }
+    // New shipping logic based on region
+    let shippingPrice = 0
+    if (discountedPrice <= 4999) {
+      // Free shipping for orders above Rs.4999
+      shippingPrice = shippingAddress.region === 'delhi-ncr' ? 90 : 150
+    }
+
+    // No tax field
+    const totalPrice = discountedPrice + shippingPrice
+
+    return { itemsPrice, discount, discountedPrice, shippingPrice, totalPrice }
   }
 
   const handlePayment = async (e) => {
     e.preventDefault()
 
+    // Validate email
+    if (!email || !email.trim()) {
+      toast.warning('Please enter your email address')
+      return
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      toast.warning('Please enter a valid email address')
+      return
+    }
+
     // Validate form
     if (!shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.address ||
-        !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode) {
+        !shippingAddress.city || !shippingAddress.state || !shippingAddress.pincode || !shippingAddress.region) {
       toast.warning('Please fill all shipping address fields')
       return
     }
@@ -167,7 +190,7 @@ function Checkout() {
     setLoading(true)
 
     try {
-      const { itemsPrice, discount, discountedPrice, shippingPrice, taxPrice, totalPrice } = calculatePrices()
+      const { itemsPrice, discount, discountedPrice, shippingPrice, totalPrice } = calculatePrices()
 
       // Create order items from buy now or cart
       let orderItems
@@ -203,9 +226,8 @@ function Checkout() {
         discount: isAuthenticated ? discount : 0,  // Guests cannot use discounts
         discountCode: (isAuthenticated && hasDiscount) ? 'WELCOME10' : null,
         shippingPrice,
-        taxPrice,
         totalPrice,
-        guestEmail: !isAuthenticated ? guestEmail : null  // Include guest email if not authenticated
+        email: email  // Mandatory email for both guest and logged-in users
       })
 
       if (!orderResponse.data.success) {
@@ -316,7 +338,7 @@ function Checkout() {
     return null
   }
 
-  const { itemsPrice, discount, shippingPrice, taxPrice, totalPrice } = calculatePrices()
+  const { itemsPrice, discount, shippingPrice, totalPrice } = calculatePrices()
 
   return (
     <>
@@ -417,22 +439,45 @@ function Checkout() {
               )}
 
               <form onSubmit={handlePayment} className={styles.form}>
-                {/* Guest Email Field - Only for guests */}
-                {!isAuthenticated && (
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>Email (Optional - for order confirmation)</label>
-                    <input
-                      type="email"
-                      value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
-                      className={styles.input}
-                      placeholder="your.email@example.com"
-                    />
-                  </div>
-                )}
+                {/* Email Field - Mandatory for everyone */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Email Address *</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={styles.input}
+                    placeholder="your.email@example.com"
+                    required
+                    disabled={isAuthenticated && user && user.email} // Read-only for logged-in users with email
+                  />
+                  {!isAuthenticated && (
+                    <small style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                      Required for order confirmation and updates
+                    </small>
+                  )}
+                </div>
 
                 {(useNewAddress || savedAddresses.length === 0 || !selectedAddressId || !isAuthenticated) && (
                   <>
+                    {/* Region Selection - Before address fields */}
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Delivery Region *</label>
+                      <select
+                        name="region"
+                        value={shippingAddress.region}
+                        onChange={handleInputChange}
+                        className={styles.input}
+                        required
+                      >
+                        <option value="rest-of-india">Rest of India (₹150 shipping)</option>
+                        <option value="delhi-ncr">Delhi-NCR (₹90 shipping)</option>
+                      </select>
+                      <small style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                        Free shipping on orders above ₹4,999
+                      </small>
+                    </div>
+
                     <div className={styles.formGroup}>
                       <label className={styles.label}>Full Name *</label>
                       <input
@@ -590,7 +635,7 @@ function Checkout() {
 
               <div className={styles.priceBreakdown}>
                 <div className={styles.priceRow}>
-                  <span>Subtotal</span>
+                  <span>Items Price</span>
                   <span>Rs.{itemsPrice.toFixed(2)}</span>
                 </div>
                 {hasDiscount && discount > 0 && (
@@ -600,13 +645,14 @@ function Checkout() {
                   </div>
                 )}
                 <div className={styles.priceRow}>
-                  <span>Shipping</span>
+                  <span>Shipping ({shippingAddress.region === 'delhi-ncr' ? 'Delhi-NCR' : 'Rest of India'})</span>
                   <span>{shippingPrice === 0 ? 'FREE' : `Rs.${shippingPrice.toFixed(2)}`}</span>
                 </div>
-                <div className={styles.priceRow}>
-                  <span>Tax (18% GST)</span>
-                  <span>Rs.{taxPrice.toFixed(2)}</span>
-                </div>
+                {shippingPrice > 0 && (
+                  <small style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.8rem', marginTop: '-0.5rem', marginBottom: '0.5rem', display: 'block' }}>
+                    Add Rs.{(4999 - (itemsPrice - discount) + 1).toFixed(0)} more for FREE shipping
+                  </small>
+                )}
                 <div className={styles.divider}></div>
                 <div className={styles.priceRow + ' ' + styles.totalRow}>
                   <span>Total</span>
