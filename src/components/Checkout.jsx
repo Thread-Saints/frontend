@@ -6,6 +6,7 @@ import Navbar from './Navbar'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { API_ENDPOINTS } from '../config/api'
+import { getRegionFromPincode } from '../utils/pincodeUtils'
 import styles from './Checkout.module.css'
 
 function Checkout() {
@@ -73,13 +74,16 @@ function Checkout() {
         const defaultAddr = addresses.find(addr => addr.isDefault) || addresses[0]
         if (defaultAddr) {
           setSelectedAddressId(defaultAddr._id)
+          // Auto-detect region from default address pincode
+          const region = getRegionFromPincode(defaultAddr.pincode)
           setShippingAddress({
             fullName: defaultAddr.fullName,
             phone: defaultAddr.phone,
             address: defaultAddr.address,
             city: defaultAddr.city,
             state: defaultAddr.state,
-            pincode: defaultAddr.pincode
+            pincode: defaultAddr.pincode,
+            region: region
           })
         } else {
           setUseNewAddress(true)
@@ -96,13 +100,16 @@ function Checkout() {
     if (selected) {
       setSelectedAddressId(addressId)
       setUseNewAddress(false)
+      // Auto-detect region from saved address pincode
+      const region = getRegionFromPincode(selected.pincode)
       setShippingAddress({
         fullName: selected.fullName,
         phone: selected.phone,
         address: selected.address,
         city: selected.city,
         state: selected.state,
-        pincode: selected.pincode
+        pincode: selected.pincode,
+        region: region
       })
     }
   }
@@ -133,10 +140,19 @@ function Checkout() {
   }
 
   const handleInputChange = (e) => {
-    setShippingAddress({
+    const { name, value } = e.target
+    const updatedAddress = {
       ...shippingAddress,
-      [e.target.name]: e.target.value
-    })
+      [name]: value
+    }
+
+    // Auto-detect region from pincode
+    if (name === 'pincode' && value.length === 6) {
+      const region = getRegionFromPincode(value)
+      updatedAddress.region = region
+    }
+
+    setShippingAddress(updatedAddress)
   }
 
   const calculatePrices = () => {
@@ -460,24 +476,6 @@ function Checkout() {
 
                 {(useNewAddress || savedAddresses.length === 0 || !selectedAddressId || !isAuthenticated) && (
                   <>
-                    {/* Region Selection - Before address fields */}
-                    <div className={styles.formGroup}>
-                      <label className={styles.label}>Delivery Region *</label>
-                      <select
-                        name="region"
-                        value={shippingAddress.region}
-                        onChange={handleInputChange}
-                        className={styles.input}
-                        required
-                      >
-                        <option value="rest-of-india">Rest of India (₹150 shipping)</option>
-                        <option value="delhi-ncr">Delhi-NCR (₹90 shipping)</option>
-                      </select>
-                      <small style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                        Free shipping on orders above ₹4,999
-                      </small>
-                    </div>
-
                     <div className={styles.formGroup}>
                       <label className={styles.label}>Full Name *</label>
                       <input
@@ -550,8 +548,15 @@ function Checkout() {
                         onChange={handleInputChange}
                         className={styles.input}
                         pattern="[0-9]{6}"
+                        maxLength="6"
                         required
                       />
+                      {shippingAddress.pincode && shippingAddress.pincode.length === 6 && (
+                        <small style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.85rem', marginTop: '0.25rem', display: 'block' }}>
+                          Delivery Region: <strong>{shippingAddress.region === 'delhi-ncr' ? 'Delhi-NCR (₹90 shipping)' : 'Rest of India (₹150 shipping)'}</strong>
+                          {' • '}Free shipping on orders above ₹4,999
+                        </small>
+                      )}
                     </div>
 
                     {/* Save Address Checkboxes - Only for authenticated users */}
