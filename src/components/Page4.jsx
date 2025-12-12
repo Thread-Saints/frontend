@@ -16,7 +16,7 @@ const getColorHexFromName = (colorName) => {
     'orange': '#FFA500',
     'purple': '#800080',
     'pink': '#FFC0CB',
-    'brown': '#8B4513',
+    'brown': '#775748',
     'grey': '#808080',
     'gray': '#808080',
     'beige': '#F5F5DC',
@@ -28,7 +28,7 @@ const getColorHexFromName = (colorName) => {
     'royal blue': '#4169E1',
     'sky blue': '#87CEEB',
     'light blue': '#ADD8E6',
-    'dark blue': '#4B626F',
+    'dark blue': '#363E52',
     'maroon': '#800000',
     'burgundy': '#800020',
     'wine': '#722F37',
@@ -115,8 +115,8 @@ const getColorHexFromName = (colorName) => {
     'dirty white': '#E8E8E8',
     'acid washed black': '#414141',
     'charcoal wash': '#464646',
-    'waste land olive': '#6B7346',
-    'wasteland olive': '#6B7346',
+    'waste land olive': '#73644F',
+    'wasteland olive': '#73644F',
   }
 
   // Normalize color name (lowercase, trim)

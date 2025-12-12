@@ -40,7 +40,17 @@ function Wishlist() {
       return
     }
     setUpdating(item._id)
-    const result = await addToCart(item.product._id, 1)
+
+    // Prepare product data for cart
+    const productData = {
+      _id: item.product._id,
+      name: item.name || item.product.name,
+      price: item.salePrice || item.price || item.product.price,
+      images: item.product.images || [item.image],
+      image: item.image || item.product.images?.[0]
+    }
+
+    const result = await addToCart(item.product._id, 1, null, null, productData)
     if (result.success) {
       await removeFromWishlist(item._id)
       toast.success('Item moved to cart!')

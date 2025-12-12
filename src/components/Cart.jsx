@@ -13,11 +13,7 @@ function Cart() {
   const navigate = useNavigate()
   const [updating, setUpdating] = useState(null)
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/')
-    }
-  }, [isAuthenticated, navigate])
+  // Removed authentication redirect - cart now works for guest users too
 
   const handleQuantityChange = async (itemId, newQuantity) => {
     if (newQuantity < 1) return
@@ -82,24 +78,40 @@ function Cart() {
           <div className={styles.cartLayout}>
             {/* Cart Items */}
             <div className={styles.cartItems}>
-              {cart.items.filter(item => item.product).map((item) => (
-                <div key={item._id} className={styles.cartItem}>
-                  <Link to={`/product/${item.product._id}`} className={styles.itemImage}>
-                    <img src={item.image} alt={item.name} />
-                  </Link>
+              {cart.items.filter(item => isAuthenticated ? item.product : true).map((item) => {
+                const productId = item.product?._id || item.productId
+                const productName = item.name || item.product?.name
+                const productImage = item.image || item.product?.images?.[0]
+                const productPrice = item.price || item.product?.price
 
-                  <div className={styles.itemDetails}>
-                    <Link to={`/product/${item.product._id}`} className={styles.itemName}>
-                      {item.name}
-                    </Link>
-                    {item.size && (
-                      <p className={styles.itemSize}>Size: {item.size}</p>
+                return (
+                  <div key={item._id} className={styles.cartItem}>
+                    {productId ? (
+                      <Link to={`/product/${productId}`} className={styles.itemImage}>
+                        <img src={productImage} alt={productName} />
+                      </Link>
+                    ) : (
+                      <div className={styles.itemImage}>
+                        <img src={productImage} alt={productName} />
+                      </div>
                     )}
-                    {item.color && (
-                      <p className={styles.itemColor}>Color: {item.color}</p>
-                    )}
-                    <p className={styles.itemPrice}>Rs.{item.price}</p>
-                  </div>
+
+                    <div className={styles.itemDetails}>
+                      {productId ? (
+                        <Link to={`/product/${productId}`} className={styles.itemName}>
+                          {productName}
+                        </Link>
+                      ) : (
+                        <p className={styles.itemName}>{productName}</p>
+                      )}
+                      {item.size && (
+                        <p className={styles.itemSize}>Size: {item.size}</p>
+                      )}
+                      {item.color && (
+                        <p className={styles.itemColor}>Color: {item.color}</p>
+                      )}
+                      <p className={styles.itemPrice}>Rs.{productPrice}</p>
+                    </div>
 
                   <div className={styles.itemActions}>
                     <div className={styles.quantityControl}>
@@ -121,7 +133,7 @@ function Cart() {
                     </div>
 
                     <p className={styles.itemTotal}>
-                      Rs.{(item.price * item.quantity).toFixed(2)}
+                      Rs.{(productPrice * item.quantity).toFixed(2)}
                     </p>
 
                     <button
@@ -133,7 +145,8 @@ function Cart() {
                     </button>
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
 
             {/* Cart Summary */}

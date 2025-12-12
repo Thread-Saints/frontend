@@ -239,11 +239,6 @@ function ProductDetails() {
   }
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
-      toast.error('Please login to add items to cart')
-      return
-    }
-
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
       toast.warning('Please select a size')
       return
@@ -267,7 +262,17 @@ function ProductDetails() {
     }
 
     setAddingToCart(true)
-    const result = await addToCart(id, quantity, selectedSize, selectedColor)
+
+    // Prepare product data for guest cart
+    const productData = {
+      _id: product._id,
+      name: product.name,
+      price: product.salePrice || product.price,
+      images: getCurrentImages(),
+      image: getCurrentImages()[0]
+    }
+
+    const result = await addToCart(id, quantity, selectedSize, selectedColor, productData)
     setAddingToCart(false)
 
     if (result.success) {

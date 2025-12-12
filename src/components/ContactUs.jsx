@@ -103,9 +103,9 @@ function ContactUs() {
                 </div>
                 <h3 className={styles.infoTitle}>Follow Us</h3>
                 <div className={styles.socialLinks}>
-                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>Instagram</a>
-                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>Facebook</a>
-                  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>Twitter</a>
+                  <a href="https://www.threads.com/@threadsaints.co?igshid=NTc4MTIwNjQ2YQ%3D%3D" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>Threads</a>
+                  <a href="https://www.facebook.com/profile.php?id=61583191670523&mibextid=wwXIfr&rdid=bqtXBTBxi8LPsetX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1EnkkG4hpm%2F%3Fmibextid%3DwwXIfr#" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>Facebook</a>
+                  <a href="https://www.instagram.com/threadsaints.co" target="_blank" rel="noopener noreferrer" className={styles.socialLink}>Instagram</a>
                 </div>
               </div>
             </div>
