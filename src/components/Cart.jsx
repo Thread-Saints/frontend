@@ -107,7 +107,7 @@ function Cart() {
                       {item.size && (
                         <p className={styles.itemSize}>Size: {item.size}</p>
                       )}
-                      {item.color && (
+                      {item.color && ((item.product?.colorVariants?.length > 1) || (item.product?.colors?.length > 1)) && (
                         <p className={styles.itemColor}>Color: {item.color}</p>
                       )}
                       <p className={styles.itemPrice}>Rs.{productPrice}</p>

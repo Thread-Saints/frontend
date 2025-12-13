@@ -616,7 +616,7 @@ function Checkout() {
                     <div className={styles.itemDetails}>
                       <p className={styles.itemName}>{buyNowItem.name}</p>
                       {buyNowItem.size && <p className={styles.itemSize}>Size: {buyNowItem.size}</p>}
-                      {buyNowItem.color && <p className={styles.itemColor}>Color: {buyNowItem.color}</p>}
+                      {buyNowItem.color && ((buyNowItem.product?.colorVariants?.length > 1) || (buyNowItem.product?.colors?.length > 1)) && <p className={styles.itemColor}>Color: {buyNowItem.color}</p>}
                       <p className={styles.itemQuantity}>Qty: {buyNowItem.quantity}</p>
                     </div>
                     <p className={styles.itemPrice}>Rs.{(buyNowItem.price * buyNowItem.quantity).toFixed(2)}</p>
@@ -629,7 +629,7 @@ function Checkout() {
                       <div className={styles.itemDetails}>
                         <p className={styles.itemName}>{item.name}</p>
                         {item.size && <p className={styles.itemSize}>Size: {item.size}</p>}
-                        {item.color && <p className={styles.itemColor}>Color: {item.color}</p>}
+                        {item.color && ((item.product?.colorVariants?.length > 1) || (item.product?.colors?.length > 1)) && <p className={styles.itemColor}>Color: {item.color}</p>}
                         <p className={styles.itemQuantity}>Qty: {item.quantity}</p>
                       </div>
                       <p className={styles.itemPrice}>Rs.{(item.price * item.quantity).toFixed(2)}</p>

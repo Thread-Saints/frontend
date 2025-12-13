@@ -120,7 +120,7 @@ function CartSummaryModal({ isOpen, onClose }) {
                         {item.size && (
                           <p className={styles.itemAttribute}>Size: {item.size}</p>
                         )}
-                        {item.color && (
+                        {item.color && ((item.product?.colorVariants?.length > 1) || (item.product?.colors?.length > 1)) && (
                           <p className={styles.itemAttribute}>Color: {item.color}</p>
                         )}
 
