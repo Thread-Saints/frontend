@@ -50,8 +50,8 @@ function Categories() {
           {/* Heading with shadow effect */}
           <div className={styles.headingContainer}>
             <h1 className={styles.heading}>SAINT'S DROP</h1>
-            <h1 className={styles.headingShadow}>SAINT'S DROP</h1>
-            <h1 className={styles.headingShadow2}>SAINT'S DROP</h1>
+            {/* <h1 className={styles.headingShadow}>SAINT'S DROP</h1> */}
+            {/* <h1 className={styles.headingShadow2}>SAINT'S DROP</h1> */}
           </div>
 
           {/* Categories grid */}

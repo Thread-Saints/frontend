@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import Navbar from './Navbar'
+import CartSummaryModal from './CartSummaryModal'
 import styles from './ProductDetails.module.css'
 import { API_ENDPOINTS } from '../config/api'
 import { useCart } from '../context/CartContext'
@@ -24,6 +25,7 @@ function ProductDetails() {
   const [addingToWishlist, setAddingToWishlist] = useState(false)
   const [showSizeChart, setShowSizeChart] = useState(false)
   const [showImageZoom, setShowImageZoom] = useState(false)
+  const [showCartModal, setShowCartModal] = useState(false)
   const { addToCart } = useCart()
   const { addToWishlist, removeFromWishlist, checkIsInWishlist, wishlist } = useWishlist()
   const { isAuthenticated } = useAuth()
@@ -277,6 +279,7 @@ function ProductDetails() {
 
     if (result.success) {
       toast.success('Item added to cart!')
+      setShowCartModal(true) // Open cart modal after successful add
     } else {
       toast.error(result.message || 'Failed to add item to cart')
     }
@@ -315,7 +318,7 @@ function ProductDetails() {
     setAddingToWishlist(false)
   }
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     // No login required for Buy Now - supports guest checkout!
 
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
@@ -340,22 +343,23 @@ function ProductDetails() {
       return
     }
 
-    // Navigate to checkout with product details (bypass cart)
-    const buyNowItem = {
-      product: {
-        _id: product._id,
-        name: product.name,
-        price: product.salePrice || product.price
-      },
+    // Add to cart first
+    const productData = {
+      _id: product._id,
       name: product.name,
-      image: getCurrentImages()[0],
       price: product.salePrice || product.price,
-      quantity: quantity,
-      size: selectedSize,
-      color: selectedColor
+      images: getCurrentImages(),
+      image: getCurrentImages()[0]
     }
 
-    navigate('/checkout', { state: { buyNowItem } })
+    const result = await addToCart(id, quantity, selectedSize, selectedColor, productData)
+
+    if (result.success) {
+      // Open cart modal instead of navigating directly to checkout
+      setShowCartModal(true)
+    } else {
+      toast.error(result.message || 'Failed to add item to cart')
+    }
   }
 
   if (loading) {
@@ -794,6 +798,12 @@ function ProductDetails() {
           </div>
         </div>
       )}
+
+      {/* Cart Summary Modal */}
+      <CartSummaryModal
+        isOpen={showCartModal}
+        onClose={() => setShowCartModal(false)}
+      />
     </>
   )
 }
