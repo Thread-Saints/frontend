@@ -1,10 +1,12 @@
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import { WishlistProvider } from './context/WishlistContext'
+import { useEffect } from 'react'
+import { initGA, trackPageView } from './utils/analytics'
 import Home from './components/Home'
 import Page2 from './components/Page2'
 import Page3 from './components/Page3'
@@ -28,12 +30,32 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Footer from './components/Footer'
 import Footer2 from './components/Footer2'
 
+// Component to track page views
+function AnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location]);
+
+  return null;
+}
+
 function App() {
+  useEffect(() => {
+    // Initialize Google Analytics
+    const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+    if (measurementId && measurementId !== 'G-9RQ074EKEV') {
+      initGA(measurementId);
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
+            <AnalyticsTracker />
             <div style={{
             position: 'fixed',
             top: 0,
