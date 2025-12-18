@@ -56,28 +56,7 @@ function App() {
         <CartProvider>
           <WishlistProvider>
             <AnalyticsTracker />
-            <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '30px',
-            backgroundColor: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10001,
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
-            <span style={{
-              fontFamily: 'Rasputin, serif',
-              fontSize: '14px',
-              fontWeight: 500,
-              color: '#333',
-              letterSpacing: '1px'
-            }}>LAUNCHING ON SUNDAY !!</span>
-          </div>
-          <Routes>
+            <Routes>
             <Route path="/" element={
               <>
                 <Home />
