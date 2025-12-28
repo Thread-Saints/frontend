@@ -90,7 +90,7 @@ function ContactUs() {
                   </svg>
                 </div>
                 <h3 className={styles.infoTitle}>Call Us</h3>
-                <p className={styles.infoText}>+91 79929 96999</p>
+                <p className={styles.infoText}>+91 79929 93999</p>
                 <p className={styles.infoSubtext}>Mon-Sun: 11 AM - 6 PM IST</p>
               </div>
 
