@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import Navbar from './Navbar'
@@ -12,7 +12,6 @@ import { useAuth } from '../context/AuthContext'
 
 function ProductDetails() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -80,16 +79,12 @@ function ProductDetails() {
     const images = getCurrentImages()
     if (images.length === 0) return
 
-    console.log(`🖼️ Preloading ${images.length} images for selected color...`)
 
     let loadedCount = 0
     images.forEach((imageUrl, index) => {
       const img = new Image()
       img.onload = () => {
-        loadedCount++
-        if (loadedCount === images.length) {
-          console.log('✅ All images preloaded for current color!')
-        }
+        loadedCount++;
       }
       img.onerror = () => {
         console.warn(`⚠️ Failed to preload image: ${imageUrl}`)
@@ -167,13 +162,6 @@ function ProductDetails() {
     }
   }
 
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <span key={index} className={index < rating ? styles.starFilled : styles.starEmpty}>
-        ★
-      </span>
-    ))
-  }
 
   // Get images based on selected color (for color variants) or all images (legacy)
   const getCurrentImages = () => {

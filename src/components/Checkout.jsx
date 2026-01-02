@@ -12,7 +12,7 @@ import styles from './Checkout.module.css'
 function Checkout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { cart, getCartTotal, clearCart } = useCart()
+  const { cart, getCartTotal } = useCart()
   const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [phonePeConfig, setPhonePeConfig] = useState(null)
@@ -206,7 +206,7 @@ function Checkout() {
     setLoading(true)
 
     try {
-      const { itemsPrice, discount, discountedPrice, shippingPrice, totalPrice } = calculatePrices()
+      const { itemsPrice, discount, shippingPrice, totalPrice } = calculatePrices()
 
       // Create order items from buy now or cart
       let orderItems
@@ -261,12 +261,10 @@ function Checkout() {
           tokenUrl: redirectUrl,
           type: "IFRAME",
           callback: async function(response) {
-            console.log('PhonePe payment callback response:', response)
 
             // PhonePe callback returns only 'USER_CANCEL' or 'CONCLUDED'
             // It does NOT tell you if payment succeeded or failed
             if (response === 'USER_CANCEL') {
-              console.log('Payment cancelled by user')
               toast.info('Payment cancelled')
               setLoading(false)
               return
@@ -274,15 +272,12 @@ function Checkout() {
 
             if (response === 'CONCLUDED') {
               // Payment reached terminal state - need to verify status with backend
-              console.log('Payment concluded, verifying status...')
 
               try {
                 // Check payment status from backend
                 const statusResponse = await axios.get(
                   API_ENDPOINTS.CHECK_PAYMENT_STATUS(merchantTransactionId)
                 )
-
-                console.log('Payment status response:', statusResponse.data)
 
                 if (statusResponse.data.success && statusResponse.data.order &&
                     statusResponse.data.order.paymentStatus === 'Paid') {

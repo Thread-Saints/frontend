@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { FaTrash, FaShoppingBag } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import Navbar from './Navbar'
@@ -10,7 +9,6 @@ import styles from './Cart.module.css'
 function Cart() {
   const { cart, loading, updateCartItem, removeFromCart, clearCart, getCartTotal } = useCart()
   const { isAuthenticated } = useAuth()
-  const navigate = useNavigate()
   const [updating, setUpdating] = useState(null)
 
   // Removed authentication redirect - cart now works for guest users too

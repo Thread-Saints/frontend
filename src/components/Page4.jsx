@@ -155,7 +155,6 @@ function Page4() {
       totalImages += images.filter(img => img && img !== '/placeholder-image.png').length
     })
 
-    console.log(`🖼️ Preloading ${totalImages} product images...`)
 
     // Preload each image
     products.forEach(product => {
@@ -165,9 +164,6 @@ function Page4() {
           const img = new Image()
           img.onload = () => {
             loadedCount++
-            if (loadedCount === totalImages) {
-              console.log('✅ All product images preloaded successfully!')
-            }
           }
           img.onerror = () => {
             console.warn(`⚠️ Failed to preload image: ${imageUrl}`)
