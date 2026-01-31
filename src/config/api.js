@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
   GET_PHONEPE_CONFIG: `${API_BASE_URL}/api/payment/phonepe-config`,
   CHECK_PAYMENT_STATUS: (txnId) => `${API_BASE_URL}/api/payment/check-status/${txnId}`,
   CHECK_DISCOUNT_ELIGIBILITY: `${API_BASE_URL}/api/payment/check-discount`,
+  CHECK_VALENTINE: `${API_BASE_URL}/api/payment/check-valentine`,
 
   // Admin Order endpoints
   GET_ALL_ORDERS_ADMIN: `${API_BASE_URL}/api/payment/admin/orders`,

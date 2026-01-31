@@ -18,6 +18,8 @@ function Checkout() {
   const [phonePeConfig, setPhonePeConfig] = useState(null)
   const [hasDiscount, setHasDiscount] = useState(false)
   const [discountChecked, setDiscountChecked] = useState(false)
+  const [discountType, setDiscountType] = useState(null) // 'valentine' or 'welcome'
+  const [valentineActive, setValentineActive] = useState(false)
   const [savedAddresses, setSavedAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
   const [useNewAddress, setUseNewAddress] = useState(false)
@@ -48,6 +50,7 @@ function Checkout() {
     }
 
     fetchPhonePeConfig()
+    checkValentineOffer() // Check Valentine's for everyone (guests + logged-in)
 
     // Only check discount and fetch addresses for authenticated users
     if (isAuthenticated) {
@@ -60,8 +63,22 @@ function Checkout() {
     } else {
       // For guests, always use new address
       setUseNewAddress(true)
+      setDiscountChecked(true) // Guests don't need to wait for discount check
     }
   }, [isAuthenticated, cart, navigate, buyNowItem, user])
+
+  // Show toast when discount is applied
+  useEffect(() => {
+    const { currentDiscountType, itemCount } = calculatePrices()
+    if (currentDiscountType === 'valentine') {
+      toast.success("Valentine's 20% Discount Applied! 💕", { toastId: 'valentine-discount' })
+    } else if (currentDiscountType === 'welcome') {
+      toast.success('10% Welcome Discount Applied! 🎉', { toastId: 'welcome-discount' })
+    } else if (valentineActive && itemCount === 1 && !isAuthenticated) {
+      // Hint for guests with 1 item during Valentine's
+      toast.info('Add 1 more item to get 20% Valentine\'s discount! 💕', { toastId: 'valentine-hint' })
+    }
+  }, [valentineActive, hasDiscount, cart, buyNowItem])
 
   const fetchSavedAddresses = async () => {
     try {
@@ -125,12 +142,30 @@ function Checkout() {
     }
   }
 
+  // Check Valentine's offer (public - works for everyone)
+  const checkValentineOffer = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.CHECK_VALENTINE)
+      if (response.data.success && response.data.valentineActive) {
+        setValentineActive(true)
+      }
+    } catch (error) {
+      console.error('Error checking Valentine offer:', error)
+    }
+  }
+
   const checkDiscountEligibility = async () => {
     try {
       const response = await axios.get(API_ENDPOINTS.CHECK_DISCOUNT_ELIGIBILITY)
-      if (response.data.success && response.data.eligible) {
-        setHasDiscount(true)
-        toast.success('10% Welcome Discount Applied! 🎉')
+      if (response.data.success) {
+        // Store welcome eligibility - actual discount applied in calculatePrices
+        if (response.data.welcomeEligible) {
+          setHasDiscount(true)
+        }
+        // Valentine's info is also returned for logged-in users
+        if (response.data.valentineActive) {
+          setValentineActive(true)
+        }
       }
       setDiscountChecked(true)
     } catch (error) {
@@ -158,13 +193,30 @@ function Checkout() {
   const calculatePrices = () => {
     // Calculate total based on buy now item or cart
     let itemsPrice
+    let itemCount
     if (buyNowItem) {
       itemsPrice = buyNowItem.price * buyNowItem.quantity
+      itemCount = 1
     } else {
       itemsPrice = getCartTotal()
+      itemCount = cart?.items?.filter(item => item.product)?.length || 0
     }
 
-    const discount = hasDiscount ? Math.round(itemsPrice * 0.10) : 0 // 10% discount
+    // Determine which discount to apply
+    // Priority: Valentine's (20% for 2+ items) > Welcome (10% for first-timers)
+    let discount = 0
+    let currentDiscountType = null
+
+    if (valentineActive && itemCount >= 2) {
+      // Valentine's: 20% off for 2+ items (works for everyone)
+      discount = Math.round(itemsPrice * 0.20)
+      currentDiscountType = 'valentine'
+    } else if (hasDiscount && isAuthenticated) {
+      // Welcome: 10% off for first-time logged-in users
+      discount = Math.round(itemsPrice * 0.10)
+      currentDiscountType = 'welcome'
+    }
+
     const discountedPrice = itemsPrice - discount
 
     // New shipping logic based on region
@@ -177,7 +229,7 @@ function Checkout() {
     // No tax field
     const totalPrice = discountedPrice + shippingPrice
 
-    return { itemsPrice, discount, discountedPrice, shippingPrice, totalPrice }
+    return { itemsPrice, discount, discountedPrice, shippingPrice, totalPrice, currentDiscountType, itemCount }
   }
 
   const handlePayment = async (e) => {
@@ -206,7 +258,7 @@ function Checkout() {
     setLoading(true)
 
     try {
-      const { itemsPrice, discount, shippingPrice, totalPrice } = calculatePrices()
+      const { itemsPrice, discount, shippingPrice, totalPrice, currentDiscountType } = calculatePrices()
 
       // Create order items from buy now or cart
       let orderItems
@@ -234,13 +286,24 @@ function Checkout() {
         }))
       }
 
+      // Determine discount code based on discount type
+      let discountCode = null
+      let finalDiscount = 0
+      if (currentDiscountType === 'valentine') {
+        discountCode = 'VALENTINE20'
+        finalDiscount = discount
+      } else if (currentDiscountType === 'welcome' && isAuthenticated) {
+        discountCode = 'WELCOME10'
+        finalDiscount = discount
+      }
+
       // Create order on backend (now creates PhonePe payment)
       const orderResponse = await axios.post(API_ENDPOINTS.CREATE_PAYMENT, {
         orderItems,
         shippingAddress,
         itemsPrice,
-        discount: isAuthenticated ? discount : 0,  // Guests cannot use discounts
-        discountCode: (isAuthenticated && hasDiscount) ? 'WELCOME10' : null,
+        discount: finalDiscount,
+        discountCode: discountCode,
         shippingPrice,
         totalPrice,
         email: email  // Mandatory email for both guest and logged-in users
@@ -349,7 +412,7 @@ function Checkout() {
     return null
   }
 
-  const { itemsPrice, discount, shippingPrice, totalPrice } = calculatePrices()
+  const { itemsPrice, discount, shippingPrice, totalPrice, currentDiscountType, itemCount } = calculatePrices()
 
   return (
     <>
@@ -367,7 +430,11 @@ function Checkout() {
               {!isAuthenticated && (
                 <div className={styles.guestBanner}>
                   <p className={styles.guestBannerText}>
-                    🎁 <strong>Login or create an account</strong> to get 10% off your first order and track your orders!
+                    {valentineActive ? (
+                      <>💕 <strong>Valentine's Special!</strong> Get 20% off when you buy 2+ items! Login to track your orders.</>
+                    ) : (
+                      <><strong>Login or create an account</strong> to get 10% off your first order and track your orders!</>
+                    )}
                   </p>
                 </div>
               )}
@@ -638,9 +705,9 @@ function Checkout() {
                   <span>Items Price</span>
                   <span>Rs.{itemsPrice.toFixed(2)}</span>
                 </div>
-                {hasDiscount && discount > 0 && (
-                  <div className={styles.priceRow} style={{ color: '#28a745' }}>
-                    <span>First Order Discount (10%)</span>
+                {discount > 0 && currentDiscountType && (
+                  <div className={styles.priceRow} style={{ color: currentDiscountType === 'valentine' ? '#e91e63' : '#28a745' }}>
+                    <span>{currentDiscountType === 'valentine' ? "Valentine's Offer (20%)" : 'First Order Discount (10%)'}</span>
                     <span>-Rs.{discount.toFixed(2)}</span>
                   </div>
                 )}
