@@ -14,6 +14,8 @@ function Navbar() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [categories, setCategories] = useState([])
+  const [valentineActive, setValentineActive] = useState(false)
+  const [showAnnouncement, setShowAnnouncement] = useState(true)
   const dropdownRef = useRef(null)
   const profileDropdownRef = useRef(null)
   const { isAuthenticated, user, logout } = useAuth()
@@ -22,6 +24,7 @@ function Navbar() {
 
   useEffect(() => {
     fetchCategories()
+    checkValentineOffer()
 
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -55,6 +58,18 @@ function Navbar() {
     }
   }
 
+  const checkValentineOffer = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.CHECK_VALENTINE)
+      const data = await response.json()
+      if (data.success && data.valentineActive) {
+        setValentineActive(true)
+      }
+    } catch (error) {
+      console.error('Error checking Valentine offer:', error)
+    }
+  }
+
   const handleCategoryClick = (categoryName) => {
     navigate(`/category/${encodeURIComponent(categoryName)}`)
     setIsDropdownOpen(false)
@@ -62,7 +77,22 @@ function Navbar() {
 
   return (
     <>
-      <nav className={styles.navbar}>
+      {/* Valentine's Announcement Bar */}
+      {valentineActive && showAnnouncement && (
+        <div className={styles.announcementBar}>
+          <p className={styles.announcementText}>
+            💕 Valentine's Special: Buy 2+ items & get <strong>20% OFF!</strong> (Feb 1-14)
+          </p>
+          <button
+            className={styles.announcementClose}
+            onClick={() => setShowAnnouncement(false)}
+            aria-label="Close announcement"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      <nav className={`${styles.navbar} ${valentineActive && showAnnouncement ? styles.navbarWithAnnouncement : ''}`}>
         <Link to="/" className={styles.logo}>
           <img src="/Vector.png" alt="TS Logo" />
         </Link>

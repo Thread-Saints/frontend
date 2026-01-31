@@ -196,10 +196,11 @@ function Checkout() {
     let itemCount
     if (buyNowItem) {
       itemsPrice = buyNowItem.price * buyNowItem.quantity
-      itemCount = 1
+      itemCount = buyNowItem.quantity // Count quantity, not just 1
     } else {
       itemsPrice = getCartTotal()
-      itemCount = cart?.items?.filter(item => item.product)?.length || 0
+      // Count total quantity of all items, not just distinct items
+      itemCount = cart?.items?.filter(item => item.product)?.reduce((sum, item) => sum + item.quantity, 0) || 0
     }
 
     // Determine which discount to apply
@@ -426,8 +427,8 @@ function Checkout() {
             <div className={styles.shippingSection}>
               <h2 className={styles.sectionTitle}>Shipping Address</h2>
 
-              {/* Guest Checkout Banner */}
-              {!isAuthenticated && (
+              {/* Guest Checkout Banner - Only show if no discount applied */}
+              {!isAuthenticated && !currentDiscountType && (
                 <div className={styles.guestBanner}>
                   <p className={styles.guestBannerText}>
                     {valentineActive ? (

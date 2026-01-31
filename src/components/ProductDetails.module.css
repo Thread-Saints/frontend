@@ -370,6 +370,32 @@
   font-weight: 500;
 }
 
+/* Valentine's Banner */
+.valentineBanner {
+  background: linear-gradient(90deg, rgba(233, 30, 99, 0.15) 0%, rgba(255, 64, 129, 0.15) 100%);
+  border: 1px solid rgba(233, 30, 99, 0.4);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.valentineIcon {
+  font-size: 1.2rem;
+}
+
+.valentineText {
+  color: #ff80ab;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.valentineText strong {
+  color: #ff4081;
+}
+
 /* Action Buttons */
 .actions {
   display: flex;
@@ -632,6 +658,14 @@
   .policyList li {
     font-size: 0.825rem;
   }
+
+  .valentineBanner {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .valentineText {
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -660,6 +694,19 @@
   .price,
   .salePrice {
     font-size: 1.1rem;
+  }
+
+  .valentineBanner {
+    padding: 0.65rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .valentineIcon {
+    font-size: 1rem;
+  }
+
+  .valentineText {
+    font-size: 0.8rem;
   }
 }
 

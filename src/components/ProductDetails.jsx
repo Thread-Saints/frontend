@@ -30,10 +30,24 @@ function ProductDetails() {
   const { isAuthenticated } = useAuth()
   const [isInWishlist, setIsInWishlist] = useState(false)
   const [loadedThumbnails, setLoadedThumbnails] = useState(new Set())
+  const [valentineActive, setValentineActive] = useState(false)
 
   useEffect(() => {
     fetchProduct()
+    checkValentineOffer()
   }, [id])
+
+  const checkValentineOffer = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.CHECK_VALENTINE)
+      const data = await response.json()
+      if (data.success && data.valentineActive) {
+        setValentineActive(true)
+      }
+    } catch (error) {
+      console.error('Error checking Valentine offer:', error)
+    }
+  }
 
   useEffect(() => {
     if (wishlist && id) {
@@ -524,6 +538,16 @@ function ProductDetails() {
                 <span className={styles.lowStock}>Only {getSelectedStock()} left!</span>
               )}
             </div>
+
+            {/* Valentine's Offer Banner */}
+            {valentineActive && (
+              <div className={styles.valentineBanner}>
+                <span className={styles.valentineIcon}>💕</span>
+                <span className={styles.valentineText}>
+                  Buy with another item & get <strong>20% OFF!</strong>
+                </span>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className={styles.actions}>
