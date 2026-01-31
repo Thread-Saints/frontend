@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   background: #1a1a1a;
-  padding-top: 70px;
+  padding-top: 130px;
 }
 
 .loadingText {
@@ -15,7 +15,7 @@
 .productDetailsContainer {
   min-height: 100vh;
   background: #1a1a1a;
-  padding-top: 90px;
+  padding-top: 130px;
   padding-bottom: 4rem;
 }
 
@@ -626,7 +626,7 @@
 
 @media (max-width: 768px) {
   .productDetailsContainer {
-    padding-top: 80px;
+    padding-top: 120px;
   }
 
   .productContent {
