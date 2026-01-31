@@ -1,14 +1,68 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import axios from 'axios'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { API_ENDPOINTS } from '../config/api'
 import styles from './CartSummaryModal.module.css'
 
 function CartSummaryModal({ isOpen, onClose }) {
   const navigate = useNavigate()
-  const { cart, updateCartItem, removeFromCart, getCartItemCount, getCartTotal } = useCart()
+  const { cart, updateCartItem, removeFromCart, getCartTotal } = useCart()
   const { isAuthenticated } = useAuth()
+
+  // Discount states
+  const [valentineActive, setValentineActive] = useState(false)
+  const [hasWelcomeDiscount, setHasWelcomeDiscount] = useState(false)
+  const [isTestAccount, setIsTestAccount] = useState(false)
+  const [discountChecked, setDiscountChecked] = useState(false)
+
+  // Check Valentine's offer (public - works for everyone)
+  const checkValentineOffer = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.CHECK_VALENTINE)
+      if (response.data.success && response.data.valentineActive) {
+        setValentineActive(true)
+      }
+    } catch (error) {
+      console.error('Error checking Valentine offer:', error)
+    }
+  }
+
+  // Check discount eligibility for logged-in users
+  const checkDiscountEligibility = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.CHECK_DISCOUNT_ELIGIBILITY)
+      if (response.data.success) {
+        if (response.data.welcomeEligible) {
+          setHasWelcomeDiscount(true)
+        }
+        if (response.data.valentineActive) {
+          setValentineActive(true)
+        }
+        if (response.data.isTestAccount) {
+          setIsTestAccount(true)
+        }
+      }
+      setDiscountChecked(true)
+    } catch (error) {
+      console.error('Error checking discount eligibility:', error)
+      setDiscountChecked(true)
+    }
+  }
+
+  // Fetch discount info when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      checkValentineOffer()
+      if (isAuthenticated) {
+        checkDiscountEligibility()
+      } else {
+        setDiscountChecked(true)
+      }
+    }
+  }, [isOpen, isAuthenticated])
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -38,19 +92,33 @@ function CartSummaryModal({ isOpen, onClose }) {
   const cartItems = cart?.items?.filter(item => isAuthenticated ? item.product : true) || []
   const itemsPrice = getCartTotal()
 
-  // Calculate discount (10% if order > 20000, otherwise 0)
-  const hasFirstOrderDiscount = itemsPrice >= 20000
-  const discountPercentage = hasFirstOrderDiscount ? 10 : 0
-  const discount = (itemsPrice * discountPercentage) / 100
+  // Count total quantity of all items (not just distinct items)
+  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
-  // Calculate shipping (free if > 4999, else region-based)
-  const isFreeShipping = itemsPrice >= 4999
-  const shippingPrice = isFreeShipping ? 0 : 150 // Default to "Rest of India" for cart
-  const freeShippingThreshold = 4999
-  const amountToFreeShipping = freeShippingThreshold - itemsPrice
+  // Calculate discount with correct priority
+  // Priority: Valentine's (20% for 2+ items) > Welcome (10% for first-timers)
+  let discount = 0
+  let discountType = null
+
+  if (valentineActive && itemCount >= 2) {
+    // Valentine's: 20% off for 2+ items (works for everyone)
+    discount = Math.round(itemsPrice * 0.20)
+    discountType = 'valentine'
+  } else if (hasWelcomeDiscount && isAuthenticated) {
+    // Welcome: 10% off for first-time logged-in users
+    discount = Math.round(itemsPrice * 0.10)
+    discountType = 'welcome'
+  }
+
+  const discountedPrice = itemsPrice - discount
+
+  // Calculate shipping (free if > 4999, else 150 for rest of India)
+  const isFreeShipping = discountedPrice > 4999
+  const shippingPrice = isFreeShipping ? 0 : 150
+  const amountToFreeShipping = 4999 - discountedPrice + 1
 
   // Calculate total
-  const totalPrice = itemsPrice - discount + shippingPrice
+  const totalPrice = discountedPrice + shippingPrice
 
   const handleQuantityUpdate = async (itemId, newQuantity) => {
     if (newQuantity < 1) return
@@ -156,6 +224,19 @@ function CartSummaryModal({ isOpen, onClose }) {
                 })}
               </div>
 
+              {/* Discount Hints */}
+              {valentineActive && itemCount === 1 && (
+                <div className={styles.discountHint} style={{ background: 'rgba(233, 30, 99, 0.1)', borderColor: '#e91e63' }}>
+                  Add 1 more item to get <strong>20% Valentine's discount!</strong>
+                </div>
+              )}
+
+              {!isAuthenticated && !valentineActive && (
+                <div className={styles.discountHint} style={{ background: 'rgba(40, 167, 69, 0.1)', borderColor: '#28a745' }}>
+                  Login to get <strong>10% off</strong> your first order!
+                </div>
+              )}
+
               {/* Price Breakdown */}
               <div className={styles.priceBreakdown}>
                 <div className={styles.priceRow}>
@@ -163,15 +244,15 @@ function CartSummaryModal({ isOpen, onClose }) {
                   <span>Rs.{itemsPrice.toFixed(2)}</span>
                 </div>
 
-                {hasFirstOrderDiscount && (
-                  <div className={`${styles.priceRow} ${styles.discount}`}>
-                    <span>First Order Discount (10%)</span>
+                {discount > 0 && discountType && (
+                  <div className={styles.priceRow} style={{ color: discountType === 'valentine' ? '#e91e63' : '#28a745' }}>
+                    <span>{discountType === 'valentine' ? "Valentine's Offer (20%)" : 'First Order Discount (10%)'}</span>
                     <span>-Rs.{discount.toFixed(2)}</span>
                   </div>
                 )}
 
                 <div className={styles.priceRow}>
-                  <span>Shipping {!isFreeShipping && '(Rest of India)'}</span>
+                  <span>Shipping</span>
                   <span className={isFreeShipping ? styles.freeShipping : ''}>
                     {isFreeShipping ? 'FREE' : `Rs.${shippingPrice.toFixed(2)}`}
                   </span>
@@ -187,6 +268,13 @@ function CartSummaryModal({ isOpen, onClose }) {
                   <span>Total</span>
                   <span>Rs.{totalPrice.toFixed(2)}</span>
                 </div>
+
+                {isTestAccount && (
+                  <div className={styles.priceRow} style={{ color: '#ff9800', marginTop: '0.5rem', fontWeight: 'bold' }}>
+                    <span>Test Admin Amount</span>
+                    <span>Rs.1.00</span>
+                  </div>
+                )}
               </div>
             </>
           )}

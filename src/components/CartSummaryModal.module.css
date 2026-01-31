@@ -258,6 +258,21 @@
   margin-top: 12px;
 }
 
+/* Discount Hint */
+.discountHint {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #ffffff;
+  border: 1px solid;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.discountHint strong {
+  color: inherit;
+}
+
 /* Footer */
 .footer {
   padding: 20px;
