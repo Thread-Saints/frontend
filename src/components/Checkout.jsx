@@ -20,6 +20,7 @@ function Checkout() {
   const [discountChecked, setDiscountChecked] = useState(false)
   const [discountType, setDiscountType] = useState(null) // 'valentine' or 'welcome'
   const [valentineActive, setValentineActive] = useState(false)
+  const [isTestAccount, setIsTestAccount] = useState(false)
   const [savedAddresses, setSavedAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
   const [useNewAddress, setUseNewAddress] = useState(false)
@@ -165,6 +166,10 @@ function Checkout() {
         // Valentine's info is also returned for logged-in users
         if (response.data.valentineActive) {
           setValentineActive(true)
+        }
+        // Check if test account (₹1 payment)
+        if (response.data.isTestAccount) {
+          setIsTestAccount(true)
         }
       }
       setDiscountChecked(true)
@@ -726,6 +731,12 @@ function Checkout() {
                   <span>Total</span>
                   <span>Rs.{totalPrice.toFixed(2)}</span>
                 </div>
+                {isTestAccount && (
+                  <div className={styles.priceRow} style={{ color: '#ff9800', marginTop: '0.5rem', fontWeight: 'bold' }}>
+                    <span>Test Admin Amount</span>
+                    <span>Rs.1.00</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
