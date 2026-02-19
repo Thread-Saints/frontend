@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { API_ENDPOINTS } from '../config/api'
 import { getRegionFromPincode } from '../utils/pincodeUtils'
+import { trackPixelInitiateCheckout, trackPixelPurchase } from '../utils/metaPixel'
 import styles from './Checkout.module.css'
 
 function Checkout() {
@@ -52,6 +53,13 @@ function Checkout() {
 
     fetchPhonePeConfig()
     checkValentineOffer() // Check Valentine's for everyone (guests + logged-in)
+
+    // Track InitiateCheckout for Meta Pixel
+    const checkoutItems = buyNowItem ? [buyNowItem] : (cart?.items || [])
+    const checkoutTotal = buyNowItem ? (buyNowItem.price * buyNowItem.quantity) : checkoutItems.filter(item => item.product).reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    if (checkoutItems.length > 0) {
+      trackPixelInitiateCheckout(checkoutItems, checkoutTotal)
+    }
 
     // Only check discount and fetch addresses for authenticated users
     if (isAuthenticated) {
@@ -350,7 +358,8 @@ function Checkout() {
 
                 if (statusResponse.data.success && statusResponse.data.order &&
                     statusResponse.data.order.paymentStatus === 'Paid') {
-                  // Payment successful
+                  // Payment successful - track Meta Pixel Purchase
+                  trackPixelPurchase(order._id, totalPrice, orderItems)
                   try {
                     // Save address to profile if checkbox was checked and it's a new address (authenticated users only)
                     if (isAuthenticated && saveAddress && useNewAddress) {

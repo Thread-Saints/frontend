@@ -7,6 +7,7 @@ import { CartProvider } from './context/CartContext'
 import { WishlistProvider } from './context/WishlistContext'
 import { useEffect } from 'react'
 import { initGA, trackPageView } from './utils/analytics'
+import { trackPixelPageView } from './utils/metaPixel'
 import Home from './components/Home'
 import Page2 from './components/Page2'
 import Page3 from './components/Page3'
@@ -36,6 +37,7 @@ function AnalyticsTracker() {
 
   useEffect(() => {
     trackPageView(location.pathname + location.search);
+    trackPixelPageView();
   }, [location]);
 
   return null;

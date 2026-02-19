@@ -9,6 +9,7 @@ import { API_ENDPOINTS } from '../config/api'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
+import { trackPixelViewContent, trackPixelAddToCart, trackPixelAddToWishlist } from '../utils/metaPixel'
 
 function ProductDetails() {
   const { id } = useParams()
@@ -136,6 +137,7 @@ function ProductDetails() {
 
       if (data.success && data.product) {
         setProduct(data.product)
+        trackPixelViewContent(data.product)
         if (data.product.sizes && data.product.sizes.length > 0) {
           setSelectedSize(data.product.sizes[0])
         }
@@ -280,6 +282,7 @@ function ProductDetails() {
     setAddingToCart(false)
 
     if (result.success) {
+      trackPixelAddToCart(product, quantity, selectedSize, selectedColor)
       toast.success('Item added to cart!')
       setShowCartModal(true) // Open cart modal after successful add
     } else {
@@ -310,6 +313,7 @@ function ProductDetails() {
     } else {
       const result = await addToWishlist(id)
       if (result.success) {
+        trackPixelAddToWishlist(product)
         setIsInWishlist(true)
         toast.success('Item added to wishlist!')
       } else {
