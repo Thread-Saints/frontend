@@ -7,6 +7,7 @@ import Navbar from './Navbar'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { API_ENDPOINTS } from '../config/api'
+import { optimizeImageUrl } from '../utils/imageUrl'
 import styles from './Cart.module.css'
 
 function Cart() {
@@ -148,18 +149,18 @@ function Cart() {
               {cartItems.map((item) => {
                 const productId = item.product?._id || item.productId
                 const productName = item.name || item.product?.name
-                const productImage = item.image || item.product?.images?.[0]
+                const productImage = optimizeImageUrl(item.image || item.product?.images?.[0], 200)
                 const productPrice = item.price || item.product?.price
 
                 return (
                   <div key={item._id} className={styles.cartItem}>
                     {productId ? (
                       <Link to={`/product/${productId}`} className={styles.itemImage}>
-                        <img src={productImage} alt={productName} />
+                        <img src={productImage} alt={productName} loading="lazy" decoding="async" />
                       </Link>
                     ) : (
                       <div className={styles.itemImage}>
-                        <img src={productImage} alt={productName} />
+                        <img src={productImage} alt={productName} loading="lazy" decoding="async" />
                       </div>
                     )}
 

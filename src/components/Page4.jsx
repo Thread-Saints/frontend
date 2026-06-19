@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './Page4.module.css'
 import { API_ENDPOINTS } from '../config/api'
+import { optimizeImageUrl } from '../utils/imageUrl'
 
 // Color name to hex code mapping
 const getColorHexFromName = (colorName) => {
@@ -299,9 +300,11 @@ function Page4() {
                   <div className={styles.productImageContainer}>
                     {currentImage && currentImage !== '/placeholder-image.png' ? (
                       <img
-                        src={currentImage}
+                        src={optimizeImageUrl(currentImage, 400)}
                         alt={product.name}
                         className={styles.productImage}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className={styles.noImage}>
@@ -348,9 +351,11 @@ function Page4() {
             <div className={styles.saintsContent}>
               <div className={styles.dollLeft}>
                 <img
-                  src="/dolls/pink doll standing.png"
+                  src="/dolls/pink doll standing.webp"
                   alt="Pink Doll"
                   className={styles.dollImage}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
 
@@ -363,9 +368,11 @@ function Page4() {
 
               <div className={styles.dollRight}>
                 <img
-                  src="/dolls/black doll standing.png"
+                  src="/dolls/black doll standing.webp"
                   alt="Black Doll"
                   className={styles.dollImage}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>

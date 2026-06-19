@@ -54,7 +54,7 @@ function Footer2() {
 
       {/* Thread Saints branding */}
       <div className={styles.brandingSection}>
-        <img src="/Group 24.png" alt="Thread Saints" className={styles.brandingImage} />
+        <img src="/Group 24.webp" alt="Thread Saints" className={styles.brandingImage} loading="lazy" decoding="async" />
         <p className={styles.managedByText}>Managed by Jawa hospitality</p>
       </div>
     </footer>

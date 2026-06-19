@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { API_ENDPOINTS } from '../config/api'
+import { optimizeImageUrl } from '../utils/imageUrl'
 import styles from './CategoryProducts.module.css'
 
 function CategoryProducts() {
@@ -242,9 +243,11 @@ function CategoryProducts() {
                     <div className={styles.productImageContainer}>
                       {currentImage && currentImage !== '/placeholder-image.png' ? (
                         <img
-                          src={currentImage}
+                          src={optimizeImageUrl(currentImage, 400)}
                           alt={product.name}
                           className={`${styles.productImage} ${isOutOfStock ? styles.outOfStockImage : ''}`}
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <div className={styles.noImage}>

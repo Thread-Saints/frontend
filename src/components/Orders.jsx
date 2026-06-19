@@ -5,6 +5,7 @@ import axios from 'axios'
 import Navbar from './Navbar'
 import { useAuth } from '../context/AuthContext'
 import { API_ENDPOINTS } from '../config/api'
+import { optimizeImageUrl } from '../utils/imageUrl'
 import styles from './Orders.module.css'
 
 function Orders() {
@@ -120,9 +121,11 @@ function Orders() {
                   {order.orderItems.slice(0, 3).map((item, index) => (
                     <div key={index} className={styles.orderItem}>
                       <img
-                        src={item.image}
+                        src={optimizeImageUrl(item.image, 150)}
                         alt={item.name}
                         className={styles.itemImage}
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className={styles.itemInfo}>
                         <p className={styles.itemName}>{item.name}</p>

@@ -30,7 +30,7 @@
 .container {
   height: 100vh;
   width: 100vw;
-  background-image: url('/hero1.png');
+  background-image: url('/hero1.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -406,7 +406,7 @@
 /* .aboutSection {
   min-height: 100vh;
   width: 100vw;
-  background-image: url('/hero3.png');
+  background-image: url('/hero3.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

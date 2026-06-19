@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { API_ENDPOINTS } from '../config/api'
+import { optimizeImageUrl } from '../utils/imageUrl'
 import styles from './Categories.module.css'
 
 function Categories() {
@@ -74,9 +75,11 @@ function Categories() {
                   <div className={styles.categoryImageContainer}>
                     {category.image ? (
                       <img
-                        src={category.image}
+                        src={optimizeImageUrl(category.image, 400)}
                         alt={category.name}
                         className={styles.categoryImage}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className={styles.noImage}>

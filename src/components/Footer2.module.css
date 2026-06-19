@@ -1,5 +1,5 @@
 .footer {
-  background-image: url('/footer2bg.png');
+  background-image: url('/footer2bg.webp');
   /* background-size: cover; */
   background-position: center;
   background-repeat: no-repeat;
@@ -127,7 +127,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-image: url('/footer bg.png');
+  background-image: url('/footer bg.webp');
   background-position: center;
   background-repeat: no-repeat;
   background-color: #1a1a1a;

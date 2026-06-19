@@ -8,6 +8,7 @@ import styles from './ProductDetails.module.css'
 import { API_ENDPOINTS } from '../config/api'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
+import { optimizeImageUrl } from '../utils/imageUrl'
 import { useAuth } from '../context/AuthContext'
 import { trackPixelViewContent, trackPixelAddToCart, trackPixelAddToWishlist } from '../utils/metaPixel'
 
@@ -401,10 +402,11 @@ function ProductDetails() {
               {getCurrentImages().length > 0 ? (
                 <img
                   key={`${selectedColor}-${selectedImage}`}
-                  src={getCurrentImages()[selectedImage]}
+                  src={optimizeImageUrl(getCurrentImages()[selectedImage], 800)}
                   alt={product.name}
                   className={styles.image}
                   style={{ cursor: 'pointer' }}
+                  decoding="async"
                 />
               ) : (
                 <div className={styles.noImage}>No Image</div>
@@ -421,7 +423,12 @@ function ProductDetails() {
                     onClick={() => setSelectedImage(index)}
                   >
                     {(loadedThumbnails.has(index) || index < 3) ? (
-                      <img src={img} alt={`${product.name} ${index + 1}`} />
+                      <img
+                        src={optimizeImageUrl(img, 150)}
+                        alt={`${product.name} ${index + 1}`}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     ) : (
                       <div className={styles.thumbnailPlaceholder}></div>
                     )}
@@ -755,9 +762,10 @@ function ProductDetails() {
               ×
             </button>
             <img
-              src="/Group 52.png"
+              src="/Group 52.webp"
               alt="Size Chart"
               className={styles.sizeChartImage}
+              decoding="async"
             />
           </div>
         </div>
@@ -783,7 +791,7 @@ function ProductDetails() {
                     className={`${styles.zoomThumbnail} ${selectedImage === index ? styles.zoomThumbnailActive : ''}`}
                     onClick={() => setSelectedImage(index)}
                   >
-                    <img src={img} alt={`${product.name} ${index + 1}`} />
+                    <img src={optimizeImageUrl(img, 150)} alt={`${product.name} ${index + 1}`} loading="lazy" decoding="async" />
                   </div>
                 ))}
               </div>
@@ -791,9 +799,10 @@ function ProductDetails() {
 
             <div className={styles.zoomedImageWrapper}>
               <img
-                src={getCurrentImages()[selectedImage]}
+                src={optimizeImageUrl(getCurrentImages()[selectedImage], 1200)}
                 alt={product.name}
                 className={styles.zoomedImage}
+                decoding="async"
               />
 
               {/* Thumbnails for Mobile (Bottom) */}
@@ -805,7 +814,7 @@ function ProductDetails() {
                       className={`${styles.zoomThumbnail} ${selectedImage === index ? styles.zoomThumbnailActive : ''}`}
                       onClick={() => setSelectedImage(index)}
                     >
-                      <img src={img} alt={`${product.name} ${index + 1}`} />
+                      <img src={optimizeImageUrl(img, 150)} alt={`${product.name} ${index + 1}`} loading="lazy" decoding="async" />
                     </div>
                   ))}
                 </div>

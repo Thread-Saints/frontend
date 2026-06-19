@@ -63,18 +63,18 @@ function SignupPopup({ isOpen, onClose, onOpenLogin }) {
 
         <div className={styles.header}>
           <img
-            src="/Group 24.png"
+            src="/Group 24.webp"
             alt="Thread Saints"
             className={styles.logo}
           />
           <div className={styles.dollsContainer}>
             <img
-              src="/dolls/pink doll standing.png"
+              src="/dolls/pink doll standing.webp"
               alt="Pink Doll"
               className={styles.dollLeft}
             />
             <img
-              src="/dolls/black doll standing.png"
+              src="/dolls/black doll standing.webp"
               alt="Black Doll"
               className={styles.dollRight}
             />

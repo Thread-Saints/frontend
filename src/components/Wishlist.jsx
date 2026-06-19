@@ -6,6 +6,7 @@ import Navbar from './Navbar'
 import { useWishlist } from '../context/WishlistContext'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { optimizeImageUrl } from '../utils/imageUrl'
 import styles from './Wishlist.module.css'
 
 function Wishlist() {
@@ -103,7 +104,13 @@ function Wishlist() {
             {wishlist.items.filter(item => item.product).map((item) => (
               <div key={item._id} className={styles.wishlistItem}>
                 <Link to={`/product/${item.product._id}`} className={styles.itemImageContainer}>
-                  <img src={item.image} alt={item.name} className={styles.itemImage} />
+                  <img
+                    src={optimizeImageUrl(item.image, 300)}
+                    alt={item.name}
+                    className={styles.itemImage}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </Link>
 
                 <div className={styles.itemDetails}>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './Footer.module.css'
 
@@ -7,24 +7,40 @@ function Footer() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [nextImageIndex, setNextImageIndex] = useState(1)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const splitSectionRef = useRef(null)
 
   const carouselImages = [
-    '/corosal/Property 1=Frame 1.png',
-    '/corosal/Property 1=Frame 2.png',
-    '/corosal/Property 1=Frame 9.png',
-    '/corosal/Property 1=Frame 10.png',
-    '/corosal/Property 1=Frame 11.png',
-    '/corosal/Property 1=Frame 12.png',
-    '/corosal/Property 1=Frame 14.png',
-    '/corosal/Property 1=Frame 15.png'
+    '/corosal/Property 1=Frame 1.webp',
+    '/corosal/Property 1=Frame 2.webp',
+    '/corosal/Property 1=Frame 9.webp',
+    '/corosal/Property 1=Frame 10.webp',
+    '/corosal/Property 1=Frame 11.webp',
+    '/corosal/Property 1=Frame 12.webp',
+    '/corosal/Property 1=Frame 14.webp',
+    '/corosal/Property 1=Frame 15.webp'
   ]
 
-  // Preload all carousel images
+  // Preload carousel images only once the footer is about to scroll into view,
+  // instead of eagerly fetching all of them on every page load.
   useEffect(() => {
-    carouselImages.forEach(imageSrc => {
-      const img = new Image()
-      img.src = imageSrc
-    })
+    const target = splitSectionRef.current
+    if (!target) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          carouselImages.forEach(imageSrc => {
+            const img = new Image()
+            img.src = imageSrc
+          })
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '300px' }
+    )
+
+    observer.observe(target)
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -50,26 +66,32 @@ function Footer() {
   return (
     <footer className={styles.footer}>
       {/* Split section with doll */}
-      <div className={styles.splitSection}>
+      <div className={styles.splitSection} ref={splitSectionRef}>
         <div className={styles.backgroundSplit}>
           {/* Current image layer */}
           <img
             src={carouselImages[currentImageIndex]}
             alt="Carousel"
             className={`${styles.carouselImage} ${styles.currentImage} ${isTransitioning ? styles.fadeOut : styles.fadeIn}`}
+            loading="lazy"
+            decoding="async"
           />
           {/* Next image layer (for cross-fade) */}
           <img
             src={carouselImages[nextImageIndex]}
             alt="Carousel"
             className={`${styles.carouselImage} ${styles.nextImage} ${isTransitioning ? styles.fadeIn : styles.fadeOut}`}
+            loading="lazy"
+            decoding="async"
           />
         </div>
         <div className={styles.dollContainer}>
           <img
-            src="/dolls/doll seeing.png"
+            src="/dolls/doll seeing.webp"
             alt="Doll Peeking"
             className={styles.dollImage}
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>
@@ -116,7 +138,7 @@ function Footer() {
 
       {/* Thread Saints branding */}
       <div className={styles.brandingSection}>
-        <img src="/Group 24.png" alt="Thread Saints" className={styles.brandingImage} />
+        <img src="/Group 24.webp" alt="Thread Saints" className={styles.brandingImage} loading="lazy" decoding="async" />
         <p className={styles.managedByText}>Managed by Jawa hospitality</p>
       </div>
     </footer>

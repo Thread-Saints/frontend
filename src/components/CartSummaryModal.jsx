@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { API_ENDPOINTS } from '../config/api'
+import { optimizeImageUrl } from '../utils/imageUrl'
 import styles from './CartSummaryModal.module.css'
 
 function CartSummaryModal({ isOpen, onClose }) {
@@ -173,7 +174,7 @@ function CartSummaryModal({ isOpen, onClose }) {
                 {cartItems.map((item) => {
                   const product = item.product || item
                   const productName = product.name || item.name
-                  const productImage = product.images?.[0] || product.image || item.image
+                  const productImage = optimizeImageUrl(product.images?.[0] || product.image || item.image, 200)
                   const productPrice = item.price || product.price || product.salePrice
 
                   return (
@@ -182,6 +183,8 @@ function CartSummaryModal({ isOpen, onClose }) {
                         src={productImage}
                         alt={productName}
                         className={styles.itemImage}
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className={styles.itemDetails}>
                         <h3 className={styles.itemName}>{productName?.toUpperCase()}</h3>

@@ -76,10 +76,10 @@ function Home() {
         prefilledEmail={prefilledEmail}
       />
       <div className={styles.container}>
-        <img src="/hero-image.png" alt="Hero" className={styles.heroOverlay} />
+        <img src="/hero-image.webp" alt="Hero" className={styles.heroOverlay} />
         <div className={styles.headerContainer}>
           <div className={styles.headerBorder}></div>
-          <img src="/Group 24.png" alt="Thread Saints" className={styles.headerText} />
+          <img src="/Group 24.webp" alt="Thread Saints" className={styles.headerText} />
         </div>
         <button className={styles.flexButton} onClick={() => navigate('/categories')}>FLEX NOW</button>
         <div className={styles.ticker}>
@@ -118,7 +118,7 @@ function Home() {
               </p>
             </div>
             <div className={styles.aboutImage}>
-              <img src="/aboutus.png" alt="About Us" className={styles.aboutImageContent} />
+              <img src="/aboutus.webp" alt="About Us" className={styles.aboutImageContent} />
             </div>
           </div>
         </div>

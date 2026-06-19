@@ -9,7 +9,7 @@ function Page5() {
       </div>
       {/* <div className={styles.dollContainer}>
         <img
-          src="/dolls/doll seeing.png"
+          src="/dolls/doll seeing.webp"
           alt="Doll Peeking"
           className={styles.dollImage}
         />
