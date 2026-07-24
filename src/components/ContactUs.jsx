@@ -80,7 +80,7 @@ function ContactUs() {
                 </div>
                 <h3 className={styles.infoTitle}>Email Us</h3>
                 <p className={styles.infoText}>thrdsaints@gmail.com</p>
-                {/* <p className={styles.infoText}>orders@threadsaints.com</p> */}
+                {/* <p className={styles.infoText}>orders@threadsaints.in</p> */}
               </div>
 
               <div className={styles.infoCard}>
